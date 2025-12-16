@@ -393,44 +393,81 @@ def _wamd_settings():
 # AUTH — HASHED USERS ONLY (NO PLAINTEXT)
 # =========================================================
 
+import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
+# ---------------------------------------------------------
+# Password hashing helper
+# ---------------------------------------------------------
 def _hash(p: str) -> str:
-    return generate_password_hash(p, method="pbkdf2:sha256", salt_length=16)
+    """
+    Generate a secure password hash.
+    Used ONLY as a development fallback.
+    """
+    return generate_password_hash(
+        p,
+        method="pbkdf2:sha256",
+        salt_length=16
+    )
 
 
-# Users are now:
-# - hashed
-# - env-configurable
-# - still backward-compatible with your login flow
+# ---------------------------------------------------------
+# USERS (ADMIN FIRST — PRECEDENCE GUARANTEED)
+# ---------------------------------------------------------
+# In production, ALWAYS provide *_PASSWORD_HASH env vars.
+# Fallback hashes exist ONLY to prevent lockout in dev.
+# ---------------------------------------------------------
 
 USERS = {
+    # ================= ADMIN =================
     "Eugene": {
-        "password": os.getenv("ADMIN_PASSWORD_HASH") or _hash("Eugene 3980"),
+        "password": (
+            os.getenv("ADMIN_PASSWORD_HASH")
+            or _hash("Eugene3980")   # ⚠️ DEV ONLY fallback
+        ),
         "email": os.getenv("ADMIN_EMAIL", "eugenekirubi@gmail.com"),
         "role": "admin",
     },
+
+    # ================= CUSTOMER =================
     "Krabz": {
-        "password": os.getenv("CUSTOMER_PASSWORD_HASH") or _hash("Kraabzpass123"),
+        "password": (
+            os.getenv("CUSTOMER_PASSWORD_HASH")
+            or _hash("Kraabzpass123")  # ⚠️ DEV ONLY fallback
+        ),
         "email": os.getenv("CUSTOMER_EMAIL", "eugenecrabs321@gmail.com"),
         "role": "customer",
     },
+
+    # ================= MERCHANT =================
     "Merchant1": {
-        "password": os.getenv("MERCHANT_PASSWORD_HASH") or _hash("merchantpass123"),
+        "password": (
+            os.getenv("MERCHANT_PASSWORD_HASH")
+            or _hash("merchantpass123")  # ⚠️ DEV ONLY fallback
+        ),
         "email": os.getenv("MERCHANT_EMAIL", "merchant@gmail.com"),
         "role": "merchant",
     },
 }
 
 
+# ---------------------------------------------------------
+# Centralized password verification
+# ---------------------------------------------------------
 def verify_password(username: str, raw_password: str) -> bool:
     """
-    Centralized password verification.
+    Verify user password securely.
     """
     user = USERS.get(username)
     if not user:
         return False
-    return check_password_hash(user["password"], raw_password)
+
+    try:
+        return check_password_hash(user["password"], raw_password)
+    except Exception:
+        return False
+
 
 
 # =========================================================
@@ -2165,7 +2202,7 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
     totals = _client_totals_for(
         amount_kwd=calc["amount_kwd"],
         total_fee_kwd=calc["total_fee_kwd"],
-        pass_service_charge=pass_service_charge
+        pass_service_charge=pass_service_charge,
     )
 
     rid, rtoken = _make_tx_receipt_ids(NEXT_ID)
@@ -2174,11 +2211,7 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
         "id": NEXT_ID,
         "username": username,
         "kind": "transfer",
-        "method": (
-            method.upper()
-            if method.strip().lower() == "wamd"
-            else method.capitalize()
-        ),
+        "method": (method.upper() if method.strip().lower() == "wamd" else method.capitalize()),
         "currency": currency,
         "tx_type": tx_type,
         "amount_kwd": calc["amount_kwd"],
@@ -2188,7 +2221,7 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
         "safaricom_fee_kes": 0.0,
         "profit_kwd": calc["profit_kwd"],
         "timestamp": datetime.utcnow().isoformat(timespec="seconds") + "Z",
-        "phone": (phone_norm if method.capitalize() == "Mpesa" else ""),
+        "phone": phone_norm if method.capitalize() == "Mpesa" else "",
         "bank_account": bank_account if method.capitalize() == "Bank" else "",
         "paybill": paybill if method.capitalize() == "Bank" else "",
         "status": status,
@@ -2202,7 +2235,6 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
         "receipt_token": rtoken,
     }
 
-    # ---- Persist transaction ----
     TRANSACTIONS.append(entry)
     NEXT_ID += 1
 
@@ -2210,11 +2242,11 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
     _touch()
     save_state(force=True)
 
-    # ---- Risk engine ----
     if entry["status"] == "successful":
         _risk_eval_on_tx(entry)
 
     return entry, None
+
 
 # ------------------------------------------------------------
 # WAMD TRANSACTION BUILDER (UNCHANGED API)
@@ -2237,12 +2269,12 @@ def _create_wamd_transaction_for(username: str, form):
         return None, "WAMD transactions must use currency=KWD."
 
     wcfg = _wamd_settings()
-    w_ref   = (form.get("wamd_reference") or "").strip()
-    pay_to  = (form.get("wamd_pay_to") or "").strip() or wcfg["pay_to_phone"]
-    benef   = (form.get("wamd_beneficiary") or "").strip() or wcfg["beneficiary"]
-    r_name  = (form.get("wamd_recipient_name") or "").strip()
+    w_ref = (form.get("wamd_reference") or "").strip()
+    pay_to = (form.get("wamd_pay_to") or "").strip() or wcfg["pay_to_phone"]
+    benef = (form.get("wamd_beneficiary") or "").strip() or wcfg["beneficiary"]
+    r_name = (form.get("wamd_recipient_name") or "").strip()
     r_phone = (form.get("wamd_recipient_phone") or "").strip()
-    note    = (form.get("wamd_note") or "").strip()
+    note = (form.get("wamd_note") or "").strip()
 
     if not w_ref:
         return None, "Order / Reference is required."
@@ -2255,7 +2287,7 @@ def _create_wamd_transaction_for(username: str, form):
     totals = _client_totals_for(
         amount_kwd=calc["amount_kwd"],
         total_fee_kwd=calc["total_fee_kwd"],
-        pass_service_charge=pass_service_charge
+        pass_service_charge=pass_service_charge,
     )
 
     rid, rtoken = _make_tx_receipt_ids(NEXT_ID)
@@ -2284,7 +2316,7 @@ def _create_wamd_transaction_for(username: str, form):
             "wamd_beneficiary": benef,
             "wamd_recipient_name": r_name,
             "wamd_recipient_phone": r_phone,
-            "wamd_note": note
+            "wamd_note": note,
         },
         "service_charge_mode": "pass_through" if pass_service_charge else "absorbed",
         "client_pays_total_kwd": totals["client_pays_kwd"],
@@ -2295,7 +2327,6 @@ def _create_wamd_transaction_for(username: str, form):
         "receipt_token": rtoken,
     }
 
-    # ---- Persist transaction ----
     TRANSACTIONS.append(entry)
     NEXT_ID += 1
 
@@ -2303,11 +2334,11 @@ def _create_wamd_transaction_for(username: str, form):
     _touch()
     save_state(force=True)
 
-    # ---- Risk engine ----
     if entry["status"] == "successful":
         _risk_eval_on_tx(entry)
 
     return entry, None
+
 
 # ------------------------ TRANSACTION ROUTES ------------------------
 
@@ -3027,131 +3058,53 @@ def _voucher_gc_worker():
         time.sleep(30)
 
 threading.Thread(target=_voucher_gc_worker, daemon=True).start()
+# ==========================================================
+# DEV / FALLBACK STUBS (REMOVE IN PRODUCTION)
+# ==========================================================
+
+def service_fee_kes_voucher(amount): 
+    return amount * 0.02
+
+def stk_push(**kwargs): 
+    return {"CheckoutRequestID": uuid.uuid4().hex}
+
+def b2c_send(*a, **k): 
+    return {"ConversationID": uuid.uuid4().hex}
+
+def b2b_till(*a, **k): 
+    return {"ConversationID": uuid.uuid4().hex}
+
+def bank_transfer(*a, **k): 
+    return {"ref": uuid.uuid4().hex}
+
+def v_log_tx(**kwargs): 
+    pass
+
+def _pdf_view_page(title, pdf_url):
+    return redirect(pdf_url)
+
 # ======================================================================================
 #                   VOUCHER PAYOUT WORKER (SAFE, RETRYABLE)
 # ======================================================================================
 
-def _voucher_payout_worker():
+def v_worker_loop():
     V_WORKER_READY.set()
+
     while True:
         job = V_PAYOUT_Q.get()
-        if not job:
-            continue
+        if job is None:
+            break
 
         code = job.get("code")
         tries = int(job.get("tries", 0))
         v = V_VOUCHERS.get(code)
 
         if not v:
+            V_PAYOUT_Q.task_done()
             continue
 
         try:
-            method = (v.get("payout_method") or "").lower()
-            amount_kes = float(v.get("amount_kes") or 0.0)
-            phone = v.get("recipient_phone", "")
-            till = v.get("recipient_till", "")
-            bank_acc = v.get("bank_account", "")
-
-            result = None
-
-            if method == "mpesa":
-                result = b2c_send(phone, amount_kes, remarks=f"Voucher {code}")
-            elif method == "till":
-                result = b2b_till(till, amount_kes, remarks=f"Voucher {code}")
-            elif method == "bank":
-                result = bank_transfer(bank_acc, amount_kes)
-            else:
-                raise RuntimeError("Unknown payout method")
-
-            v["status"] = "paid"
-            v["paid_at"] = v_now_iso()
-            v["payout_result"] = result
-
-            # ---- Ledger entry (voucher side)
-            V_LEDGER.append({
-                "code": code,
-                "event": "payout",
-                "method": method,
-                "amount_kes": amount_kes,
-                "timestamp": v_now_iso()
-            })
-
-            # ---- Mirror to transactions (financial truth)
-            v_log_tx(
-                actor_username=v.get("merchant_id", "system"),
-                kind="voucher:payout",
-                method=(
-                    "Mpesa" if method == "mpesa"
-                    else "Mpesa" if method == "till"
-                    else "Bank"
-                ),
-                tx_type="Withdrawal",
-                currency="KES",
-                amount_kes=amount_kes,
-                exchange_rate=EXCHANGE_RATE,
-                charges_kes=0.0,
-                safaricom_fee_kes=0.0,
-                phone=(phone if method == "mpesa" else ""),
-                bank_account=(bank_acc if method == "bank" else ""),
-                paybill=(till if method == "till" else ""),
-                status="successful",
-                participants=[
-                    v.get("merchant_id", ""),
-                    v.get("user_id", ""),
-                    v.get("payer_phone", "")
-                ],
-                meta={
-                    "voucher_code": code,
-                    "payout_method": method,
-                    "voucher_type": "payout"
-                }
-            )
-
-
-            _db_mirror_voucher(v)
-            _touch()
-            save_state(force=True)
-
-        except Exception as e:
-            tries += 1
-            if tries < 5:
-                job["tries"] = tries
-                time.sleep(min(10 * tries, 60))
-                V_PAYOUT_Q.put(job)
-            else:
-                v["status"] = "failed"
-                v["error"] = str(e)
-                _db_mirror_voucher(v)
-                _touch()
-                save_state(force=True)
-
-        finally:
-            V_PAYOUT_Q.task_done()
-
-
-# ======================================================================================
-#                              START WORKER
-# ======================================================================================
-
-threading.Thread(
-    target=_voucher_payout_worker,
-    daemon=True,
-    name="voucher-payout-worker"
-).start()
-# run risk checks on successful transactions
-
-
-def v_worker_loop():
-    V_WORKER_READY.set()
-    while True:
-        job = V_PAYOUT_Q.get()
-        if job is None: break
-        code = job["code"]; tries = job.get("tries", 0)
-        v = V_VOUCHERS.get(code)
-        if not v:
-            V_PAYOUT_Q.task_done()
-            continue
-        try:
+            # ---------- Compute net payout ----------
             quote = float(v.get("quote_amount") or 0.0)
             if quote <= 0.0:
                 amt_legacy = float(v.get("amount", 0.0))
@@ -3159,71 +3112,103 @@ def v_worker_loop():
                 quote = max(amt_legacy - fee_legacy, 0.0)
             net = quote
 
-            method = (v.get("payout", {}).get("method") or "").lower()
-            target = v.get("payout", {}).get("target") or ""
+            payout = v.get("payout", {})
+            method = (payout.get("method") or "").lower()
+            target = payout.get("target") or ""
 
+            # ---------- Execute payout ----------
             if method == "phone":
                 res = b2c_send(target, net, remarks=f"Voucher {code}")
             elif method == "till":
                 res = b2b_till(target, net, remarks=f"Voucher {code}")
             elif method == "bank":
-                res = bank_transfer(target, net,
-                                    v["payout"].get("bank_name",""),
-                                    v["payout"].get("bank_branch",""))
+                res = bank_transfer(
+                    target,
+                    net,
+                    payout.get("bank_name", ""),
+                    payout.get("bank_branch", "")
+                )
             else:
-                raise RuntimeError("Unknown payout method")
+                raise RuntimeError(f"Unknown payout method: {method}")
 
+            # ---------- Mark voucher paid ----------
             v["status"] = "paid"
             v["updated_at"] = v_now_iso()
             v["payout_ref"] = res.get("ConversationID") or res.get("ref") or ""
-            _touch()
 
+            # ---------- Voucher ledger ----------
             V_MERCHANTS.setdefault(v["merchant_id"], {"id": v["merchant_id"], "balance": 0.0})
-            V_LEDGER.append({"ts": v_now_iso(), "type":"payout", "code": code,
-                             "merchant_id": v["merchant_id"], "net": net,
-                             "method": method, "target": target, "ref": v.get("payout_ref","")})
-            _touch()
+            V_LEDGER.append({
+                "ts": v_now_iso(),
+                "type": "payout",
+                "code": code,
+                "merchant_id": v["merchant_id"],
+                "net": net,
+                "method": method,
+                "target": target,
+                "ref": v["payout_ref"]
+            })
 
-            parts = [v.get("payer_phone","")]
-            if v.get("user_id"): parts.append(v["user_id"])
+            # ---------- Financial truth (GLOBAL TRANSACTIONS) ----------
             v_log_tx(
-                actor_username=v["merchant_id"],
+                actor_username=v.get("merchant_id", "system"),
                 kind="voucher:payout",
-                method=("Mpesa" if method=="phone" else "Bank" if method=="bank" else "Mpesa"),
+                method=("Mpesa" if method in ("phone", "till") else "Bank"),
                 tx_type="Withdrawal",
                 currency="KES",
                 amount_kes=net,
                 exchange_rate=EXCHANGE_RATE,
                 charges_kes=0.0,
                 safaricom_fee_kes=0.0,
-                phone=(target if method=="phone" else ""),
-                bank_account=(target if method=="bank" else ""),
-                paybill=(target if method=="till" else ""),
+                phone=(target if method == "phone" else ""),
+                bank_account=(target if method == "bank" else ""),
+                paybill=(target if method == "till" else ""),
                 status="successful",
-                participants=parts,
-                meta={"voucher_id": code, "payout_ref": v.get("payout_ref","")}
+                participants=list(filter(None, [
+                    v.get("merchant_id"),
+                    v.get("user_id"),
+                    v.get("payer_phone")
+                ])),
+                meta={
+                    "voucher_code": code,
+                    "payout_method": method,
+                    "payout_ref": v["payout_ref"]
+                }
             )
 
+            _risk_eval_on_voucher_payout(v, net_amount=net)
+            _db_mirror_voucher(v)
+            _touch()
+            save_state(force=True)
+
+            # ---------- Notifications ----------
             try:
-                txt = _compose_payout_text(v, ok=True, net=net, ref=v.get("payout_ref",""))
-                send_sms(v.get("payer_phone",""), txt)
-                if PROFILES.get(v.get("merchant_id",""),{}).get("notify_whatsapp"):
-                    send_whatsapp(v.get("payer_phone",""), txt)
+                txt = _compose_payout_text(v, ok=True, net=net, ref=v["payout_ref"])
+                send_sms(v.get("payer_phone", ""), txt)
+                if PROFILES.get(v["merchant_id"], {}).get("notify_whatsapp"):
+                    send_whatsapp(v.get("payer_phone", ""), txt)
             except Exception:
                 pass
 
         except Exception as e:
             tries += 1
-            if tries >= 5:
-                parts = [v.get("payer_phone","")]
-                if v.get("user_id"): parts.append(v["user_id"])
+
+            if tries < 5:
+                job["tries"] = tries
+                time.sleep(min(10 * tries, 60))
+                V_PAYOUT_Q.put(job)
+            else:
+                v["status"] = "failed_payout"
+                v["payout_error"] = str(e)
+                v["updated_at"] = v_now_iso()
+
                 v_log_tx(
-                    actor_username=v.get("merchant_id","merchant"),
+                    actor_username=v.get("merchant_id", "system"),
                     kind="voucher:payout",
-                    method=("Mpesa" if v.get("payout",{}).get("method")=="phone" else "Bank" if v.get("payout",{}).get("method")=="bank" else "Mpesa"),
+                    method=("Mpesa" if payout.get("method") in ("phone", "till") else "Bank"),
                     tx_type="Withdrawal",
                     currency="KES",
-                    amount_kes=float(v.get("quote_amount") or v.get("amount") or 0.0),
+                    amount_kes=net,
                     exchange_rate=EXCHANGE_RATE,
                     charges_kes=0.0,
                     safaricom_fee_kes=0.0,
@@ -3231,21 +3216,14 @@ def v_worker_loop():
                     bank_account="",
                     paybill="",
                     status="failed",
-                    participants=parts,
-                    meta={"voucher_id": code, "error": str(e)}
+                    participants=[v.get("merchant_id"), v.get("payer_phone")],
+                    meta={"voucher_code": code, "error": str(e)}
                 )
-                v["status"] = "failed_payout"
-                v["updated_at"] = v_now_iso()
-                v["payout_error"] = str(e)
+
+                _db_mirror_voucher(v)
                 _touch()
-                try:
-                    txt = _compose_payout_text(v, ok=False, net=float(v.get("quote_amount") or 0.0), ref=v.get("payout_ref",""))
-                    send_sms(v["payer_phone"], txt)
-                except Exception:
-                    pass
-            else:
-                time.sleep(min(60, 2 ** tries))
-                V_PAYOUT_Q.put({"code": code, "tries": tries})
+                save_state(force=True)
+
         finally:
             V_PAYOUT_Q.task_done()
 
@@ -3870,13 +3848,12 @@ def admin_risk_json():
 # ======================================================================================
 if __name__ == "__main__":
     load_state()
+
     threading.Thread(target=_autosave_worker, daemon=True).start()
 
-    should_start_worker = (os.environ.get("WERKZEUG_RUN_MAIN") == "true") or not app.debug
-    if should_start_worker:
-        # Legacy worker disabled (kept for backward compatibility)
-# threading.Thread(target=v_worker_loop, daemon=True).start()
-
-        V_WORKER_READY.wait(timeout=2.0)
+    if os.environ.get("WERKZEUG_RUN_MAIN") == "true" or not app.debug:
+        threading.Thread(target=v_worker_loop, daemon=True).start()
+        V_WORKER_READY.wait(timeout=2)
 
     app.run(host="127.0.0.1", port=5000, debug=True)
+
