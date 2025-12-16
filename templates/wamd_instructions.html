@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WAMD / Link — Payment Instructions</title>
+<style>
+:root{--teal:#063d3f;--gold:#d4a017;}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial, sans-serif;background:#f6f8fa;color:#111;line-height:1.4}
+.container{max-width:800px;margin:24px auto;padding:0 16px}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
+h1{font-size:1.25rem;margin:0 0 8px;color:var(--teal)}
+h2{font-size:1.05rem;margin:18px 0 8px;color:#163}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.row{display:grid;grid-template-columns:1fr;gap:10px}
+.copy{display:inline-flex;align-items:center;gap:8px;border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;background:#fafafa}
+.copy .val{white-space:nowrap}
+.btn{appearance:none;border:none;border-radius:999px;background:var(--gold);padding:10px 14px;font-weight:700;cursor:pointer}
+.btn.ghost{background:#e5e7eb}
+small{color:#555}
+hr{border:none;border-top:1px solid #eee;margin:16px 0}
+.note{background:#fff8e1;border:1px solid #f5e1a3;border-radius:12px;padding:10px}
+.footer{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+@media (min-width:640px){
+  .row{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>WAMD / Link — Payment Instructions</h1>
+    <p>Complete your bank transfer using the details below. Keep the reference exactly as shown.</p>
+
+    <h2>1) Transfer Details</h2>
+    <div class="row">
+      <div>
+        <div class="copy"><strong>Pay To (Phone):</strong> <span class="val mono" id="payTo">{{ pay_to_phone }}</span>
+          <button class="btn ghost" data-copy="#payTo">Copy</button>
+        </div>
+      </div>
+      <div>
+        <div class="copy"><strong>Beneficiary:</strong> <span class="val mono" id="benef">{{ beneficiary }}</span>
+          <button class="btn ghost" data-copy="#benef">Copy</button>
+        </div>
+      </div>
+      <div style="grid-column:1/-1;">
+        <div class="copy" style="width:100%;justify-content:space-between;">
+          <div><strong>Reference (paste into notes):</strong> <span class="val mono" id="ref">{{ ref_code }}</span></div>
+          <button class="btn ghost" data-copy="#ref">Copy</button>
+        </div>
+        <small>Tip: many bank apps call this “transfer notes”, “reference”, or “description”.</small>
+      </div>
+    </div>
+
+    <h2>2) Steps</h2>
+    <ol>
+      <li>Open your bank app → choose <em>WAMD / Transfer by phone</em>.</li>
+      <li>Enter the phone <span class="mono">{{ pay_to_phone }}</span> and your amount in <strong>KWD</strong>.</li>
+      <li>Paste the reference <span class="mono">{{ ref_code }}</span> into the transfer notes/description.</li>
+      <li>Confirm and send.</li>
+    </ol>
+
+    <div class="note">
+      <strong>Heads up:</strong> The reference ties your transfer to your transaction. If you made a typo, contact support so we can reconcile it quickly.
+    </div>
+
+    <div class="footer">
+      <button class="btn" onclick="window.print()">Print / Save PDF</button>
+      <button class="btn ghost" onclick="history.back()">Back</button>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('[data-copy]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const sel = btn.getAttribute('data-copy');
+    const el = document.querySelector(sel);
+    const txt = el ? el.textContent.trim() : '';
+    if (!txt) return;
+    navigator.clipboard.writeText(txt).then(()=>{
+      const old = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(()=>btn.textContent = old, 900);
+    });
+  });
+});
+</script>
+</body>
+</html>

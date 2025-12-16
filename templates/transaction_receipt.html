@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Transaction Receipt — {{ tx.receipt_id }}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root{
+    --brand-black:#000000; --brand-red:#ff0000;
+    --brand-teal-1:#063d3f; --brand-teal-2:#053c3f; --brand-teal-3:#053d3f;
+    --brand-teal-4:#063d40; --brand-teal-5:#063c3f; --brand-teal-6:#053d40;
+    --brand-gold:#d4a017; --brand-amber:#ffb44d;
+    --black: {{ brand.black|default('#000000') }};
+    --red:   {{ brand.red|default('#ff0000') }};
+    --teal:  {{ brand.teal|default('#063d3f') }};
+    --gold:  {{ brand.gold|default('#d4a017') }};
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; padding:24px; font-family: Arial, Helvetica, sans-serif;
+    color:#111; background:#0b1212;
+    background-image:
+      radial-gradient(1200px 800px at 50% -10%, rgba(6,61,63,.12), rgba(0,0,0,.0)),
+      linear-gradient(180deg, rgba(6,61,63,.08), rgba(0,0,0,.12));
+  }
+  .wrap{
+    max-width:820px; margin:0 auto; position:relative;
+    border-radius:14px; padding:22px 22px 18px; background:#ffffff; border:1px solid #e6ebef;
+    box-shadow:0 10px 30px rgba(0,0,0,.1);
+    --logo:url('{{ logo_data_uri|default("") }}');
+    background-image:
+      linear-gradient(180deg, rgba(255,180,77,.10), rgba(255,180,77,0) 140px),
+      radial-gradient(1200px 600px at 50% -10%, rgba(6,61,63,.06), transparent 60%),
+      var(--logo);
+    background-repeat:no-repeat,no-repeat,no-repeat;
+    background-position: top left, top center, center 40%;
+    background-size: 100% 120px, cover, 480px auto;
+  }
+  .brandhead{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding-bottom:12px; border-bottom:2px solid #ecf1f4;
+  }
+  .brandword{ line-height:1; letter-spacing:.3px; }
+  .brandword h1{ margin:0; font-size:1.5rem; color:var(--teal); text-shadow:0 1px 0 rgba(0,0,0,.04); }
+  .brandword .tag{ margin-top:4px; color:#475467; font-size:.9rem; font-weight:700; }
+  .chip{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:6px 10px; border-radius:999px; font-weight:700;
+    background:#fff8e6; border:1px solid #ffe1a1; color:#8a5700;
+  }
+  .meta{
+    display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:10px;
+    padding:12px 0 6px; color:#344054; font-size:.95rem;
+  }
+  .meta .box{ background:#f8fafb; border:1px solid #e6ebef; border-radius:10px; padding:10px 12px; }
+  .meta strong{ color:#111 }
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:12px; }
+  .card{ background:#fbfdff; border:1px solid #e6ebef; border-radius:12px; padding:14px; }
+  .card h3{ margin:0 0 8px; color:var(--teal); font-size:1.05rem }
+  .row{ display:flex; justify-content:space-between; gap:12px; margin:6px 0; }
+  .row span:first-child{ color:#555 }
+  .row strong{ color:#1f2937 }
+  .muted{ color:#667085; font-size:.92rem }
+  .pill{
+    display:inline-block; padding:4px 10px; border-radius:999px; font-weight:700;
+    background:#fff3cd; border:1px solid #ffe08a; color:#7a4b00;
+  }
+  .total{
+    background:linear-gradient(180deg, rgba(255,180,77,.15), rgba(255,180,77,.06));
+    border:1px solid #ffd79a; border-radius:12px; padding:12px 14px; margin-top:10px;
+  }
+  .actions{ margin-top:14px; display:flex; gap:10px; flex-wrap:wrap; }
+  a.button{
+    text-decoration:none; background:var(--brand-gold); color:#111;
+    padding:10px 16px; border-radius:999px; font-weight:800; border:2px solid transparent;
+    transition:transform .05s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  a.button:hover{ border-color:var(--brand-red); box-shadow:0 8px 16px rgba(212,160,23,.25) }
+  a.button:active{ transform:translateY(1px) }
+  hr{ border:none; border-top:1px dashed #e6ebef; margin:14px 0 }
+  .fine{ color:#6b7280; font-size:.9rem; margin-top:12px }
+  @media print{
+    body{ background:#fff; padding:0 }
+    .wrap{ box-shadow:none; border:none; background-image:none }
+    .actions a.button{ display:none }
+  }
+  @media (max-width:720px){
+    .meta{ grid-template-columns:1fr; }
+    .grid{ grid-template-columns:1fr; }
+    .wrap{ padding:18px }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Header -->
+    <div class="brandhead">
+      <div class="brandword">
+        <h1>Transaction Receipt</h1>
+        <div class="tag">Cheque Matez • From Your Pocket to Your People</div>
+      </div>
+      <span class="chip">Secure • {{ tx.status|title }}</span>
+    </div>
+
+    <!-- Meta -->
+    <div class="meta" style="margin-top:10px;">
+      <div class="box"><strong>Receipt #:</strong> <span class="muted mono" id="rcptId">{{ tx.receipt_id }}</span></div>
+      <div class="box"><strong>Date (UTC):</strong> <span class="muted">{{ tx.timestamp }}</span></div>
+      <div class="box"><strong>Status:</strong> <span class="muted">{{ tx.status|title }}</span></div>
+    </div>
+
+    <!-- WAMD/Link details -->
+    {% if tx.method == 'WAMD' or tx.method == 'WAMD/Link' or tx.wamd_reference %}
+    <div class="grid" id="wamdGrid">
+      <div class="card">
+        <h3>WAMD / Link</h3>
+        <div class="row"><span>Order / Reference</span><strong class="mono" id="wamdRef">{{ tx.wamd_reference|default(tx.reference)|default('—') }}</strong></div>
+        <div class="row"><span>Pay To (Phone)</span><strong class="mono" id="wamdPayTo">{{ tx.wamd_pay_to|default('+965914413') }}</strong></div>
+        <div class="row"><span>Beneficiary</span><strong id="wamdBenef">{{ tx.wamd_beneficiary|default('Eugene') }}</strong></div>
+        <!-- Split so phone can be hydrated even if name exists -->
+        <div class="row"><span>After funds, we pay (Mpesa)</span>
+          <strong id="wamdRecipient">
+            <span id="wamdRecipientName">{{ tx.wamd_recipient_name|default('—') }}</span>
+            — <span class="mono" id="wamdRecipientPhone">{{ tx.wamd_recipient_phone|default(tx.wamd_rec_phone)|default('—') }}</span>
+          </strong>
+        </div>
+        <div class="row" id="wamdNoteRow">
+          <span>Note</span><strong id="wamdNote">{{ tx.wamd_note|default(tx.note)|default('—') }}</strong>
+        </div>
+        <div class="pill" style="margin-top:6px;">This reference is also pasted in your bank transfer notes.</div>
+      </div>
+
+      <div class="card">
+        <h3>How to Pay (Bank App)</h3>
+        <div class="muted">
+          <ol style="margin:0 0 0 18px; padding:0;">
+            <li>Open your bank app → choose <strong>WAMD / Transfer by phone</strong>.</li>
+            <li>Enter phone <span class="mono" id="wamdPayToEcho">{{ tx.wamd_pay_to|default('+965914413') }}</span> and amount <span class="mono" id="howToAmountKwd">{{ "%.3f"|format(tx.amount_kwd) }} KWD</span>.</li>
+            <li>Paste reference in notes: <span class="mono" id="wamdRefEcho">{{ tx.wamd_reference|default(tx.reference)|default('—') }}</span>.</li>
+            <li>Confirm.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+    <hr>
+    {% endif %}
+
+    <!-- Details & Settings -->
+    <div class="grid">
+      <div class="card">
+        <h3>Details</h3>
+        <div class="row"><span>Method</span><strong>{{ tx.method }}</strong></div>
+        <div class="row"><span>Type</span><strong>{{ tx.tx_type }}</strong></div>
+
+        {% if tx.phone %}
+          <div class="row"><span>Phone</span><strong class="mono">{{ tx.phone }}</strong></div>
+        {% endif %}
+        {% if tx.bank_account %}
+          <div class="row"><span>Bank Account</span><strong class="mono">{{ tx.bank_account }}</strong></div>
+        {% endif %}
+        {% if tx.paybill %}
+          <div class="row"><span>Paybill</span><strong class="mono">{{ tx.paybill }}</strong></div>
+        {% endif %}
+
+        {# === NEW: mirror WAMD fields into Details, like Mpesa/Bank do === #}
+        {% if tx.method == 'WAMD' or tx.method == 'WAMD/Link' or tx.wamd_reference %}
+          <hr>
+          <div class="row"><span>WAMD Ref</span><strong class="mono" id="detWamdRef">{{ tx.wamd_reference|default(tx.reference)|default('—') }}</strong></div>
+          <div class="row"><span>Pay To (Phone)</span><strong class="mono" id="detWamdPayTo">{{ tx.wamd_pay_to|default('+965914413') }}</strong></div>
+          <div class="row"><span>Beneficiary</span><strong id="detWamdBenef">{{ tx.wamd_beneficiary|default('Eugene') }}</strong></div>
+          <div class="row"><span>Recipient Name</span><strong id="detWamdRecName">{{ tx.wamd_recipient_name|default('—') }}</strong></div>
+          <div class="row"><span>Recipient Phone</span><strong class="mono" id="detWamdRecPhone">{{ tx.wamd_recipient_phone|default(tx.wamd_rec_phone)|default('—') }}</strong></div>
+          <div class="row"><span>Note</span><strong id="detWamdNote">{{ tx.wamd_note|default(tx.note)|default('—') }}</strong></div>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h3>Settings</h3>
+        <div class="row">
+          <span>Exchange Rate</span>
+          <strong>1 KWD = {{ "%.1f"|format(exchange_rate) }} KES</strong>
+        </div>
+        <div class="row">
+          <span>Service Charge Mode</span>
+          <strong>{% if tx.service_charge_mode == 'pass_through' %}Customer Pays{% else %}Merchant Absorbs{% endif %}</strong>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- Amounts -->
+    {% set charges_kes = tx.charges_kes if tx.charges_kes is defined else (tx.charges_kwd * exchange_rate) %}
+    {% set pays_kes    = tx.client_pays_total_kes if tx.client_pays_total_kes is defined else (tx.client_pays_total_kwd * exchange_rate) %}
+    {% set recv_kes    = tx.client_receives_kes    if tx.client_receives_kes    is defined else (tx.client_receives_kwd * exchange_rate) %}
+    <div class="grid">
+      <div class="card">
+        <h3>Amounts</h3>
+        <div class="row"><span>Amount</span><strong>{{ "%.1f"|format(tx.amount_kwd) }} KWD</strong></div>
+        <div class="row"><span>&nbsp;</span><span class="muted">{{ "%.1f"|format(tx.amount_kes|default(tx.amount_kwd * exchange_rate)) }} KES</span></div>
+        <div class="row"><span>Total Fee</span><strong>{{ "%.1f"|format(tx.charges_kwd) }} KWD</strong></div>
+        <div class="row"><span>&nbsp;</span><span class="muted">{{ "%.1f"|format(charges_kes) }} KES</span></div>
+      </div>
+
+      <div class="card">
+        <h3>Client Facing</h3>
+        <div class="row"><span>Client Pays</span><strong id="clientPaysKwd">{{ "%.1f"|format(tx.client_pays_total_kwd) }} KWD</strong></div>
+        <div class="row"><span>&nbsp;</span><span class="muted">{{ "%.1f"|format(pays_kes) }} KES</span></div>
+        <div class="row"><span>Client Receives</span><strong>{{ "%.1f"|format(tx.client_receives_kwd) }} KWD</strong></div>
+        <div class="row"><span>&nbsp;</span><span class="muted">{{ "%.1f"|format(recv_kes) }} KES</span></div>
+
+        <div class="total">
+          <div class="row"><span>Final Status</span><strong>{{ tx.status|title }}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions">
+      {% if share_url %}<a class="button" href="{{ share_url }}">Open Online</a>{% endif %}
+      <a class="button" id="printBtn" href="#">Print / Save PDF</a>
+      <noscript><span class="muted">Tip: Use your browser’s Print (Ctrl/Cmd+P) to save as PDF.</span></noscript>
+    </div>
+
+    <p class="fine">Keep this receipt for your records. For help, contact support@chequematez.com</p>
+  </div>
+
+<script>
+  /* ---------- Print helpers ---------- */
+  function currentUrlWithPrintFlag() {
+    const u = new URL(window.location.href);
+    u.searchParams.set('print','1');
+    return u.toString();
+  }
+  function openPrintNow() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('print') === '1') { window.print(); return; }
+    window.location.href = currentUrlWithPrintFlag();
+  }
+  document.getElementById('printBtn')?.addEventListener('click', function(e){
+    e.preventDefault(); openPrintNow();
+  });
+  (function(){
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('print') === '1') {
+      window.addEventListener('load', function(){ setTimeout(function(){ window.print(); }, 150); });
+    }
+  })();
+
+  /* ---------- WAMD enrich + sync "How to Pay" amount with Client Pays ---------- */
+  (function(){
+    const $ = (id)=>document.getElementById(id);
+
+    const rcptId = $('rcptId')?.textContent?.trim();
+    const params = new URLSearchParams(window.location.search);
+    const token  = params.get('t') || params.get('token') || '';
+
+    const refEl   = $('wamdRef');
+    const refEcho = $('wamdRefEcho');
+    const payToEl = $('wamdPayTo');
+    const payToEcho = $('wamdPayToEcho');
+    const benefEl = $('wamdBenef');
+    const nameEl  = $('wamdRecipientName');
+    const phoneEl = $('wamdRecipientPhone');
+    const noteEl  = $('wamdNote');
+
+    /* mirror targets in Details section */
+    const dRef   = $('detWamdRef');
+    const dPayTo = $('detWamdPayTo');
+    const dBenef = $('detWamdBenef');
+    const dRName = $('detWamdRecName');
+    const dRPhone= $('detWamdRecPhone');
+    const dNote  = $('detWamdNote');
+
+    const howToAmt = $('howToAmountKwd');
+    const clientPaysEl = $('clientPaysKwd');
+
+    function setIfEmpty(el, val){
+      if(!el) return;
+      const cur = (el.textContent||'').trim();
+      if(!cur || cur === '—' || cur === '— —') el.textContent = val;
+    }
+
+    function mirrorToDetails(){
+      setIfEmpty(dRef,   refEl?.textContent?.trim() || '');
+      setIfEmpty(dPayTo, payToEl?.textContent?.trim() || '');
+      setIfEmpty(dBenef, benefEl?.textContent?.trim() || '');
+      setIfEmpty(dRName, nameEl?.textContent?.trim() || '');
+      setIfEmpty(dRPhone,phoneEl?.textContent?.trim() || '');
+      setIfEmpty(dNote,  noteEl?.textContent?.trim() || '');
+    }
+
+    /* 1) Mirror "Client Pays" → "How to Pay" amount */
+    (function syncClientPaysToHowTo(){
+      if (!howToAmt || !clientPaysEl) return;
+      const paysTxt = clientPaysEl.textContent.trim(); // e.g., "123.4 KWD"
+      if (!paysTxt) return;
+      howToAmt.textContent = paysTxt; // keep exact formatting
+    })();
+
+    /* 2) Fallbacks from URL (works even on public receipts) */
+    const urlFallbacks = {
+      pay_to_phone: params.get('payto'),
+      beneficiary:  params.get('benef'),
+      recipient_name: params.get('rn'),
+      recipient_phone: params.get('rp'),
+      note: params.get('note'),
+      reference: params.get('ref')
+    };
+    if(urlFallbacks.reference){ setIfEmpty(refEl, urlFallbacks.reference); setIfEmpty(refEcho, urlFallbacks.reference); }
+    if(urlFallbacks.pay_to_phone){
+      setIfEmpty(payToEl, urlFallbacks.pay_to_phone);
+      setIfEmpty(payToEcho, urlFallbacks.pay_to_phone);
+    }
+    if(urlFallbacks.beneficiary){ setIfEmpty(benefEl, urlFallbacks.beneficiary); }
+    if(urlFallbacks.recipient_name){ setIfEmpty(nameEl, urlFallbacks.recipient_name); }
+    if(urlFallbacks.recipient_phone){ setIfEmpty(phoneEl, urlFallbacks.recipient_phone); }
+    if(urlFallbacks.note){ setIfEmpty(noteEl, urlFallbacks.note); }
+
+    mirrorToDetails();
+
+    /* 3) Try fetching canonical data from the receipt API (if it exists) */
+    async function hydrateFromApi(){
+      if(!rcptId || !token) return;
+      try{
+        const r = await fetch(`/api/receipt/${encodeURIComponent(rcptId)}?t=${encodeURIComponent(token)}`, {
+          credentials:'same-origin', cache:'no-store'
+        });
+        if(!r.ok) return;
+        const j = await r.json();
+        const tx = j.tx || j.data || j.entry || j;
+
+        const payTo = tx.wamd_pay_to || tx.pay_to_phone || tx.pay_to || tx.wamd?.pay_to || '';
+        const benef = tx.wamd_beneficiary || tx.beneficiary || tx.wamd?.beneficiary || '';
+        const rname = tx.wamd_recipient_name || tx.recipient_name || tx.recipient?.name || '';
+        const rphone= tx.wamd_recipient_phone || tx.wamd_rec_phone || tx.recipient_phone || tx.mpesa_phone || tx.phone || '';
+        const note  = tx.wamd_note || tx.note || tx.notes || '';
+        const ref   = tx.wamd_reference || tx.reference || tx.ref || '';
+
+        if(ref){ setIfEmpty(refEl, ref); setIfEmpty(refEcho, ref); }
+        if(payTo){ setIfEmpty(payToEl, payTo); setIfEmpty(payToEcho, payTo); }
+        if(benef){ setIfEmpty(benefEl, benef); }
+        if(rname){ setIfEmpty(nameEl, rname); }
+        if(rphone){ setIfEmpty(phoneEl, rphone); }
+        if(note){ setIfEmpty(noteEl, note); }
+
+        mirrorToDetails();
+      }catch(e){ /* silent */ }
+    }
+
+    /* 4) As a final fallback, pull admin settings for Pay-To/Beneficiary */
+    async function hydrateFromSettings(){
+      try{
+        const r = await fetch('/api/wamd/settings', {credentials:'same-origin', cache:'no-store'});
+        const j = await r.json();
+        if(r.ok && j && j.ok){
+          const payTo = (j.pay_to_phone||'').trim() || '+965914413';
+          const benef = (j.beneficiary||'').trim() || 'Eugene';
+          setIfEmpty(payToEl, payTo); setIfEmpty(payToEcho, payTo);
+          setIfEmpty(benefEl, benef);
+          mirrorToDetails();
+        }
+      }catch(e){ /* silent */ }
+    }
+
+    hydrateFromApi().finally(hydrateFromSettings);
+  })();
+
+  /* ---------- Pull recipient (incl. Mpesa phone) from /api/my-transactions ---------- */
+  (function(){
+    const get = (sel) => document.querySelector(sel);
+    const txt = (sel) => get(sel)?.textContent?.trim() || "";
+    const rcptId  = txt("#rcptId");
+
+    const nameEl   = get("#wamdRecipientName");
+    const phoneEl  = get("#wamdRecipientPhone");
+    const noteEl   = get("#wamdNote");
+    const refEl    = get("#wamdRef");
+    const payToEl  = get("#wamdPayTo");
+    const benefEl  = get("#wamdBenef");
+
+    /* detail mirrors */
+    const dRef    = get("#detWamdRef");
+    const dPayTo  = get("#detWamdPayTo");
+    const dBenef  = get("#detWamdBenef");
+    const dRName  = get("#detWamdRecName");
+    const dRPhone = get("#detWamdRecPhone");
+    const dNote   = get("#detWamdNote");
+
+    function setIfEmpty(el, val){
+      if(!el) return;
+      const cur = (el.textContent||"").trim();
+      if(!cur || cur === "—" || cur === "— —") el.textContent = val;
+    }
+
+    if (!nameEl && !phoneEl && !refEl && !payToEl) return;
+
+    fetch("/api/my-transactions", { credentials:"same-origin", cache:"no-store" })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(rows => {
+        if (!Array.isArray(rows)) return;
+
+        // Prefer exact receipt match; otherwise latest WAMD row
+        let tx = rows.find(x => (x.receipt_id || x.id) === rcptId);
+        if (!tx) {
+          const wamdRows = rows.filter(x => /wamd/i.test(x.method || "")).sort(
+            (a,b) => new Date(b.timestamp) - new Date(a.timestamp)
+          );
+          tx = wamdRows[0];
+        }
+        if (!tx) return;
+
+        const ref   = tx.wamd_reference || tx.reference || tx.ref || "";
+        const payTo = tx.wamd_pay_to || tx.pay_to_phone || tx.pay_to || "";
+        const benef = tx.wamd_beneficiary || tx.beneficiary || "";
+        const name  = tx.wamd_recipient_name || tx.recipient_name || "";
+        const phone = tx.wamd_recipient_phone || tx.wamd_rec_phone || tx.recipient_phone || tx.mpesa_phone || tx.phone || "";
+        const note  = tx.wamd_note || tx.note || tx.notes || "";
+
+        setIfEmpty(refEl, ref);      setIfEmpty(dRef, ref);
+        setIfEmpty(payToEl, payTo);  setIfEmpty(dPayTo, payTo);
+        setIfEmpty(benefEl, benef);  setIfEmpty(dBenef, benef);
+        setIfEmpty(nameEl, name);    setIfEmpty(dRName, name);
+        setIfEmpty(phoneEl, phone);  setIfEmpty(dRPhone, phone);
+        if (note) { setIfEmpty(noteEl, note); setIfEmpty(dNote, note); }
+      })
+      .catch(() => { /* silent */ });
+  })();
+</script>
+</body>
+</html>

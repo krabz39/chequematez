@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cheque Matez — WAMD/Link (Phone-only)</title>
+<style>
+  :root{
+    --black:#000000; --red:#ff0000;
+    --teal1:#063d3f; --teal2:#053c3f; --teal3:#053d3f; --teal4:#063d40; --teal5:#063c3f; --teal6:#053d40;
+    --gold:#d4a017;
+    --bg:#0e191b; --card:#0f2427; --line:#17363a; --ink:#eaf6f6; --muted:#9bc1c6; --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial; color:var(--ink); background:var(--bg)}
+  header{padding:14px 16px; border-bottom:1px solid var(--line); background:linear-gradient(90deg,var(--teal2),var(--teal4))}
+  .top{max-width:1000px; margin:0 auto; display:flex; align-items:center; gap:12px}
+  .brand img{height:34px}
+  .brand h1{margin:0; font-size:18px}
+  .tag{margin-left:auto; padding:6px 10px; border:1px solid var(--line); border-radius:999px; color:var(--muted); font-size:12px}
+
+  .wrap{max-width:1000px; margin:24px auto; padding:0 12px}
+  .grid{display:grid; grid-template-columns:1fr; gap:16px}
+  @media(min-width:960px){ .grid{grid-template-columns:1fr 1fr} }
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px}
+  .title{margin:0 0 12px; font-size:18px}
+  label{font-size:13px; opacity:.95}
+  input,button{font:inherit}
+  input{width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:#0c1e21; color:var(--ink)}
+  input:focus{outline:2px solid var(--teal1); box-shadow:0 0 0 3px rgba(6,61,63,.25)}
+  .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+
+  .btn{background:var(--gold); color:#0f2427; border:0; border-radius:12px; padding:10px 14px; font-weight:700; cursor:pointer}
+  .btn.secondary{background:transparent; border:1px solid var(--line); color:var(--ink)}
+  .btn.danger{background:var(--red); color:#fff}
+  .btn.icon{display:inline-flex; align-items:center; gap:6px}
+  .btn.small{padding:6px 10px; font-weight:600; border-radius:10px}
+  .btn.flat{background:transparent; border:1px solid var(--line); color:var(--ink)}
+
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  .hint{font-size:13px; color:var(--muted)}
+  .kv{display:grid; grid-template-columns:1fr auto; align-items:center; gap:12px; padding:10px; background:#0c1e21; border:1px dashed var(--line); border-radius:12px; margin:8px 0}
+  .left{opacity:.85}
+
+  .qrbox{display:flex; justify-content:center; padding:14px}
+  .ok{color:#71ff94; font-weight:700}
+  .pending{color:#ffd76e; font-weight:700}
+
+  table{width:100%; border-collapse:collapse; margin-top:8px}
+  th,td{border:1px solid var(--line); padding:8px; text-align:left; font-size:14px}
+  th{background:#10292c}
+
+  .bar{height:3px; background:linear-gradient(90deg,var(--red),var(--gold)); border-radius:999px; margin:-4px 0 10px}
+  .inline-actions{display:flex; gap:8px; flex-wrap:wrap}
+  .copy{background:transparent; border:1px solid var(--line); color:var(--ink); padding:8px 10px; border-radius:10px; cursor:pointer}
+  a.link{color:var(--gold); text-decoration:underline}
+
+  /* Print styles for the receipt window */
+  @media print{
+    body{background:#fff; color:#000}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="brand">
+      <img id="logo" src="" alt="Cheque Matez Logo" onerror="this.style.display='none'">
+      <h1>Cheque Matez — WAMD/Link (Phone-only)</h1>
+    </div>
+    <span class="tag">MVP • LocalStorage</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- SETTINGS -->
+  <div class="card">
+    <h2 class="title">Settings</h2>
+    <div class="bar"></div>
+    <div class="row">
+      <div>
+        <label>Your WAMD phone (clients send here)</label>
+        <input id="cfg_phone" value="+96550000000" />
+      </div>
+      <div>
+        <label>Beneficiary (display)</label>
+        <input id="cfg_bene" value="Cheque Matez" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Currency</label>
+        <input id="cfg_ccy" value="KWD" />
+      </div>
+      <div>
+        <label>Reference Prefix</label>
+        <input id="cfg_prefix" value="CMZ" />
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Logo URL (optional)</label>
+        <input id="cfg_logo" placeholder="https://…/chequematez_logo.png" />
+      </div>
+      <div style="display:flex; align-items:flex-end; gap:10px">
+        <button class="btn secondary" id="btn_apply_logo">Apply Logo</button>
+        <button class="btn secondary" id="btn_save_cfg">Save Settings</button>
+      </div>
+    </div>
+    <small class="hint">Settings persist locally only.</small>
+  </div>
+
+  <div class="grid">
+    <!-- CREATE LINK -->
+    <div class="card">
+      <h2 class="title">Create WAMD/Link</h2>
+      <div class="bar"></div>
+      <div class="row">
+        <div>
+          <label>Amount</label>
+          <input id="in_amount" type="number" step="0.001" placeholder="e.g. 25.000" />
+        </div>
+        <div>
+          <label>Payer Name (Client)</label>
+          <input id="in_payer_name" placeholder="Client A" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Payer Phone</label>
+          <input id="in_payer_phone" placeholder="+9656xxxxxxx" />
+        </div>
+        <div>
+          <label>Recipient Name (who gets paid after)</label>
+          <input id="in_rec_name" placeholder="John" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>Recipient Phone</label>
+          <input id="in_rec_phone" placeholder="+9656yyyyyyy" />
+        </div>
+        <div>
+          <label>Note (optional)</label>
+          <input id="in_note" placeholder="purpose…" />
+        </div>
+      </div>
+      <br>
+      <button class="btn" id="btn_create">Create Link</button>
+      <p class="hint">Creates an order with a unique reference and shows instructions to pay you via <b>WAMD by phone number</b>. No IBAN.</p>
+      <div id="create_result" class="hint"></div>
+    </div>
+
+    <!-- INSTRUCTIONS / RECEIPT -->
+    <div class="card" id="panel_view" style="display:none">
+      <h2 class="title">WAMD Instructions</h2>
+      <div class="bar"></div>
+
+      <div id="view_order_box"></div>
+
+      <div class="inline-actions" style="margin:10px 0">
+        <button class="copy" id="copy_phone">Copy Phone</button>
+        <button class="copy" id="copy_ref">Copy Reference</button>
+        <button class="copy" id="copy_all">Copy Full Instructions</button>
+        <button class="btn icon" id="btn_share">Share</button>
+        <a class="link" id="permalink" href="#">Permalink</a>
+        <button class="btn flat" id="btn_toggle_paid">Mark paid</button>
+        <button class="btn flat" id="btn_download_pdf">Download PDF receipt</button>
+      </div>
+
+      <div class="qrbox"><canvas id="qr"></canvas></div>
+      <p class="hint">
+        Step 1: Open your bank app → choose <b>WAMD / Transfer by phone</b>.<br>
+        Step 2: Enter phone <b class="mono" id="hint_phone"></b> and amount <b id="hint_amount"></b>.<br>
+        Step 3: Paste this reference in transfer notes: <b class="mono" id="hint_ref"></b>.<br>
+        Step 4: Confirm. We’ll notify you once funds land.
+      </p>
+    </div>
+  </div>
+
+  <!-- ORDERS & RECON -->
+  <div class="card">
+    <h2 class="title">Orders</h2>
+    <div class="bar"></div>
+    <div class="row" style="align-items:center">
+      <div><span class="hint">Stored locally</span></div>
+      <div style="text-align:right; display:flex; gap:8px; justify-content:flex-end">
+        <button class="btn secondary" id="btn_export">Export JSON</button>
+        <button class="btn danger" id="btn_clear">Clear</button>
+      </div>
+    </div>
+    <div id="orders_table"></div>
+  </div>
+
+  <div class="card">
+    <h2 class="title">Reconcile (CSV upload)</h2>
+    <div class="bar"></div>
+    <p class="hint">Marks orders as <b>PAID</b> when both conditions match:
+      <br>• <b>Amount</b> equals order amount &nbsp;&nbsp;• <b>Description</b> contains the <b>order_id</b></p>
+    <div class="row">
+      <div>
+        <label>CSV “Amount” column</label>
+        <input id="csv_col_amount" value="Amount" />
+      </div>
+      <div>
+        <label>CSV “Description” column</label>
+        <input id="csv_col_desc" value="Description" />
+      </div>
+    </div>
+    <br>
+    <div class="row">
+      <input id="csv_file" type="file" accept=".csv" />
+      <button class="btn" id="btn_recon">Upload & Match</button>
+    </div>
+    <div id="recon_result" class="hint"></div>
+  </div>
+
+</div>
+
+<!-- Minimal QR generator (inlined) -->
+<script>
+/*! qrcode.js v1.0.0 (min) */
+!function(o){function u(a){this.mode=c.MODE_8BIT_BYTE,this.data=a}function r(a,b){this.typeNumber=a,this.errorCorrectLevel=b,this.modules=null,this.moduleCount=0,this.dataCache=null,this.dataList=[]}var c={};u.prototype={getLength:function(){return this.data.length},write:function(a){for(var b=0;b<this.data.length;b++)a.put(this.data.charCodeAt(b),8)}};var t={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54]],G15:(1<<10)|(1<<8)|(1<<5)|(1<<4)|(1<<2)|(1<<1),G18:(1<<12)|(1<<11)|(1<<10)|(1<<9)|(1<<8)|(1<<5)|(1<<2)|(1<<0),G15_MASK:21522,getBCHTypeInfo:function(a){for(var b=a<<10;this.getBCHDigit(b)-this.getBCHDigit(this.G15)>=0;)b^=this.G15<<this.getBCHDigit(b)-this.getBCHDigit(this.G15);return(a<<10|b)^this.G15_MASK},getBCHTypeNumber:function(a){for(var b=a<<12;this.getBCHDigit(b)-this.getBCHDigit(this.G18)>=0;)b^=this.G18<<this.getBCHDigit(this.G18);return a<<12|b},getBCHDigit:function(a){var b=0;for(;a!=0;)b++,a>>>=1;return b},getPatternPosition:function(a){return this.PATTERN_POSITION_TABLE[a-1]},getMask:function(a,b,c){switch(a){case 0:return(b+c)%2==0;case 1:return b%2==0;case 2:return c%3==0;case 3:return(b+c)%3==0;case 4:return(Math.floor(b/2)+Math.floor(c/3))%2==0;case 5:return b*c%2+b*c%3==0;case 6:return(b*c%2+b*c%3)%2==0;case 7:return(b+c)%2+c%3==0;default:throw new Error("bad maskPattern:"+a)}},getErrorCorrectPolynomial:function(a){for(var b=new e([1],0),c=0;c<a;c++)b=b.multiply(new e([1,n.gexp(c)],0));return b},getLengthInBits:function(a,b){if(1<=b&&b<10)switch(a){case c.MODE_8BIT_BYTE:return 8;default:throw new Error("mode:"+a)}else if(10<=b&&b<27)switch(a){case c.MODE_8BIT_BYTE:return 16;default:throw new Error("mode:"+a)}else{if(!(27<=b&&b<41))throw new Error("type:"+b);switch(a){case c.MODE_8BIT_BYTE:return 16;default:throw new Error("mode:"+a)}}}};r.prototype={addData:function(a){this.dataList.push(new u(a)),this.dataCache=null},isDark:function(a,b){if(this.modules[a][b]!=null)return this.modules[a][b];var c=this.getMaskPattern();return t.getMask(c,a,b)},getModuleCount:function(){return this.moduleCount},make:function(){this.typeNumber=4,this.errorCorrectLevel=1,this.modules=new Array(this.typeNumber*4+17);for(var a=0;a<this.modules.length;a++){this.modules[a]=new Array(this.modules.length);for(var b=0;b<this.modules.length;b++)this.modules[a][b]=null}this.setupPositionProbePattern(0,0),this.setupPositionProbePattern(this.moduleCount-7,0),this.setupPositionProbePattern(0,this.moduleCount-7),this.setupPositionAdjustPattern(),this.setupTimingPattern(),this.setupTypeInfo(!0,0),this.dataCache=this.createData(),this.mapData(this.dataCache)},setupPositionProbePattern:function(a,b){for(var c=-1;7>=c;c++)if(!(a+c<=-1||this.moduleCount<=a+c))for(var d=-1;7>=d;d++)b+d<=-1||this.moduleCount<=b+d||(this.modules[a+c][b+d]=0<=c&&c<=6&&(d==0||d==6)||c==0||c==6||2<=c&&2<=4&&2<=d&&2<=4)},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;a++)this.modules[a][6]=a%2==0,this.modules[6][a]=a%2==0},setupPositionAdjustPattern:function(){for(var a=t.getPatternPosition(this.typeNumber),b=0;b<a.length;b++)for(var c=0;c<a.length;c++){var d=a[b],e=a[c];if(this.modules[d][e]==null)for(var f=-2;f<=2;f++)for(var g=-2;g<=2;g++)this.modules[d+f][e+g]=-2==f||2==f||-2==g||2==g||f==0&&g==0}},setupTypeInfo:function(a,b){for(var d=t.getBCHTypeInfo(1<<3|b),e=0;e<15;e++){var f=!a&&1==(d>>e&1);e<6?this.modules[e][8]=f:e<8?this.modules[e+1][8]=f:this.modules[this.moduleCount-15+e][8]=f}for(e=0;e<15;e++){f=!a&&1==(d>>e&1);e<8?this.modules[8][this.moduleCount-e-1]=f:e<9?this.modules[8][15-e]=f:this.modules[8][this.moduleCount-15+e]=f}this.modules[this.moduleCount-8][8]=!a},mapData:function(a){for(var b=-1,c=this.moduleCount-1,d=7,e=0,f=this.moduleCount-1;f>0;f-=2){f==6&&f--;for(var g=!0;;){for(var h=0;h<2;h++)this.modules[c-h][f]=g?!!(a[e>>3]>>>7-(e%8)&1):this.modules[c-h][f],e++;if(c+=b,c<0||this.moduleCount<=c)break}c-=b,b=-b}},createData:function(){for(var a=[],b=0;b<this.dataList.length;b++){var d=a[b];e.put(d.mode,4),e.put(d.getLength(),t.getLengthInBits(d.mode,this.typeNumber)),d.write(e)}for(var h=8*(((this.typeNumber*4+17)*(this.typeNumber*4+17)-64-15-((this.typeNumber-1)/7>>0)*25)/8>>0),i=0;e.getLengthInBits()+4<=h;)e.put(0,4);for(;e.getLengthInBits()%8!=0;)e.put(0,1);for(;!(e.getLengthInBits()>=8*h);){e.put(236,8);if(e.getLengthInBits()>=8*h)break;e.put(17,8)}return e.buffer}};function f(){this.buffer=[],this.length=0}f.prototype={getLengthInBits:function(){return this.length},put:function(a,b){for(var c=0;c<b;c++)this.buffer.push(1==(a>>b-c-1&1)?1:0);this.length+=b}};function e(a,b){if(void 0==a.length)throw new Error(a.length+"/"+b);this.num=a,this.shift=b;for(var c=0;c<this.num.length&&0==this.num[c];)c++;this.num.splice(0,c)}e.prototype={get:function(a){return this.num[a]},getLength:function(){return this.num.length},multiply:function(a){for(var b=new Array(this.getLength()+a.getLength()-1),c=0;c<this.getLength();c++)for(var d=0;d<a.getLength();d++)b[c+d]^=n.gexp(n.glog(this.get(c))+n.glog(a.get(d)));return new e(b,0)},mod:function(a){if(this.getLength()-a.getLength()<0)return this;for(var b=n.glog(this.get(0))-n.glog(a.get(0)),c=new Array(this.getLength()),d=0;d<this.getLength();d++)c[d]=this.num[d];for(d=0;d<a.getLength();d++)c[d]^=n.gexp(n.glog(a.get(d))+b);return new e(c,0)}};var n={glog:function(a){if(a<1)throw new Error("glog("+a+")");return n.LOG_TABLE[a]},gexp:function(a){for(;a<0;)a+=255;for(;a>=256;)a-=255;return n.EXP_TABLE[a]},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)};for(var p=0;p<8;p++)n.EXP_TABLE[p]=1<<p;for(p=8;p<256;p++)n.EXP_TABLE[p]=n.EXP_TABLE[p-4]^n.EXP_TABLE[p-5]^n.EXP_TABLE[p-6]^n.EXP_TABLE[p-8];for(p=0;p<256;p++){for(var q=0;q<256;q++)if(n.EXP_TABLE[q]==p){n.LOG_TABLE[p]=q;break}}function QRCanvas(a,b){this._qr=new r(4,1),this._qr.addData(a),this._qr.make(),this._el=b||document.createElement("canvas"),this._size=220,this._cell=Math.floor(this._size/this._qr.getModuleCount()),this._margin=Math.floor((this._size-this._cell*this._qr.getModuleCount())/2),this._el.width=this._el.height=this._size,this._ctx=this._el.getContext("2d"),this.draw()}QRCanvas.prototype.draw=function(){var a=this._qr,b=this._ctx,c=this._cell,d=this._margin;b.clearRect(0,0,this._el.width,this._el.height),b.fillStyle="#000";for(var e=0;e<a.getModuleCount();e++)for(var f=0;f<a.getModuleCount();f++)a.isDark(e,f)&&b.fillRect(d+e*c,d+f*c,c,c)};
+</script>
+
+<script>
+/* ---------- Local storage + config ---------- */
+const LS_KEY = 'cmz_wamd_orders_v1';
+const cfgElems = { phone: cfg_phone, bene: cfg_bene, ccy: cfg_ccy, pref: cfg_prefix, logo: cfg_logo };
+const logoImg = document.getElementById('logo');
+
+function getCfg(){ return { phone: cfgElems.phone.value.trim(), bene: cfgElems.bene.value.trim(), ccy: cfgElems.ccy.value.trim(), pref: cfgElems.pref.value.trim(), logo: cfgElems.logo.value.trim() }; }
+function setCfg(c){
+  if(!c) return;
+  cfgElems.phone.value = c.phone || cfgElems.phone.value;
+  cfgElems.bene.value  = c.bene  || cfgElems.bene.value;
+  cfgElems.ccy.value   = c.ccy   || cfgElems.ccy.value;
+  cfgElems.pref.value  = c.pref  || cfgElems.pref.value;
+  cfgElems.logo.value  = c.logo  || cfgElems.logo.value;
+  if(c.logo){ logoImg.src = c.logo; logoImg.style.display=''; }
+}
+function saveCfg(){ localStorage.setItem('cmz_wamd_cfg', JSON.stringify(getCfg())); }
+function loadCfg(){ try{ return JSON.parse(localStorage.getItem('cmz_wamd_cfg')||'{}'); } catch(e){ return {}; } }
+function saveOrders(orders){ localStorage.setItem(LS_KEY, JSON.stringify(orders)); }
+function loadOrders(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ return {}; } }
+function newOrderId(pref){ const d=new Date(), ymd=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join(''); const r=Math.random().toString(16).slice(2,8).toUpperCase(); return `${pref}-${ymd}-${r}`; }
+function fmtKWD(x){ return Number(x).toFixed(3); }
+function nowISO(){ return new Date().toISOString().replace(/\.\d{3}Z$/,'Z'); }
+
+/* ---------- UI refs ---------- */
+const elResult = document.getElementById('create_result');
+const elPanel  = document.getElementById('panel_view');
+const elView   = document.getElementById('view_order_box');
+const elQR     = document.getElementById('qr');
+const elOrdersTable = document.getElementById('orders_table');
+const elHintPhone = document.getElementById('hint_phone');
+const elHintAmount= document.getElementById('hint_amount');
+const elHintRef   = document.getElementById('hint_ref');
+const elPermalink = document.getElementById('permalink');
+const btnTogglePaid = document.getElementById('btn_toggle_paid');
+const btnDownloadPdf = document.getElementById('btn_download_pdf');
+
+let currentOrderId = null;
+
+/* ---------- Orders table ---------- */
+function renderOrders(){
+  const db = loadOrders();
+  const vals = Object.values(db).sort((a,b)=> (a.created_at < b.created_at ? 1 : -1));
+  const rows = vals.map(o=>`
+    <tr>
+      <td class="mono">${o.order_id}</td>
+      <td>${fmtKWD(o.amount_kwd)} ${o.currency||'KWD'}</td>
+      <td>${o.payer_name} — <span class="mono">${o.payer_phone||''}</span></td>
+      <td>${o.recipient_name} — <span class="mono">${o.recipient_phone||''}</span></td>
+      <td class="${o.status==='paid'?'ok':'pending'}">${o.status.toUpperCase()}</td>
+      <td class="mono">${o.paid_at||'—'}</td>
+      <td>${o.note||'—'}</td>
+      <td style="display:flex; gap:6px; flex-wrap:wrap">
+        <button class="btn secondary small" onclick="showOrder('${o.order_id}')">View</button>
+        ${o.status==='paid'
+          ? `<button class="btn flat small" onclick="togglePaid('${o.order_id}', false)">Unmark</button>
+             <button class="btn flat small" onclick="downloadReceipt('${o.order_id}')">PDF</button>`
+          : `<button class="btn flat small" onclick="togglePaid('${o.order_id}', true)">Mark paid</button>`}
+      </td>
+    </tr>
+  `).join('');
+  elOrdersTable.innerHTML = `
+    <table>
+      <thead><tr><th>Order</th><th>Amount</th><th>Payer</th><th>Recipient</th><th>Status</th><th>Paid at</th><th>Note</th><th>Actions</th></tr></thead>
+      <tbody>${rows || ''}</tbody>
+    </table>`;
+}
+
+/* ---------- View & share ---------- */
+function buildInstructionsText(o, cfg){
+  return [
+    `Send via WAMD (phone transfer)`,
+    `Amount: ${fmtKWD(o.amount_kwd)} ${cfg.ccy}`,
+    `Pay To (Phone): ${cfg.phone}`,
+    `Beneficiary: ${cfg.bene}`,
+    `Reference (put this in transfer notes): ${o.order_id}`,
+    ``,
+    `After we receive funds, we will pay: ${o.recipient_name} — ${o.recipient_phone}`
+  ].join('\n');
+}
+function setPermalink(order_id){
+  const url = new URL(location.href);
+  url.hash = `order=${encodeURIComponent(order_id)}`;
+  elPermalink.href = url.toString();
+  elPermalink.textContent = 'Permalink';
+}
+function showOrder(order_id){
+  const db = loadOrders();
+  const o = db[order_id]; if(!o) return;
+  currentOrderId = order_id;
+  const cfg = getCfg();
+
+  elView.innerHTML = `
+    <div class="kv"><div class="left">Order</div><div class="mono">${o.order_id}</div></div>
+    <div class="kv"><div class="left">Amount</div><div>${fmtKWD(o.amount_kwd)} ${cfg.ccy}</div></div>
+    <div class="kv">
+      <div class="left">Pay To (Phone)</div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <div class="mono" id="val_phone">${cfg.phone}</div>
+        <button class="btn flat small" onclick="copyText(document.getElementById('val_phone').innerText)">Copy</button>
+      </div>
+    </div>
+    <div class="kv"><div class="left">Beneficiary</div><div>${cfg.bene}</div></div>
+    <div class="kv">
+      <div class="left">Reference (type in transfer note)</div>
+      <div style="display:flex; gap:8px; align-items:center">
+        <div class="mono" id="val_ref">${o.order_id}</div>
+        <button class="btn flat small" onclick="copyText(document.getElementById('val_ref').innerText)">Copy</button>
+      </div>
+    </div>
+    <div class="kv"><div class="left">Recipient (after we receive funds)</div><div>${o.recipient_name} — <span class="mono">${o.recipient_phone}</span></div></div>
+    <div class="kv"><div class="left">Status</div><div class="${o.status==='paid'?'ok':'pending'}">${o.status.toUpperCase()}</div></div>
+    <div class="kv"><div class="left">Paid at</div><div class="mono">${o.paid_at||'—'}</div></div>
+  `;
+
+  elHintPhone.textContent = cfg.phone;
+  elHintAmount.textContent = `${fmtKWD(o.amount_kwd)} ${cfg.ccy}`;
+  elHintRef.textContent = o.order_id;
+
+  const payload = `WAMD PAY\nTO_PHONE:${cfg.phone}\nAMOUNT:${fmtKWD(o.amount_kwd)} ${cfg.ccy}\nREF:${o.order_id}\nBENEFICIARY:${cfg.bene}`;
+  new QRCanvas(payload, elQR);
+
+  btnTogglePaid.textContent = o.status==='paid' ? 'Unmark' : 'Mark paid';
+  btnTogglePaid.onclick = () => togglePaid(order_id, o.status!=='paid');
+  btnDownloadPdf.onclick = () => downloadReceipt(order_id);
+
+  setPermalink(order_id);
+  elPanel.style.display = '';
+  window.scrollTo({top: elPanel.offsetTop - 10, behavior:'smooth'});
+}
+
+/* ---------- Copy / Share ---------- */
+function copyText(text){ navigator.clipboard?.writeText(text).then(()=>toast('Copied')).catch(()=>alert('Copy failed')); }
+function copyAll(){
+  const db = loadOrders(); const o = db[currentOrderId]; if(!o) return;
+  copyText(buildInstructionsText(o, getCfg()));
+}
+async function share(){
+  const db = loadOrders(); const o = db[currentOrderId]; if(!o) return;
+  const cfg = getCfg();
+  const url = new URL(location.href); url.hash = `order=${encodeURIComponent(o.order_id)}`;
+  const text = buildInstructionsText(o, cfg) + `\n\nLink: ${url.toString()}`;
+  if(navigator.share){
+    try{ await navigator.share({title:'Cheque Matez — WAMD Link', text, url:url.toString()}); return; }catch(e){}
+  }
+  const wa = 'https://wa.me/?text=' + encodeURIComponent(text); window.open(wa, '_blank');
+}
+function toast(msg){
+  const d=document.createElement('div');
+  d.textContent=msg; d.style.position='fixed'; d.style.bottom='16px'; d.style.left='50%'; d.style.transform='translateX(-50%)';
+  d.style.background='rgba(0,0,0,.7)'; d.style.color='#fff'; d.style.padding='8px 12px'; d.style.borderRadius='10px'; d.style.zIndex=9999;
+  document.body.appendChild(d); setTimeout(()=>d.remove(),1200);
+}
+
+/* ---------- Mark paid / Unmark ---------- */
+function togglePaid(order_id, makePaid){
+  const db = loadOrders(); const o = db[order_id]; if(!o) return;
+  if(makePaid){ o.status='paid'; o.paid_at = nowISO(); }
+  else { o.status='pending'; o.paid_at = null; }
+  saveOrders(db);
+  renderOrders();
+  if(currentOrderId===order_id) showOrder(order_id);
+}
+
+/* ---------- Build printable receipt & download ---------- */
+function qrDataURL(){
+  try{ return elQR.toDataURL('image/png'); }catch(e){ return ''; }
+}
+function buildReceiptHTML(o, cfg){
+  const qr = qrDataURL();
+  const logo = (document.getElementById('logo')?.src)||'';
+  const brandCSS = `
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial;margin:0;padding:24px;color:#000}
+    .head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid ${'#063d3f'};padding-bottom:10px;margin-bottom:14px}
+    .brand{display:flex;align-items:center;gap:10px}
+    .brand img{height:42px}
+    h1{font-size:20px;margin:0}
+    .meta{font-size:12px;color:#333}
+    .kv{display:flex;justify-content:space-between;border:1px solid #ddd;border-radius:10px;padding:10px;margin:6px 0}
+    .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+    .ok{color:#0a8f3c;font-weight:700}
+    .badge{display:inline-block;padding:3px 8px;border-radius:999px;background:${'#d4a017'};color:#101010;font-weight:700;font-size:12px}
+    .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+    .box{border:1px solid #ddd;border-radius:10px;padding:12px}
+    .footer{margin-top:18px;font-size:12px;color:#555}
+  `;
+  return `
+  <!doctype html><html><head><meta charset="utf-8"><title>Receipt ${o.order_id}</title>
+  <style>${brandCSS}</style></head><body>
+    <div class="head">
+      <div class="brand">
+        ${logo ? `<img src="${logo}" alt="logo">` : ``}
+        <div>
+          <h1>Cheque Matez — Receipt</h1>
+          <div class="meta">WAMD (phone transfer) • ${new Date().toLocaleString()}</div>
+        </div>
+      </div>
+      <div><span class="badge">${o.status.toUpperCase()}</span></div>
+    </div>
+
+    <div class="grid">
+      <div class="box">
+        <div class="kv"><div>Order</div><div class="mono">${o.order_id}</div></div>
+        <div class="kv"><div>Amount</div><div>${fmtKWD(o.amount_kwd)} ${cfg.ccy}</div></div>
+        <div class="kv"><div>Status</div><div class="${o.status==='paid'?'ok':''}">${o.status.toUpperCase()}</div></div>
+        <div class="kv"><div>Paid at</div><div class="mono">${o.paid_at||'—'}</div></div>
+        <div class="kv"><div>Pay To (Phone)</div><div class="mono">${cfg.phone}</div></div>
+        <div class="kv"><div>Beneficiary</div><div>${cfg.bene}</div></div>
+        <div class="kv"><div>Reference</div><div class="mono">${o.order_id}</div></div>
+        <div class="kv"><div>Note</div><div>${o.note||'—'}</div></div>
+      </div>
+      <div class="box" style="text-align:center">
+        ${qr ? `<img src="${qr}" alt="QR" style="width:220px;height:220px">` : '<div style="font-size:12px;color:#999">QR unavailable</div>'}
+        <div class="meta" style="margin-top:8px">Scan in bank app if supported</div>
+      </div>
+    </div>
+
+    <div class="box" style="margin-top:12px">
+      <div class="kv"><div>Payer</div><div>${o.payer_name} — <span class="mono">${o.payer_phone||''}</span></div></div>
+      <div class="kv"><div>Recipient (after funds received)</div><div>${o.recipient_name} — <span class="mono">${o.recipient_phone||''}</span></div></div>
+    </div>
+
+    <div class="footer">If you need support, reply to this message with the order reference <span class="mono">${o.order_id}</span>.</div>
+    <script>window.onload = () => window.print();</script>
+  </body></html>
+  `;
+}
+function downloadReceipt(order_id){
+  const db = loadOrders(); const o = db[order_id]; if(!o) return;
+  const html = buildReceiptHTML(o, getCfg());
+  const w = window.open('', '_blank', 'noopener,noreferrer,width=900,height=700');
+  if(!w){ alert('Pop-up blocked. Allow pop-ups to download PDF.'); return; }
+  w.document.open(); w.document.write(html); w.document.close();
+}
+
+/* ---------- Actions ---------- */
+document.getElementById('btn_create').onclick = () => {
+  const cfg = getCfg();
+  const amount = parseFloat(in_amount.value||'0');
+  const payer_name  = in_payer_name.value.trim() || 'Customer';
+  const payer_phone = in_payer_phone.value.trim();
+  const rec_name    = in_rec_name.value.trim();
+  const rec_phone   = in_rec_phone.value.trim();
+  const note        = in_note.value.trim();
+
+  if(!(amount>0)) { elResult.textContent='Enter a valid amount.'; return; }
+  if(!cfg.phone){ elResult.textContent='Set your WAMD phone in Settings.'; return; }
+
+  const id = newOrderId(cfg.pref||'CMZ');
+  const db = loadOrders();
+  db[id] = {
+    order_id:id, amount_kwd:+amount.toFixed(3), currency:cfg.ccy||'KWD',
+    payer_name, payer_phone, recipient_name:rec_name, recipient_phone:rec_phone,
+    status:'pending', created_at:nowISO(), note
+  };
+  saveOrders(db);
+
+  const link = new URL(location.href); link.hash = `order=${encodeURIComponent(id)}`;
+  elResult.innerHTML = `Link created: <span class="mono">${id}</span> — <a class="link" href="${link.toString()}">open</a>`;
+  renderOrders();
+  showOrder(id);
+};
+
+btn_apply_logo.onclick = () => { const c = getCfg(); if(c.logo){ logoImg.src = c.logo; logoImg.style.display=''; } };
+btn_save_cfg.onclick = saveCfg;
+copy_phone.onclick = () => copyText(document.getElementById('val_phone')?.innerText || cfg_phone.value);
+copy_ref.onclick   = () => copyText(document.getElementById('val_ref')?.innerText || '');
+copy_all.onclick   = copyAll;
+btn_share.onclick  = share;
+
+btn_export.onclick = () => {
+  const blob = new Blob([localStorage.getItem(LS_KEY)||'{}'], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'cmz_wamd_orders.json'; a.click();
+};
+btn_clear.onclick = () => {
+  if(confirm('Clear local orders? This cannot be undone.')){
+    localStorage.removeItem(LS_KEY); renderOrders(); elPanel.style.display='none';
+  }
+};
+btn_recon.onclick = async () => {
+  const file = csv_file.files[0];
+  if(!file){ alert('Choose a CSV file'); return; }
+  const colAmt = csv_col_amount.value.trim() || 'Amount';
+  const colDesc= csv_col_desc.value.trim() || 'Description';
+
+  const text = await file.text();
+  const lines = text.split(/\r?\n/).filter(Boolean);
+  if(!lines.length){ alert('Empty CSV'); return; }
+
+  const head = lines[0].split(','); // change to ';' for semicolon CSVs
+  const ixAmt = head.indexOf(colAmt);
+  const ixDesc= head.indexOf(colDesc);
+  if(ixAmt<0 || ixDesc<0){ alert('Column names not found.'); return; }
+
+  const db = loadOrders();
+  let matched = 0;
+  for(let i=1;i<lines.length;i++){
+    const cols = lines[i].split(',');
+    if(cols.length !== head.length) continue;
+    const amt = parseFloat(cols[ixAmt].replace(/,/g,''));
+    const desc= cols[ixDesc];
+    for(const k of Object.keys(db)){
+      const o = db[k];
+      if(o.status==='paid') continue;
+      if(Math.abs(o.amount_kwd - amt) < 0.0001 && desc.includes(o.order_id)){
+        o.status='paid'; o.paid_at=nowISO(); o.bank_ref=desc.slice(0,240);
+        matched++;
+      }
+    }
+  }
+  saveOrders(db);
+  renderOrders();
+  recon_result.innerHTML = matched
+    ? `<span class="ok">${matched} order(s) marked PAID.</span>`
+    : `No matches found — ensure customers include the order reference in notes.`;
+};
+
+/* deep-link boot */
+(function boot(){
+  setCfg(loadCfg());
+  renderOrders();
+  const h = location.hash.match(/order=([^&]+)/);
+  if(h){ const id = decodeURIComponent(h[1]); showOrder(id); }
+})();
+</script>
+</body>
+</html>

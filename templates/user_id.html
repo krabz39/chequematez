@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Cheque Matez — Flip Card</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+:root{
+  --teal1:#063d3f; --teal2:#053c3f; --teal4:#063d40; --gold:#d4a017;
+  --ink:#eaf6f6; --muted:#9bc1c6;
+  --radius:22px; --chip-w:60px; --chip-h:44px;
+  --label:11px; --value:15px;
+
+  /* light panel below the card */
+  --panel:#ffffff; --line:#e9edf2; --text:#111; --text-d:#475467;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--ink);
+  background:radial-gradient(120% 120% at 10% 10%, #0b1517 0, #0b1517 40%, #071113 100%);
+  font:14px/1.35 ui-sans-serif,system-ui,Segoe UI,Inter,Arial;
+}
+.wrap{min-height:100%; display:grid; place-items:center; padding:18px 12px 26px; gap:14px}
+
+/* ===== Flip container ===== */
+.stage{ width:100%; display:grid; gap:10px; justify-items:center }
+.flip{
+  width:clamp(300px, 94vw, 920px);
+  aspect-ratio:85.6/54;
+  perspective:1400px;
+}
+.card3d{
+  position:relative; width:100%; height:100%;
+  transform-style:preserve-3d; transition:transform .7s cubic-bezier(.2,.8,.2,1);
+  cursor:pointer; outline:none;
+}
+.card3d.is-flipped{ transform:rotateY(180deg) }
+
+.face{
+  position:absolute; inset:0; border-radius:var(--radius);
+  overflow:hidden; backface-visibility:hidden;
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:0 30px 70px rgba(0,0,0,.40), 0 8px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08);
+  background:
+    radial-gradient(120% 100% at 100% 0%, rgba(212,160,23,.20) 0%, rgba(212,160,23,0) 50%),
+    linear-gradient(135deg, var(--teal1) 0%, var(--teal4) 52%, var(--teal2) 100%);
+}
+.face::before{
+  content:""; position:absolute; inset:-30%;
+  background:
+    repeating-linear-gradient(115deg, rgba(255,255,255,.06) 0 2px, rgba(255,255,255,0) 2px 6px),
+    radial-gradient(180% 60% at 0% 120%, rgba(5,60,63,.35), rgba(5,60,63,0) 70%);
+  mix-blend-mode:overlay; filter:blur(.6px); opacity:.35; pointer-events:none;
+}
+
+/* Header */
+.front .header,.back .header{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding: clamp(8px,1.8vw,18px) clamp(10px,2.2vw,22px) 0;
+}
+.brand{
+  border-left:8px solid var(--gold); padding-left:10px;
+  font-weight:900; letter-spacing:.10em; text-shadow:0 1px 0 rgba(0,0,0,.35);
+  font-size: clamp(12px,2.4vw,18px); line-height:1.1; color:#fff;
+}
+.status{
+  border:2px solid rgba(255,255,255,.28); background:rgba(255,255,255,.10);
+  border-radius:999px; padding:6px 10px; font-weight:900;
+  text-transform:uppercase; letter-spacing:.10em; color:#e8fff6;
+  backdrop-filter:blur(2px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 2px 8px rgba(0,0,0,.25);
+  font-size: clamp(9px,1.6vw,11px);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:52%;
+}
+.status.pending{ background:rgba(255,224,102,.92); border-color:#b38700; color:#4a3a00 }
+.status.approved{ background:rgba(140,239,185,.92); border-color:#198754; color:#0b3b27 }
+.status.declined{ background:rgba(255,148,148,.95); border-color:#b00020; color:#4a0000 }
+
+/* Front layout */
+.inner{
+  display:grid; grid-template-columns: 1fr minmax(150px, 240px); gap: clamp(10px,2.2vw,22px);
+  padding:8px clamp(10px, 2.2vw, 22px) clamp(10px, 2vw, 18px);
+  align-items:start;
+}
+.left{
+  display:grid; grid-template-columns:minmax(108px, 170px) 1fr;
+  gap: clamp(8px,2vw,24px); align-items:start;
+  padding: clamp(4px,1.6vw,18px) 0 0 clamp(2px,.6vw,6px);
+  min-width:0;
+}
+.photo{
+  width:var(--chip-w); height:var(--chip-h); border-radius:6px; margin-top:6px;
+  background:
+    linear-gradient(180deg,#d6c7a0,#baa774),
+    repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 2px, rgba(0,0,0,0) 2px 4px);
+  border:1.6px solid #8e7a4d; box-shadow: inset 0 0 0 1px rgba(255,255,255,.35), 0 6px 18px rgba(0,0,0,.35);
+}
+.fields{ display:grid; gap: clamp(5px,1.2vw,10px); min-width:0 }
+.kv{ display:grid; grid-template-columns:118px 1fr; gap:8px; align-items:center; min-width:0 }
+.kv .k{ font-weight:800; color:#bfe0e0; letter-spacing:.14em; font-size: clamp(9px,1.4vw,var(--label)); text-shadow:0 1px 0 rgba(0,0,0,.35) }
+.kv .v{ font-weight:900; color:#fff; letter-spacing:.06em; font-size: clamp(12px,1.9vw,var(--value)); text-shadow:0 1px 0 rgba(0,0,0,.60), 0 0 10px rgba(0,0,0,.20); overflow-wrap:anywhere }
+
+/* QR */
+.qrbox{ display:flex; align-items:flex-end; justify-content:flex-end; padding:0 6px 6px 0 }
+.qr{
+  width: clamp(96px, 32%, 170px);
+  height: auto; aspect-ratio: 1/1;
+  background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:12px;
+  display:grid; place-items:center;
+  box-shadow: 0 8px 22px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.45);
+}
+
+.footer{ padding:0 clamp(10px,2.2vw,22px) clamp(10px,2vw,18px); color:#e0f3f3; font-weight:800; letter-spacing:.20em; font-size: clamp(9px,1.4vw,11px); border-top:1px dashed rgba(255,255,255,.18); text-transform:uppercase }
+.small{ color:#bfe0e0; font-size: clamp(8px,1.3vw,10px); letter-spacing:.14em; margin-top:6px }
+.serial{ font-weight:900; color:#f7fbfb; letter-spacing:.12em; overflow-wrap:anywhere }
+
+/* Back face specifics */
+.back{
+  transform:rotateY(180deg);
+  background:
+    radial-gradient(120% 100% at 100% 0%, rgba(212,160,23,.18) 0%, rgba(212,160,23,0) 50%),
+    linear-gradient(135deg, #033033 0%, #083e41 52%, #042c2e 100%);
+}
+.mstripe{ position:absolute; left:0; right:0; top:17%; height:16%; background:#101418; box-shadow: inset 0 0 20px rgba(255,255,255,.05) }
+.sigrow{
+  position:absolute; left:clamp(10px,2.2vw,22px); right:clamp(10px,2.2vw,22px);
+  top:42%; display:grid; grid-template-columns:1fr 110px; gap:10px; align-items:center;
+}
+.sig{
+  height:40px; background:repeating-linear-gradient(0deg,#fff 0 2px,#f3f3f3 2px 6px);
+  border-radius:6px; border:1px solid rgba(0,0,0,.25); box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+}
+.cvvbox{
+  height:40px; display:flex; align-items:center; justify-content:center;
+  background:#fff; color:#111; font-weight:900; letter-spacing:.14em;
+  border-radius:6px; border:1px solid rgba(0,0,0,.25); box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+}
+.cvvlabel{
+  position:absolute; top: calc(42% - 18px); right: clamp(10px,2.2vw,22px);
+  font-size:12px; letter-spacing:.14em; color:#dbe9e9; text-transform:uppercase; font-weight:800;
+}
+.backqr{ position:absolute; left:0; right:0; bottom: clamp(10px,2vw,16px); display:grid; place-items:center; padding-bottom:8px }
+.backqr .qr{ width: clamp(96px, 34%, 170px); height:auto; aspect-ratio:1/1 }
+
+/* Flip button + scanner link */
+.actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.scanbtn, .kycbtn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:10px 16px; border:none; border-radius:999px;
+  background:linear-gradient(135deg, var(--gold), #f2d46b);
+  color:#111; font-weight:900; letter-spacing:.06em; cursor:pointer;
+  box-shadow:0 6px 16px rgba(212,160,23,.35); text-decoration:none;
+}
+.scanbtn:focus,.kycbtn:focus{ outline:3px solid rgba(212,160,23,.6); outline-offset:2px }
+
+/* Admin/Merchant editor (disabled on this page; approvals happen in /admin/kyc) */
+.owner{ display:none; }
+
+/* Responsive tweaks for card */
+@media (max-width:720px){
+  .inner{ grid-template-columns: 1fr; }
+  .qrbox{ justify-content:center; padding: 6px 0 10px 0; }
+  .status{ max-width:100% }
+}
+@media (max-width:540px){
+  :root{ --chip-w:46px; --chip-h:32px; --label:10px; --value:14px; }
+  .left{ grid-template-columns:1fr; padding-left:0 }
+  .kv{ grid-template-columns:1fr; gap:6px }
+  .front .header,.back .header{ padding:8px 10px 0 }
+  .footer{ padding:0 10px 10px }
+}
+@media (max-width:380px){
+  .brand{ border-left-width:6px }
+}
+.fields,.kv .v,.serial{ min-width:0; overflow-wrap:anywhere }
+
+/* ========= Voucher + Receipt panels (light) ========= */
+.section{
+  width:min(980px, 98vw);
+  display:grid; gap:10px; justify-items:stretch;
+}
+.panel{
+  background:var(--panel); color:var(--text);
+  border:1px solid var(--line); border-radius:14px; padding:16px;
+  box-shadow:0 8px 24px rgba(16,24,40,.20);
+}
+.h2{margin:0 0 10px; color:var(--teal1); font-weight:900; letter-spacing:.02em; font-size:1.1rem}
+.row{display:grid; grid-template-columns:repeat(12,1fr); gap:12px}
+.col-6{grid-column:span 6} .col-12{grid-column:span 12}
+label{font-weight:800; color:#0f2f30}
+input,select{
+  width:100%; padding:10px 12px; margin-top:6px;
+  border:1px solid #d0d5dd; border-radius:10px; font-size:15px; background:#fff; color:#111;
+}
+input[readonly]{
+  background:#f6f7fb;
+  color:#666;
+}
+button.btn{
+  padding:10px 14px; border:none; border-radius:999px; background:var(--gold); color:#111; font-weight:900; cursor:pointer
+}
+.badge-pill{display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; font-size:.86rem}
+.progress{background:#fff7e0; color:#8a6d00}
+.ok{background:#e8ffe8; color:#2f7d32}
+.fail{background:#ffe8e8; color:#b00020}
+.small{color:var(--text-d); font-size:.94rem}
+.hr{height:1px; background:#eff2f6; margin:12px 0}
+
+/* mini chart container */
+#calc_chart_wrap{ margin-top:8px }
+.hidden{ display:none }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ========= CARD ========= -->
+  <div class="stage">
+    <div class="flip" aria-label="Cheque Matez card. Tap or press Enter to flip.">
+      <div class="card3d" id="card3d" tabindex="0" role="button" aria-pressed="false">
+
+        <!-- FRONT -->
+        <section class="face front" aria-label="Front side">
+          <div class="header">
+            <div class="brand">CHEQUEMATEZ</div>
+            <div class="status {{ (status or 'PENDING')|lower }}" id="status_badge">{{ (status or 'PENDING')|upper }}</div>
+          </div>
+
+          <div class="inner">
+            <div class="left">
+              <div class="photo" aria-label="EMV chip"></div>
+              <div class="fields">
+                <div class="kv"><div class="k">USER ID</div>    <div class="v" id="f_userid">—</div></div>
+                <div class="kv"><div class="k">CARDHOLDER</div> <div class="v" id="f_name">—</div></div>
+                <div class="kv"><div class="k">COUNTRY</div>    <div class="v" id="f_country">—</div></div>
+                <div class="kv"><div class="k">ISSUED</div>     <div class="v" id="f_issue">—</div></div>
+                <div class="kv"><div class="k">EXPIRES</div>    <div class="v" id="f_exp">—</div></div>
+              </div>
+            </div>
+            <div class="qrbox"><div class="qr" id="qr_front"></div></div>
+          </div>
+
+          <div class="footer">
+            <div class="serial" id="serial">CM-KW-—</div>
+            <div class="small">QR encodes a tokenized link to this card.</div>
+          </div>
+        </section>
+
+        <!-- BACK -->
+        <section class="face back" aria-label="Back side">
+          <div class="header">
+            <div class="brand">CHEQUEMATEZ</div>
+            <div class="status {{ (status or 'PENDING')|lower }}" id="status_badge_b">{{ (status or 'PENDING')|upper }}</div>
+          </div>
+
+          <div class="mstripe" aria-hidden="true"></div>
+          <div class="cvvlabel">CVV (hashed)</div>
+          <div class="sigrow">
+            <div class="sig" title="Signature strip"></div>
+            <div class="cvvbox"><span id="cvv_hash">•••</span></div>
+          </div>
+
+          <div class="backqr"><div class="qr" id="qr_back"></div></div>
+        </section>
+
+      </div>
+    </div>
+
+    <div class="actions">
+      <!-- REPLACED: Flip button -> KYC button -->
+      <a class="kycbtn" id="kyc_btn" href="/kyc" target="_blank">🪪 Complete KYC</a>
+      <a class="scanbtn" id="scan_btn" href="#" target="_blank" style="display:none">📷 Open Scanner View</a>
+    </div>
+  </div>
+
+  <!-- Admin/Merchant editor intentionally hidden (KYC approves in /admin/kyc) -->
+  <div class="owner" id="owner_panel"></div>
+
+  <!-- ========= Voucher + Receipt section ========= -->
+  <div class="section">
+
+    <!-- Create voucher -->
+    <div class="panel" style="margin-top:10px">
+      <div class="h2">Create Payment Voucher (one-time QR / link)</div>
+      <div class="row">
+        <div class="col-6">
+          <label>User ID (locked)</label>
+          <input id="payer_user_id" placeholder="Auto-filled…" readonly disabled title="Managed by system">
+        </div>
+        <div class="col-6">
+          <label>Your name (payer)</label>
+          <input id="payer_name" value="{{ (user.full_name or user.username) }}" placeholder="Name">
+        </div>
+        <div class="col-6">
+          <label>Your phone (Mpesa)</label>
+          <input id="payer_phone" value="{{ user.phone }}" placeholder="2547XXXXXXXX">
+        </div>
+        <div class="col-6">
+          <label>Merchant/Shop ID</label>
+          <input id="merchant_id" value="shop-001" placeholder="e.g. SHOP-123">
+        </div>
+
+        <!-- Currency + max amount + preview amount -->
+        <div class="col-6">
+          <label>Max amount currency</label>
+          <select id="max_currency">
+            <option value="KES">KES</option>
+            <option value="KWD">KWD</option>
+          </select>
+        </div>
+        <div class="col-6">
+          <label>Max amount</label>
+          <input id="max_amount" type="number" min="1" step="1" placeholder="e.g. 5000">
+        </div>
+        <div class="col-6">
+          <label>Preview amount</label>
+          <input id="preview_amount" type="number" min="1" step="1" placeholder="Try a number…">
+        </div>
+      </div>
+
+      <!-- Live rate from admin -->
+      <div class="small" id="rate_hint" style="margin-top:6px">Fetching live rate…</div>
+
+      <!-- Calculator summary + chart -->
+      <div id="calc_preview" class="small" style="margin-top:8px"></div>
+      <div id="calc_chart_wrap" class="hidden">
+        <canvas id="calcMiniChart" height="110"></canvas>
+      </div>
+
+      <div class="hr"></div>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+        <button class="btn" id="btn_create">Generate Voucher</button>
+        <span id="create_hint" class="small"></span>
+      </div>
+
+      <!-- area that will display the voucher UI after creation -->
+      <div id="voucher_area" class="hr" style="display:none"></div>
+      <div id="voucher_panel" style="display:none"></div>
+    </div>
+
+    <!-- Receipt panel (shown after success) -->
+    <div class="panel" id="receipt_panel" style="display:none">
+      <div class="h2">Receipt</div>
+      <div id="receipt_html"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<!-- Chart.js for the mini chart -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* ======== CARD JS (status from id_status; CVV hash; scanner link) ======== */
+(async function(){
+  const USERNAME = "{{ user.username|e }}";
+  const ORIGIN = window.location.origin;
+
+  const $ = (id)=>document.getElementById(id);
+  const setText=(id,val)=>$(id).textContent = (val && String(val).trim()) || "—";
+  const setBadge=(id,state)=>{
+    const b=$(id);
+    b.classList.remove('pending','approved','declined');
+    const cls=(state||'pending').toLowerCase();
+    b.classList.add(cls);
+    b.textContent=(cls==='approved'?'APPROVED':cls==='declined'?'DECLINED':'PENDING');
+  };
+
+  const card3d = $('card3d');
+  function isBack(){ return card3d.classList.contains('is-flipped'); }
+  function setFlipped(back){
+    card3d.classList.toggle('is-flipped', !!back);
+    const pressed = back ? 'true' : 'false';
+    card3d.setAttribute('aria-pressed', pressed);
+    // no flip button anymore; keep ARIA only on the card
+  }
+  function toggleFlip(){ setFlipped(!isBack()); }
+  card3d.addEventListener('click', toggleFlip);
+  card3d.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleFlip(); }});
+
+  function renderQR(elId){
+    const el = document.getElementById(elId);
+    if(!el) return;
+    const rect = el.getBoundingClientRect();
+    const size = Math.max(90, Math.floor(Math.min(rect.width, rect.height || rect.width)));
+    el.innerHTML = "";
+    new QRCode(el, {
+      text: `${ORIGIN}/u/${encodeURIComponent(USERNAME)}`,
+      width: size,height: size,correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+  const renderBothQR = ()=>{ renderQR('qr_front'); renderQR('qr_back'); };
+  setTimeout(renderBothQR, 0);
+  let t; window.addEventListener('resize', ()=>{ clearTimeout(t); t=setTimeout(renderBothQR,120); });
+
+  const todayISO = new Date().toISOString().slice(0,10);
+  setText('f_issue', todayISO);
+
+  let profile = {};
+  try{
+    const r = await fetch(`/api/user/${encodeURIComponent(USERNAME)}`, {credentials:'same-origin'});
+    const j = await r.json();
+    if(j && j.ok){ profile = j.profile || {}; }
+  }catch(e){}
+
+  setText('f_userid',  profile.user_id || '');
+  setText('f_name',    profile.full_name || USERNAME.toUpperCase());
+  setText('f_country', profile.country || 'KW');
+  setText('f_exp',     profile.expiry || '');
+  $('serial').textContent = profile.user_id || 'CM-KW-—';
+
+  // Status from id_status
+  const st = (profile.id_status || 'pending').toLowerCase();
+  setBadge('status_badge', st);
+  setBadge('status_badge_b', st);
+
+  // CVV hash preview (3 chars from hash for display only)
+  const cvvHash = profile.cvv_hash || profile.cvv3_hash || '';
+  $('cvv_hash').textContent = cvvHash ? cvvHash.slice(0,3) : '•••';
+
+  // Scanner button: enable once we know user_id (with simple cache-buster)
+  if (profile.user_id){
+    const scanBtn = document.getElementById('scan_btn');
+    scanBtn.href = `/scan/${encodeURIComponent(profile.user_id)}?t=${Date.now()}`;
+    scanBtn.style.display = 'inline-flex';
+  }
+
+  // KYC button: replace flip, show/hide/rename by status
+  const kycBtn = document.getElementById('kyc_btn');
+  if (kycBtn){
+    if (st === 'approved'){
+      kycBtn.style.display = 'none';
+    } else if (st === 'declined'){
+      kycBtn.textContent = '🪪 Resubmit KYC';
+      kycBtn.style.display = 'inline-flex';
+    } else {
+      kycBtn.textContent = '🪪 Complete KYC';
+      kycBtn.style.display = 'inline-flex';
+    }
+  }
+
+  // Expose user_id to voucher panel defaults
+  try{
+    const userIdField = document.getElementById('payer_user_id');
+    if (userIdField){ userIdField.value = profile.user_id || ''; }
+  }catch(e){}
+})();
+</script>
+
+<!-- ======== Voucher + Receipt JS (kept) ======== -->
+<script>
+(function(){
+  const payerUserIdEl= document.getElementById('payer_user_id');
+  const payerNameEl  = document.getElementById('payer_name');
+  const payerPhoneEl = document.getElementById('payer_phone');
+  const merchantEl   = document.getElementById('merchant_id');
+  const maxAmtEl     = document.getElementById('max_amount');
+  const maxCurEl     = document.getElementById('max_currency');
+  const prevAmtEl    = document.getElementById('preview_amount');
+  const btnCreate    = document.getElementById('btn_create');
+  const createHint   = document.getElementById('create_hint');
+  const voucherArea  = document.getElementById('voucher_area');
+  const voucherPanel = document.getElementById('voucher_panel');
+  const receiptPanel = document.getElementById('receipt_panel');
+  const receiptHTML  = document.getElementById('receipt_html');
+  const rateHint     = document.getElementById('rate_hint');
+
+  let CURRENT_RATE = 420; // updated from /api/rate (admin-controlled)
+  let miniChart = null;
+  let activeCode = null;
+  let poller = null;
+
+  const fmt = (v)=> Number(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  // simple preview fee (front-end display only; backend uses table)
+  const feeKes = (amountKes)=> Math.min(200, (Number(amountKes||0)*0.018) + 10);
+
+  /* Get User ID */
+  (async function ensureUserId(){
+    if (payerUserIdEl && !payerUserIdEl.value){
+      try{
+        const USERNAME = "{{ user.username|e }}";
+        const r = await fetch(`/api/user/${encodeURIComponent(USERNAME)}`, {credentials:'same-origin'});
+        const j = await r.json();
+        if (r.ok && j && j.ok && j.profile && j.profile.user_id){
+          payerUserIdEl.value = j.profile.user_id;
+        }
+      }catch(e){}
+    }
+  })();
+
+  /* --------- Get admin rate (GET only) --------- */
+  async function fetchRate(){
+    try{
+      const r = await fetch('/api/rate', {credentials:'same-origin', cache:'no-store'});
+      const j = await r.json();
+      if(r.ok && j && j.ok){ CURRENT_RATE = Number(j.rate)||420; }
+    }catch(e){}
+    rateHint.textContent = `Live rate: 1 KWD = ${fmt(CURRENT_RATE)} KES`;
+  }
+
+  /* --------- Calculator preview + mini chart --------- */
+  function renderCalc(){
+    const cur = maxCurEl.value;
+    theAmt = parseFloat(prevAmtEl.value||'0')||0;
+
+    const previewBox = document.getElementById('calc_preview');
+    const chartWrap  = document.getElementById('calc_chart_wrap');
+
+    if (theAmt <= 0){
+      previewBox.innerHTML = '';
+      chartWrap.classList.add('hidden');
+      if (miniChart){ miniChart.destroy(); miniChart=null; }
+      return;
+    }
+
+    const amtKES = (cur==='KWD') ? theAmt*CURRENT_RATE : theAmt;
+    const feeKESv = feeKes(amtKES);
+    const totKES = amtKES + feeKESv;
+
+    const amtKWD = amtKES / CURRENT_RATE;
+    const feeKWD = feeKESv / CURRENT_RATE;
+    const totKWD = totKES / CURRENT_RATE;
+
+    const isKWD = (cur==='KWD');
+    const unit = isKWD ? 'KWD' : 'KES';
+    const unitAlt = isKWD ? 'KES' : 'KWD';
+
+    const amountPrimary = isKWD ? amtKWD : amtKES;
+    const feePrimary    = isKWD ? feeKWD : feeKESv;
+    const totalPrimary  = isKWD ? totKWD : totKES;
+
+    const amountAlt = isKWD ? amtKES : amtKWD;
+    const feeAlt    = isKWD ? feeKESv : feeKWD;
+    const totalAlt  = isKWD ? totKES : totKWD;
+
+    previewBox.innerHTML = `
+      <div><strong>Preview</strong> • Fees computed in KES then converted.</div>
+      <div>Amount: <strong>${fmt(amountPrimary)} ${unit}</strong>
+        <span class="badge-pill" style="background:#e8f7ff;color:#055">≈ ${fmt(amountAlt)} ${unitAlt}</span></div>
+      <div>Service fee: <strong>${fmt(feePrimary)} ${unit}</strong>
+        <span class="badge-pill" style="background:#e8f7ff;color:#055">≈ ${fmt(feeAlt)} ${unitAlt}</span></div>
+      <div>Total to charge: <strong>${fmt(totalPrimary)} ${unit}</strong>
+        <span class="badge-pill" style="background:#e8f7ff;color:#055">≈ ${fmt(totalAlt)} ${unitAlt}</span></div>
+    `;
+
+    // Simple, readable line chart
+    const values = [amountPrimary, feePrimary, totalPrimary];
+    const labels = [`Amount (${unit})`, `Fee (${unit})`, `Total (${unit})`];
+    chartWrap.classList.remove('hidden');
+    if (miniChart){ miniChart.destroy(); miniChart=null; }
+    const ctx = document.getElementById('calcMiniChart').getContext('2d');
+    miniChart = new Chart(ctx, {
+      type:'line',
+      data:{ labels, datasets:[{ label:`Quick View (${unit})`, data:values, borderWidth:2, tension:.25, pointRadius:3 }]},
+      options:{ responsive:true, plugins:{legend:{display:false}},
+        scales:{ y:{ ticks:{ callback:(v)=>fmt(v)}}, x:{ ticks:{ autoSkip:false }} }
+      }
+    });
+  }
+
+  // Helper: when cashier inputs KES in voucher panel, mirror into calculator preview
+  function setPreviewFromKes(kesAmount){
+    const cur = maxCurEl.value;
+    const inUnitVal = (cur==='KWD') ? (Number(kesAmount||0)/CURRENT_RATE) : Number(kesAmount||0);
+    prevAmtEl.value = Number.isFinite(inUnitVal) ? String(Math.max(0, Math.floor(inUnitVal*100)/100)) : '';
+    renderCalc();
+  }
+
+  /* --------- Create voucher --------- */
+  btnCreate.addEventListener('click', async ()=>{
+    try{
+      btnCreate.disabled = true; createHint.textContent='Creating…';
+      const fd = new FormData();
+      fd.append('user_id', (payerUserIdEl && payerUserIdEl.value) ? payerUserIdEl.value : ''); // bind to user account
+      fd.append('payer_name', (payerNameEl.value||'').trim());
+      fd.append('payer_phone', (payerPhoneEl.value||'').trim());
+      fd.append('merchant_id', (merchantEl.value||'shop-001').trim());
+
+      // Convert max to KES for backend (rate from admin)
+      const cur = maxCurEl.value;
+      const maxRaw = parseFloat(maxAmtEl.value||'0')||0;
+      const maxKES = cur==='KWD' ? Math.round(maxRaw*CURRENT_RATE) : Math.round(maxRaw);
+      if (maxKES>0) fd.append('max_amount', String(maxKES));
+
+      const r = await fetch('/api/vouchers/create', {method:'POST', body:fd});
+      const j = await r.json();
+      if(!r.ok || j.ok!==true) throw new Error(j.error || ('HTTP '+r.status));
+
+      activeCode = j.code;
+      createHint.innerHTML = `Voucher ready: <a href="${j.url}" target="_blank">${j.url}</a>`;
+      voucherArea.style.display = 'block';
+      renderVoucherPanel(j.code, merchantEl.value||'shop-001');
+    }catch(e){
+      alert(e.message || 'Failed to create voucher');
+    }finally{
+      btnCreate.disabled = false;
+    }
+  });
+
+  /* --------- Voucher panel (with live sync to calculator) --------- */
+  function renderVoucherPanel(code, merchant_id){
+    voucherPanel.style.display='block';
+    voucherPanel.innerHTML = `
+      <div class="h2" style="margin:6px 0 2px">Pay at: <strong>${merchant_id}</strong></div>
+      <div class="row">
+        <div class="col-6">
+          <label>Amount (KES)</label>
+          <input id="v_amount" type="number" min="1" step="1" placeholder="Enter amount">
+        </div>
+        <div class="col-6">
+          <label>Payout method</label>
+          <select id="v_payout_method">
+            <option value="">Select…</option>
+            <option value="phone">Mpesa (phone)</option>
+            <option value="till">Buy Goods/Till</option>
+            <option value="bank">Bank transfer</option>
+          </select>
+        </div>
+        <div class="col-12" id="v_pm_phone" style="display:none">
+          <label>Phone (2547… / 2541…)</label>
+          <input id="v_target_phone" placeholder="2547XXXXXXXX">
+        </div>
+        <div class="col-12" id="v_pm_till" style="display:none">
+          <label>Till / BuyGoods number</label>
+          <input id="v_target_till" placeholder="e.g. 123456">
+        </div>
+        <div class="col-12" id="v_pm_bank" style="display:none">
+          <label>Bank account</label>
+          <input id="v_target_bank" placeholder="e.g. 010123456789">
+          <div class="row" style="margin-top:8px">
+            <div class="col-6">
+              <label>Bank name (optional)</label>
+              <input id="v_bank_name" placeholder="e.g. KCB">
+            </div>
+            <div class="col-6">
+              <label>Branch (optional)</label>
+              <input id="v_bank_branch" placeholder="e.g. Westlands">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- fee now shows KES + KWD -->
+      <div id="v_fee" class="small" style="margin-top:6px"></div>
+
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px">
+        <button class="btn" id="v_pay">Request STK</button>
+        <span id="v_status" class="badge-pill progress" style="display:none">Processing…</span>
+        <img alt="Voucher QR" src="/v/${code}/qr.png" style="margin-left:auto;width:82px;height:82px;border:1px solid #e4e8ee;border-radius:8px;background:#fff">
+      </div>
+
+      <div id="v_success" style="display:none; margin-top:10px">
+        <span class="badge-pill ok">Success</span>
+        <div class="small" style="margin-top:6px">Payment received. You can proceed to deliver the goods.</div>
+        <div id="v_receipt_link" style="margin-top:6px"></div>
+      </div>
+
+      <div id="v_error" class="small" style="display:none; margin-top:10px">
+        <span class="badge-pill fail">Failed</span>
+        <div id="v_errmsg" style="margin-top:6px"></div>
+      </div>
+    `;
+
+    const amountEl = document.getElementById('v_amount');
+    const methodEl = document.getElementById('v_payout_method');
+    const feeEl    = document.getElementById('v_fee');
+    const statusEl = document.getElementById('v_status');
+    const okBox    = document.getElementById('v_success');
+    const okLink   = document.getElementById('v_receipt_link');
+    const errBox   = document.getElementById('v_error');
+    const errMsg   = document.getElementById('v_errmsg');
+
+    const pmPhone  = document.getElementById('v_pm_phone');
+    const pmTill   = document.getElementById('v_pm_till');
+    const pmBank   = document.getElementById('v_pm_bank');
+
+    const showPM=(w)=>{
+      pmPhone.style.display='none'; pmTill.style.display='none'; pmBank.style.display='none';
+      if(w==='phone') pmPhone.style.display='block';
+      if(w==='till')  pmTill.style.display='block';
+      if(w==='bank')  pmBank.style.display='block';
+    };
+
+    methodEl.addEventListener('change', e=> showPM(e.target.value));
+
+    // LIVE mirror: typing KES here updates calculator preview & fee shows in KES+KWD
+    amountEl.addEventListener('input', e=>{
+      const kes = parseFloat(e.target.value||'0')||0;
+      const fKES = feeKes(kes);
+      const fKWD = fKES / CURRENT_RATE;
+      const tKES = kes + fKES;
+      const tKWD = tKES / CURRENT_RATE;
+      feeEl.innerHTML = kes>0
+        ? `Fee: <strong>${fmt(fKES)} KES</strong> (≈ ${fmt(fKWD)} KWD) • Total: <strong>${fmt(tKES)} KES</strong> (≈ ${fmt(tKWD)} KWD)`
+        : '';
+      setPreviewFromKes(kes);
+    });
+
+    document.getElementById('v_pay').addEventListener('click', async ()=>{
+      try{
+        errBox.style.display='none'; okBox.style.display='none';
+        statusEl.style.display='inline-block'; statusEl.textContent='Processing…';
+
+        const fd = new FormData();
+        fd.append('amount', amountEl.value || '');
+        fd.append('payout_method', methodEl.value || '');
+
+        if (methodEl.value === 'phone')
+          fd.append('payout_target', document.getElementById('v_target_phone').value || '');
+        if (methodEl.value === 'till')
+          fd.append('payout_target', document.getElementById('v_target_till').value || '');
+        if (methodEl.value === 'bank'){
+          fd.append('payout_target', document.getElementById('v_target_bank').value || '');
+          fd.append('payout_bank_name', document.getElementById('v_bank_name').value || '');
+          fd.append('payout_bank_branch', document.getElementById('v_bank_branch').value || '');
+        }
+
+        const r = await fetch(`/api/vouchers/${code}/pay`, {method:'POST', body:fd});
+        const j = await r.json();
+        if(!r.ok || j.ok!==true) throw new Error(j.error || ('HTTP '+r.status));
+
+        if (poller) clearInterval(poller);
+        poller = setInterval(async ()=>{
+          try{
+            const rs = await fetch(`/api/vouchers/${code}/status`);
+            const js = await rs.json();
+            if(!rs.ok || js.ok!==true) return;
+
+            const v = js.voucher || {};
+            const st = (v.status||'').toLowerCase();
+
+            if (st==='processing'){ statusEl.style.display='inline-block'; statusEl.textContent='Processing…'; }
+            if (st==='credited' || (v.used && v.receipt_url)){
+              clearInterval(poller);
+              statusEl.style.display='none';
+              okBox.style.display='block';
+              okLink.innerHTML = `<a href="${v.receipt_url}" target="_blank">View receipt</a>`;
+              renderReceipt(v.receipt_url);
+            }
+            if (st==='failed'){
+              clearInterval(poller);
+              statusEl.style.display='none';
+              errBox.style.display='block';
+              errMsg.textContent = 'Payment failed or voucher expired.';
+            }
+          }catch(_){}
+        }, 2500);
+      }catch(e){
+        statusEl.style.display='none';
+        errBox.style.display='block';
+        errMsg.textContent = e.message || 'Failed to initiate payment';
+      }
+    });
+  }
+
+  /* --------- Receipt embed (isolation to avoid style clash) --------- */
+  async function renderReceipt(url){
+    try{
+      const r = await fetch(url, {cache:'no-store'});
+      if (!r.ok){
+        receiptPanel.style.display='block';
+        receiptHTML.innerHTML = `<div class="small" style="color:#b00020">Could not load receipt (HTTP ${r.status})</div>`;
+        return;
+      }
+      const html = await r.text();
+      receiptPanel.style.display='block';
+      receiptHTML.innerHTML = '';
+      const iframe = document.createElement('iframe');
+      iframe.style.width = '100%';
+      iframe.style.border = '1px solid var(--line)';
+      iframe.style.borderRadius = '12px';
+      iframe.onload = ()=>{ try{ iframe.style.height = Math.max(420, iframe.contentDocument.body.scrollHeight+20)+'px'; }catch{} };
+      receiptHTML.appendChild(iframe);
+      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
+    }catch(e){
+      receiptPanel.style.display='block';
+      receiptHTML.innerHTML = `<div class="small" style="color:#b00020">${e.message || 'Failed to load receipt'}</div>`;
+    }
+  }
+
+  /* --------- Init --------- */
+  maxCurEl.addEventListener('change', renderCalc);
+  prevAmtEl.addEventListener('input', renderCalc);
+
+  fetchRate().then(renderCalc);
+})();
+</script>
+</body>
+</html>

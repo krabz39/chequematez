@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Users — Admin · ChequeMatez</title>
+<style>
+  /* Brand palette pulled from logo */
+  :root{
+    --black:#000000; --red:#ff0000;
+    --teal-1:#063d3f; --teal-2:#053c3f; --teal-3:#053d3f; --teal-4:#063d40; --teal-5:#063c3f; --teal-6:#053d40;
+    --gold:#d4a017;
+
+    --ink:#111; --muted:#555; --line:#e6e8eb; --pill:#f6f7f9;
+    --ok-bg:#e8ffe8; --ok-br:#b7e4b7;
+    --warn-bg:#fff7e0; --warn-br:#ffe08a;
+    --bad-bg:#ffe8e8; --bad-br:#ffb3b3;
+    --teal-ink:#063d3f;
+  }
+  body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif; color:var(--ink); max-width:1100px; margin:24px auto; padding:0 16px; line-height:1.55}
+  h1{margin:.2rem 0 8px}
+  .hint{color:var(--muted); font-size:.95rem; margin-bottom:12px}
+  .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0 14px}
+  input[type="search"], input[type="text"], input[type="email"], select{
+    padding:8px 10px; border:1px solid #ccc; border-radius:8px; font:inherit
+  }
+  button,.btn{
+    padding:8px 12px; border:1px solid #ccc; border-radius:8px; background:#f6f6f6; font-weight:700; cursor:pointer; text-decoration:none; color:inherit
+  }
+  .btn.primary{background:var(--gold); border-color:var(--gold); color:#111}
+  .btn.teal{background:var(--teal-1); border-color:var(--teal-1); color:#fff}
+  .btn.red{background:var(--red); border-color:var(--red); color:#fff}
+  .btn.warn{background:#ffcd57; border-color:#ffcd57; color:#111}
+  table{width:100%; border-collapse:collapse; border:1px solid var(--line)}
+  th,td{padding:10px; border-bottom:1px solid var(--line); text-align:left; font-size:.95rem; vertical-align:top}
+  th{background:#fafbfc}
+  .badge{display:inline-block; padding:2px 8px; border-radius:999px; background:var(--pill); border:1px solid #ddd; font-size:.85rem}
+  .badge.ok{background:var(--ok-bg); border-color:var(--ok-br)}
+  .badge.warn{background:var(--warn-bg); border-color:var(--warn-br)}
+  .badge.bad{background:var(--bad-bg); border-color:var(--bad-br)}
+  .actions a{margin-right:8px}
+  .grid{display:grid; gap:12px}
+  @media (min-width: 980px){ .grid.cols-2{grid-template-columns: 1.5fr 1fr} }
+  .card{border:1px solid var(--line); border-radius:12px; padding:12px}
+  .card h2{margin:.2rem 0 8px}
+  .right{display:flex; gap:8px; margin-left:auto}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  .small{font-size:.92rem}
+  .row{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .section-title{display:flex; align-items:center; justify-content:space-between; gap:8px}
+  .pill{display:inline-block; padding:2px 8px; border-radius:999px; background:#f6f7f9; border:1px solid #ddd}
+  .stat{color:var(--teal-ink); font-weight:700}
+  @media print{
+    .controls, .actionsbar, .no-print, .status-actions, .right { display:none !important; }
+    a[href]:after{content:""} /* clean links in print */
+    body{margin:0; max-width:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="section-title">
+    <div>
+      <h1>Admin — Users</h1>
+      <div class="hint">Search, review, edit, and (temporarily or permanently) suspend/disable/restore users. Use “Print / Save PDF” for audit records.</div>
+    </div>
+    <div class="row no-print">
+      <button class="btn" type="button" onclick="window.print()">Print / Save PDF</button>
+      <a class="btn teal" href="/admin">Admin Home</a>
+    </div>
+  </div>
+
+  <div class="controls">
+    <form method="get" class="no-print" style="display:flex; gap:8px; align-items:center">
+      <input type="search" name="q" placeholder="Search username / email / phone" value="{{ q or '' }}">
+      <select name="status">
+        {% set sel_status = (status or '').lower() %}
+        {% for s in ['','active','suspended','disabled'] %}
+          <option value="{{ s }}" {{ 'selected' if sel_status==s else '' }}>{{ s or 'all statuses' }}</option>
+        {% endfor %}
+      </select>
+      <select name="kyc">
+        {% set sel_kyc = (kyc or '').lower() %}
+        {% for k in ['','pending','approved','rejected'] %}
+          <option value="{{ k }}" {{ 'selected' if sel_kyc==k else '' }}>{{ k or 'all KYC' }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn primary">Search</button>
+    </form>
+    <a class="btn no-print" href="{{ json_url or '/api/admin/users' }}?limit=500" target="_blank">Export JSON</a>
+  </div>
+</header>
+
+<section class="grid cols-2">
+  <!-- LIST -->
+  <div class="card">
+    <div class="section-title">
+      <h2>Users (latest 500)</h2>
+      <div class="pill">Total: <span class="stat">{{ total or (users|length if users else 0) }}</span></div>
+    </div>
+    <table aria-label="Users">
+      <thead>
+        <tr>
+          <th>ID</th><th>Username</th><th>Name</th><th>Email</th><th>Phone</th>
+          <th>Verified</th><th>KYC</th><th>Status</th><th>Joined</th><th class="no-print">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if users and users|length>0 %}
+          {% for u in users %}
+          <tr>
+            <td class="mono">{{ u.id }}</td>
+            <td class="mono">{{ u.username }}</td>
+            <td>{{ u.full_name or '—' }}</td>
+            <td>{{ u.email or '—' }}</td>
+            <td>{{ u.phone or '—' }}</td>
+            <td>{% if u.verified or u.is_verified %}<span class="badge ok">Yes</span>{% else %}<span class="badge">No</span>{% endif %}</td>
+            <td>{{ u.kyc_status or u.kyc_level or 'none' }}</td>
+            <td>
+              {% set st = (u.status or 'active')|lower %}
+              {% if st=='active' %}<span class="badge ok">active</span>
+              {% elif st=='suspended' %}<span class="badge warn">suspended</span>
+              {% elif st=='disabled' %}<span class="badge bad">disabled</span>
+              {% else %}<span class="badge">{{ st }}</span>{% endif %}
+            </td>
+            <td>{{ u.created_at }}</td>
+            <td class="no-print actions">
+              <a href="/admin/users?id={{ u.id }}">Edit</a>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="10" class="small">No users found.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- EDIT -->
+  <div class="card">
+    <h2>Edit User</h2>
+    {% if edit_user %}
+    <form method="post" action="/admin/users/{{ edit_user.id }}" class="grid" style="gap:10px" onsubmit="return confirmSave()">
+      <div>
+        <label>Username</label>
+        <div class="mono">{{ edit_user.username }}</div>
+      </div>
+      <div>
+        <label>Full name</label>
+        <input name="full_name" value="{{ edit_user.full_name or '' }}">
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" name="email" value="{{ edit_user.email or '' }}">
+      </div>
+      <div>
+        <label>Phone</label>
+        <input name="phone" value="{{ edit_user.phone or '' }}">
+      </div>
+      <div>
+        <label>KYC Status</label>
+        <select name="kyc_status">
+          {% set kyc_cur = (edit_user.kyc_status or 'pending') %}
+          {% for lvl in ["pending","approved","rejected"] %}
+            <option value="{{ lvl }}" {{ 'selected' if kyc_cur==lvl else '' }}>{{ lvl }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Account Status</label>
+        <select name="status" id="status_select">
+          {% set st_cur = (edit_user.status or 'active') %}
+          {% for s in ["active","suspended","disabled"] %}
+            <option value="{{ s }}" {{ 'selected' if st_cur==s else '' }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Daily Limit (KWD)</label>
+        <input type="text" name="limits_daily_kwd" value="{{ edit_user.limits_daily_kwd or '0' }}">
+      </div>
+      <div>
+        <label>Monthly Limit (KWD)</label>
+        <input type="text" name="limits_month_kwd" value="{{ edit_user.limits_month_kwd or '0' }}">
+      </div>
+      <div>
+        <label><input type="checkbox" name="verified" {{ 'checked' if (edit_user.verified or edit_user.is_verified) else '' }}> Verified</label>
+      </div>
+
+      <div class="actionsbar no-print" style="display:flex; gap:8px; align-items:center; margin-top:6px; flex-wrap:wrap">
+        <button type="submit" class="btn primary">Save</button>
+        <a class="btn" href="/admin/users">Cancel</a>
+        <button type="button" class="btn" onclick="window.print()">Print / Save PDF</button>
+
+        <!-- Quick state actions -->
+        <div class="status-actions" style="margin-left:auto; display:flex; gap:6px; flex-wrap:wrap">
+          <button type="button" class="btn warn" onclick="quickState('suspended')">Suspend</button>
+          <button type="button" class="btn red" onclick="quickState('disabled')">Disable</button>
+          <button type="button" class="btn teal" onclick="quickState('active')">Restore</button>
+        </div>
+      </div>
+
+      <div class="small" style="color:var(--muted); margin-top:6px">
+        Created: {{ edit_user.created_at }}{% if edit_user.updated_at %} · Updated: {{ edit_user.updated_at }}{% endif %}
+      </div>
+    </form>
+    {% else %}
+      <div class="hint">Select a user from the table to edit. (Click “Edit”.)</div>
+    {% endif %}
+  </div>
+</section>
+
+<footer class="small" style="margin-top:16px; color:var(--muted)">
+  © ChequeMatez — internal tools · <a href="/legal">Terms & Privacy</a>
+</footer>
+
+<script>
+  function confirmSave(){
+    return confirm('Save changes to this user?');
+  }
+  function quickState(state){
+    const sel = document.getElementById('status_select');
+    if(!sel) return;
+    const verb = state==='active' ? 'restore this user to ACTIVE' :
+                 state==='suspended' ? 'SUSPEND this user (temporary)' :
+                 'DISABLE this user (permanent)';
+    if(!confirm('Are you sure you want to ' + verb + '?')) return;
+    sel.value = state;
+    // auto-submit the first (and only) form in the edit card
+    sel.form?.submit();
+  }
+</script>
+
+</body>
+</html>

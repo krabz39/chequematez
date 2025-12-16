@@ -1,0 +1,22 @@
+{
+  "Eugene": {
+    "password_hash": "scrypt:32768:8:1$zkJBO86EUjdml5of$2c24c67f8e13ed9226266b13bad3efc9942f64e4c71a0d3266b8f78ed61b333e7c2a8916f75b4f27ed9ba0b1721e36a2d1ac2c23f85269d82b438094a7972aa2",
+    "email": "eugenekirubi@gmail.com",
+    "role": "admin"
+  },
+  "Krabz": {
+    "password_hash": "scrypt:32768:8:1$NHe0wDSKtx2KfvXT$088e298cf6abba85becc449b4f888e1e4a7a46626b1dc4f1272437cb362e7a2e8e2c55ac0f13488de2d6931758e7bffcff2bbb0cad5d53fb979ef33be1629ca3",
+    "email": "eugenecrabs321@gmail.com",
+    "role": "customer"
+  },
+  "Merchant1": {
+    "password_hash": "scrypt:32768:8:1$tWHYoSS8Ww82vFXB$29fb8ee5df2839965f8f247bb7fb6f86daa8d3f66b8bca576c2a4a101c99688726f58bf2dc4d5e9da96440315f8340ffe6e4c87fd00bbfb4c463e39f886e0e99",
+    "email": "merchant@gmail.com",
+    "role": "merchant"
+  },
+  "john": {
+    "password_hash": "scrypt:32768:8:1$gmh84hBuqYMhsYxe$e45bddddbb36ece86ce46d8a6dda7952198a3473ee633987c446601b90c094b176fcb6e5b592c64d430f32737e4a73b10c8048f32386677c4808fa67bfaff8f3",
+    "email": "testemail1@gmail.com",
+    "role": "customer"
+  }
+}

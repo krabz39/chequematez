@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>chequematez — Merchant Dashboard</title>
+<style>
+:root{
+  --brand-black:#000; --brand-red:#b42318; --brand-teal-1:#063d3f; --brand-teal-2:#053c3f;
+  --brand-teal-3:#053d3f; --brand-teal-4:#063d40; --brand-teal-5:#063c3f; --brand-teal-6:#053d40;
+  --brand-gold:#d4a017; --panel:#ffffff; --muted:#666; --bg:#f5f7fa; --line:#e9edf2;
+}
+*{box-sizing:border-box}
+body{font-family:Inter, system-ui, -apple-system, Segoe UI, Arial, sans-serif; margin:0; background:var(--bg); color:#111;}
+/* Header */
+header{background:var(--brand-teal-1); color:#fff; padding:16px 20px; border-bottom:4px solid var(--brand-gold);}
+.brand{display:flex; align-items:center; gap:10px;}
+.brand h1{margin:0; font-size:1.2rem; letter-spacing:.2px}
+.role{opacity:.9; font-weight:600; font-size:.95rem; padding:.25rem .6rem; border:1px solid rgba(255,255,255,.25); border-radius:999px}
+nav{display:flex; gap:8px; flex-wrap:wrap}
+nav a, nav button{color:#fff; text-decoration:none; padding:8px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.2); background:transparent; cursor:pointer}
+nav a.active{background:rgba(255,255,255,.12)}
+.header-row{display:flex; align-items:center; justify-content:space-between}
+
+/* Layout */
+.container{padding:18px; max-width:1240px; margin:0 auto;}
+.row{display:grid; grid-template-columns:repeat(12, 1fr); gap:16px;}
+.col-3{grid-column:span 3;} .col-4{grid-column:span 4;} .col-5{grid-column:span 5;} .col-7{grid-column:span 7;} .col-6{grid-column:span 6;} .col-12{grid-column:span 12;}
+.card{background:var(--panel); border-radius:12px; padding:16px; border:1px solid var(--line); box-shadow:0 4px 18px rgba(16,24,40,.06)}
+.card h2{margin:0 0 10px; color:var(--brand-teal-2); font-size:1.05rem}
+
+/* Inputs */
+label{font-weight:650; color:var(--brand-teal-5); font-size:.95rem}
+input, select, textarea{width:100%; padding:10px 12px; margin-top:6px; border:1px solid #d0d5dd; border-radius:10px; font-size:.98rem; background:#fff}
+textarea{min-height:80px; resize:vertical}
+button{padding:10px 14px; border:none; border-radius:30px; background:var(--brand-gold); color:#111; font-weight:750; cursor:pointer}
+button:hover{background:#e1b632; outline:2px solid var(--brand-red);}
+
+/* NEW: make inputs inside flex rows expand properly */
+.input-row{display:flex; gap:8px; align-items:center;}
+.input-row > input, .input-row > select, .input-row > textarea{flex:1 1 auto; min-width:0;}
+
+/* Pill & info */
+.pill{display:inline-flex; align-items:center; gap:8px; font-weight:700; border-radius:999px; padding:6px 10px; background:#fff8e1; border:1px solid #f5e1a3}
+.muted{color:var(--muted); font-size:.92rem}
+.small{color:#555; font-size:.86rem}
+.hidden{display:none}
+
+/* Tables */
+.table-wrap{overflow:auto; -webkit-overflow-scrolling:touch;}
+table{width:100%; border-collapse:separate; border-spacing:0; border:1px solid var(--line); border-radius:12px; overflow:hidden; background:#fff}
+th, td{padding:12px; text-align:left; vertical-align:top; border-bottom:1px solid #f1f3f5}
+thead th{background:#f8fafc; font-weight:750; color:#222}
+tbody tr:hover{background:#fcfcfd}
+.num{text-align:right}
+
+/* Badges */
+.badge{display:inline-block; padding:4px 10px; border-radius:999px; font-weight:700; font-size:.85rem;}
+.badge.mpesa{background:#e8f7ff; color:#066;}
+.badge.bank{background:#e8ffe8; color:#064;}
+.badge.wamd{background:#eef7f7; color:#063d3f; border:1px solid #cfe7e7;}
+.badge.deposit{background:#fff7e8; color:#640;}
+.badge.withdrawal{background:#ffe8e8; color:#a04040;}
+.badge.status.successful{background:#e8ffe8; color:#2f7d32; border:1px solid #bde5bd;}
+.badge.status.failed{background:#ffe8e8; color:#b00020; border:1px solid #f1b9b9;}
+.badge.status.progress{background:#fff7e0; color:#8a6d00; border:1px solid #f1dfae;}
+
+/* Tabs (Client Payments) */
+.tabs{display:flex; gap:8px; margin-bottom:10px}
+.tab{padding:8px 12px; border:1px solid var(--line); background:#f9fafb; border-radius:999px; cursor:pointer; font-weight:700}
+.tab.active{background:#fff; border-color:#e2e8f0}
+
+/* Rate bar */
+.ratebar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; margin-bottom:10px; background:#f6f8ff; border:1px dashed #c8d1ff; border-radius:10px}
+.ratebar .live{font-weight:800; color:#2b3fa3}
+.ratebar .time{color:#475467; font-size:.85rem}
+
+/* Footer-ish */
+.actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+
+/* Merchant manual status control */
+.status-ctrl{display:flex; gap:6px; align-items:center;}
+.status-ctrl select, .status-ctrl input{padding:6px 8px; border-radius:8px; font-size:.9rem;}
+.status-ctrl input{width:160px;}
+.status-ctrl button{padding:6px 10px; border-radius:12px; font-size:.9rem;}
+
+/* Toggle switch */
+.switch { position:relative; width:46px; height:26px; display:inline-block; vertical-align:middle; }
+.switch input { opacity:0; width:0; height:0; }
+.switch .slider{
+  position:absolute; inset:0; cursor:pointer; background:#dfe8e8; border-radius:999px;
+  transition:background .2s ease; box-shadow:inset 0 0 0 1px #cfdada;
+}
+.switch .slider::before{
+  content:""; position:absolute; height:20px; width:20px; left:3px; top:3px; background:#fff;
+  border-radius:50%; transition:transform .2s ease; box-shadow:0 2px 6px rgba(0,0,0,.18);
+}
+.switch input:checked + .slider{ background:#063d3f33 }
+.switch input:checked + .slider::before{ transform:translateX(20px) }
+
+/* Confirm Modal */
+#confirmModal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.5); z-index:2000;}
+.cmod-card{background:#fff; width:min(760px,95vw); border-radius:12px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,.25);}
+.cmod-head{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #eee;}
+.cmod-body{padding:14px;}
+.cbox{background:#fafafa; border:1px solid #eee; border-radius:10px; padding:12px;}
+.cactions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;}
+.cbtn{padding:10px 14px; border:none; border-radius:30px; font-weight:750; cursor:pointer;}
+.cbtn.primary{background:var(--brand-gold);}
+.cbtn.ghost{background:#e5e7eb;}
+
+@media(max-width:1000px){
+  .row{grid-template-columns:1fr}
+  .col-3,.col-4,.col-5,.col-7,.col-6,.col-12{grid-column:span 12;}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-row">
+    <div class="brand">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z"/></svg>
+      <h1>chequematez</h1>
+      <span class="role">Merchant</span>
+    </div>
+    <nav>
+      <a class="active" href="/merchant">Dashboard</a>
+      <button id="uid_scan" type="button" style="margin-top:8px">Scan QR</button>
+      <a href="{{ url_for('kyc_bundle') }}" class="btn">KYC Queue</a>
+      <a id="nav_myid" href="#">My ID</a>
+      <a href="#client-payments">Client Payments</a>
+      <a href="#transactions">Transactions</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Camera modal -->
+<div id="qrModal" style="position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.5); z-index:9999;">
+  <div style="background:#fff; padding:12px; border-radius:12px; width:min(520px, 95vw);">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+      <strong>Scan User ID QR</strong>
+      <button id="qrClose" type="button">Close</button>
+    </div>
+    <video id="qrVideo" playsinline style="width:100%; border-radius:8px; background:#000;"></video>
+    <canvas id="qrCanvas" style="display:none"></canvas>
+    <div id="qrHint" class="small muted" style="margin-top:6px;">Point the camera at the QR code on the user’s card.</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Global Service Charge Toggle -->
+  <div class="card" style="margin-bottom:12px;">
+    <div style="display:flex; align-items:center; gap:12px; justify-content:space-between; flex-wrap:wrap">
+      <div class="ratebar" id="ratebar" style="flex:1">
+        <span class="live">Exchange Rate: <strong id="live_rate">—</strong> <span class="small">KES per 1 KWD</span></span>
+        <span class="time small" id="rate_time"></span>
+      </div>
+      <div class="pill" style="display:flex; align-items:center; gap:10px;">
+        <label class="switch" title="Pass service charge to customer">
+          <input type="checkbox" id="fee_pass_through" checked>
+          <span class="slider"></span>
+        </label>
+        <div>
+          <div><strong>Service charge</strong>: <span id="fee_mode_lbl">Pass to customer</span></div>
+          <div class="small">Off = merchant absorbs fee</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row: Quick Calculator & Add Transaction -->
+  <div class="row">
+    <!-- Quick Calculator -->
+    <div class="col-5">
+      <div class="card">
+        <h2>Quick Calculator</h2>
+        <div class="row">
+          <div class="col-12">
+            <label for="calc_amount">Amount</label>
+            <input id="calc_amount" type="number" min="0" step="0.01" placeholder="Enter amount">
+          </div>
+          <div class="col-12">
+            <label for="calc_currency">Currency</label>
+            <select id="calc_currency">
+              <option value="KWD" selected>KWD</option>
+              <option value="KES">KES</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <div id="calc_result" style="margin-top:10px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Transaction -->
+    <div class="col-7">
+      <div class="card">
+        <h2>Add Transaction</h2>
+        <div class="row">
+          <div class="col-12">
+            <label>Client User ID (optional)</label>
+            <input id="uid_in" type="text" placeholder="Scan or paste CM-… or https://…/u/<username>">
+            <span class="small muted">If provided, this uses the merchant by-userid flow.</span>
+          </div>
+
+          <div class="col-4">
+            <label>Amount</label>
+            <input id="amount" type="number" min="0" step="0.01" placeholder="Enter amount">
+          </div>
+          <div class="col-4">
+            <label>Currency</label>
+            <select id="currency">
+              <option value="KWD">KWD</option>
+              <option value="KES">KES</option>
+            </select>
+          </div>
+          <div class="col-4">
+            <label>Transaction Type</label>
+            <select id="tx_type">
+              <option>Deposit</option>
+              <option>Withdrawal</option>
+            </select>
+          </div>
+
+          <div class="col-4">
+            <label>Method</label>
+            <select id="method">
+              <option>Mpesa</option>
+              <option>Bank</option>
+              <option value="WAMD">WAMD / Link</option><!-- NEW -->
+            </select>
+          </div>
+
+          <!-- Mpesa fields -->
+          <div class="col-4" id="phone_wrap">
+            <label>Mpesa Phone (07…, 01…, +254… OK)</label>
+            <input id="phone" type="text" placeholder="e.g. 0712 345 678 or +254 712 345 678">
+          </div>
+          <!-- Bank fields -->
+          <div class="col-4 hidden" id="bank_wrap">
+            <label>Bank Account</label>
+            <input id="bank_account" type="text" placeholder="Account number">
+          </div>
+          <div class="col-4 hidden" id="paybill_wrap">
+            <label>Paybill Number</label>
+            <input id="paybill" type="text" placeholder="Paybill">
+          </div>
+
+          <!-- ===== NEW: WAMD inside Add Transaction ===== -->
+          <div class="col-12 hidden" id="wamd_at_info_wrap">
+            <div class="pill">
+              <div>
+                <strong>WAMD / Link</strong>
+                <div class="small">KWD only • Send to the phone below • Keep the <em>Reference</em> exact.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-6 hidden" id="wamd_at_payto_wrap">
+            <label>Pay To (Your WAMD Phone)</label>
+            <div class="input-row">
+              <input id="wamd_at_pay_to" type="text" readonly placeholder="loading…">
+              <button type="button" id="btn_at_copy_payto" title="Copy phone">Copy</button>
+            </div>
+            <div class="small muted">Fetched from <code>/api/wamd/settings</code>.</div>
+          </div>
+
+          <div class="col-6 hidden" id="wamd_at_beneficiary_wrap">
+            <label>Beneficiary (Display)</label>
+            <input id="wamd_at_beneficiary" type="text" readonly placeholder="loading…">
+          </div>
+
+          <div class="col-6 hidden" id="wamd_at_ref_wrap">
+            <label>Reference</label>
+            <div class="input-row">
+              <input id="wamd_at_ref" type="text" placeholder="e.g., CMZ-2025…">
+              <button type="button" id="btn_at_ref_gen" title="Generate">Gen</button>
+              <button type="button" id="btn_at_copy_ref" title="Copy">Copy</button>
+            </div>
+            <div class="small muted">Prefix used: <code>CMZ</code>. Keep the reference exactly as shown.</div>
+            <div style="margin-top:6px;">
+              <a id="wamd_at_instr_link" href="#" target="_blank" rel="noopener" class="hidden">
+                <button type="button">Open Instructions</button>
+              </a>
+            </div>
+          </div>
+
+          <div class="col-6 hidden" id="wamd_at_rname_wrap">
+            <label>Recipient Name</label>
+            <input id="wamd_at_rname" type="text" placeholder="e.g., Eugene">
+          </div>
+          <div class="col-6 hidden" id="wamd_at_rphone_wrap">
+            <label>Recipient Phone</label>
+            <input id="wamd_at_rphone" type="text" placeholder="e.g., 96565914413">
+          </div>
+
+          <div class="col-12 hidden" id="wamd_at_note_wrap">
+            <label>Note (optional)</label>
+            <textarea id="wamd_at_note" placeholder="Reference details / purpose"></textarea>
+          </div>
+          <!-- ===== /WAMD in Add Transaction ===== -->
+
+          <div class="col-12">
+            <div id="add_preview" class="small muted" style="margin:8px 0;"></div>
+            <div class="actions">
+              <button id="btn_add" type="button">Submit Transaction</button>
+              <span class="muted">Preview updates automatically</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Payments panel -->
+  <div class="card" id="client-payments">
+    <h2>Client Payments</h2>
+    <div class="tabs">
+      <button class="tab active" id="tab_small">Small Payment</button>
+      <button class="tab" id="tab_bulk">Bulk Payments</button>
+      <!-- WAMD tab kept as-is -->
+      <button class="tab" id="tab_wamd">WAMD / Link</button>
+    </div>
+
+    <!-- Small Payment -->
+    <div id="panel_small">
+      <div class="row">
+        <div class="col-4">
+          <label>Client Amount</label>
+          <input id="sp_amount" type="number" min="0" step="0.01" placeholder="e.g., 120">
+        </div>
+        <div class="col-4">
+          <label>Currency</label>
+          <select id="sp_currency">
+            <option value="KWD">KWD</option>
+            <option value="KES">KES</option>
+          </select>
+        </div>
+        <div class="col-4">
+          <label>Method</label>
+          <select id="sp_method">
+            <option>Mpesa</option>
+            <option>Bank</option>
+          </select>
+        </div>
+        <div class="col-4">
+          <label>Tx Type</label>
+          <select id="sp_type">
+            <option>Deposit</option>
+            <option>Withdrawal</option>
+          </select>
+        </div>
+        <div class="col-4" id="sp_phone_wrap">
+          <label>Mpesa Phone (07…, 01…, +254… OK)</label>
+          <input id="sp_phone" type="text" placeholder="e.g. 0112 345 678 or +254 112 345 678">
+        </div>
+        <div class="col-4 hidden" id="sp_bank_wrap">
+          <label>Bank Account</label>
+          <input id="sp_bank" type="text" placeholder="Account number">
+        </div>
+        <div class="col-4 hidden" id="sp_paybill_wrap">
+          <label>Paybill</label>
+          <input id="sp_paybill" type="text" placeholder="Paybill">
+        </div>
+        <div class="col-12">
+          <div id="sp_preview" class="small muted" style="margin-top:8px;"></div>
+          <div class="actions">
+            <button id="btn_sp_submit" type="button">Submit Payment</button>
+            <span class="muted">Fee preview updates as you type</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bulk Payments -->
+    <div id="panel_bulk" class="hidden">
+      <div class="small muted" style="margin-bottom:8px;">
+        Add rows for each payment, then “Submit All”. (Global service-charge toggle applies to all rows.)
+      </div>
+      <div class="actions" style="margin-bottom:8px;">
+        <button type="button" id="btn_add_row">+ Add Row</button>
+        <button type="button" id="btn_submit_all">Submit All</button>
+        <button type="button" id="btn_clear_rows">Clear</button>
+      </div>
+      <div class="table-wrap">
+        <table id="bulk_table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Amount</th>
+              <th>Currency</th>
+              <th>Method</th>
+              <th>Type</th>
+              <th>Phone</th>
+              <th>Bank Account</th>
+              <th>Paybill</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- WAMD / Link tab panel -->
+    <div id="panel_wamd" class="hidden">
+      <div class="row">
+        <div class="col-12">
+          <div class="pill">
+            <div>
+              <strong>WAMD / Link (Phone-only)</strong>
+              <div class="small">Transfers are sent in Kuwait using phone number; make sure the <em>Reference</em> is exact.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin-configured details -->
+        <div class="col-6">
+          <label>Pay To (Your WAMD Phone)</label>
+          <div class="input-row">
+            <input id="wamd_pay_to" type="text" readonly placeholder="loading…">
+            <button type="button" id="btn_copy_payto" title="Copy phone">Copy</button>
+          </div>
+          <div class="small muted">This is fetched from <code>/api/wamd/settings</code>.</div>
+        </div>
+        <div class="col-6">
+          <label>Beneficiary (Display)</label>
+          <input id="wamd_beneficiary" type="text" readonly placeholder="loading…">
+        </div>
+
+        <!-- Amount & Type (KWD only) -->
+        <div class="col-4">
+          <label>Amount (KWD)</label>
+          <input id="wamd_amount" type="number" min="0" step="0.01" placeholder="e.g., 75">
+        </div>
+        <div class="col-4">
+          <label>Tx Type</label>
+          <select id="wamd_type">
+            <option>Deposit</option>
+            <option>Withdrawal</option>
+          </select>
+        </div>
+        <div class="col-4">
+          <label>Reference</label>
+          <div class="input-row">
+            <input id="wamd_ref" type="text" placeholder="e.g., CMZ-2025…">
+            <button type="button" id="btn_ref_gen" title="Generate">Gen</button>
+            <button type="button" id="btn_copy_ref" title="Copy">Copy</button>
+          </div>
+          <div class="small muted">Prefix used: <code>CMZ</code>. Keep the reference exactly as shown.</div>
+        </div>
+
+        <!-- Recipient -->
+        <div class="col-6">
+          <label>Recipient Name</label>
+          <input id="wamd_rname" type="text" placeholder="e.g., Eugene">
+        </div>
+        <div class="col-6">
+          <label>Recipient Phone</label>
+          <input id="wamd_rphone" type="text" placeholder="e.g., 96565914413">
+        </div>
+
+        <!-- Optional note -->
+        <div class="col-12">
+          <label>Note (optional)</label>
+          <textarea id="wamd_note" placeholder="Reference details / purpose"></textarea>
+        </div>
+
+        <!-- Preview + Actions -->
+        <div class="col-12">
+          <div id="wamd_preview" class="small muted" style="margin:8px 0;"></div>
+          <div class="actions">
+            <a id="wamd_instr_link" href="#" target="_blank" rel="noopener" class="hidden">
+              <button type="button">Open Instructions</button>
+            </a>
+            <button id="btn_wamd_submit" type="button">Create WAMD Link</button>
+            <span class="muted">Preview updates automatically</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /WAMD tab -->
+
+  </div>
+
+  <!-- Transaction Log -->
+  <div class="card" id="transactions">
+    <div class="header-row" style="margin-bottom:8px;">
+      <h2>My Transactions</h2>
+      <div class="actions">
+        <a href="/api/my-transactions?format=csv"><button type="button">Export CSV</button></a>
+        <button type="button" id="btn_refresh">Refresh</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="logTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Method</th>
+            <th>Type</th>
+            <th class="num">Amount</th>
+            <th class="num">Charges</th>
+            <th>Status</th>
+            <th>Date/Time (UTC)</th>
+            <th>Receipt</th>
+            <th>Manual Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Shared Confirm Modal -->
+<div id="confirmModal" aria-hidden="true">
+  <div class="cmod-card">
+    <div class="cmod-head">
+      <strong id="cmod_title">Review &amp; Submit</strong>
+      <button id="cmod_close" type="button" class="cbtn ghost">Close</button>
+    </div>
+    <div class="cmod-body" id="cmod_body">
+      <!-- dynamic content -->
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== Phone normalization & validation ===== */
+function normalizePhone(raw){
+  if(!raw) return "";
+  const digits = (raw+"").replace(/\D/g, "");
+  if(digits.length === 12 && digits.startsWith("254")){
+    if(digits.charAt(3) === "7" || digits.charAt(3) === "1") return digits;
+    return "";
+  }
+  if(digits.length === 10 && digits.startsWith("0") && (digits.charAt(1) === "7" || digits.charAt(1) === "1")){
+    return "254" + digits.slice(1);
+  }
+  return "";
+}
+const phoneOk = (p)=> !!normalizePhone(p);
+
+/* ===== Utilities ===== */
+const fmt = (v)=> Number(v).toLocaleString(undefined,{minimumFractionDigits:1, maximumFractionDigits:1});
+function showModal(){ document.getElementById('confirmModal').style.display='grid'; document.getElementById('confirmModal').setAttribute('aria-hidden','false'); }
+function hideModal(){ document.getElementById('confirmModal').style.display='none'; document.getElementById('confirmModal').setAttribute('aria-hidden','true'); }
+document.getElementById('cmod_close').addEventListener('click', hideModal);
+
+/* Clipboard */
+async function copyText(text){
+  try{ await navigator.clipboard.writeText(String(text||"")); alert('Copied'); }
+  catch(e){ console.warn('Clipboard failed', e); prompt('Copy manually:', text||''); }
+}
+
+/* ===== Session / Role guard ===== */
+async function ensureMerchant(){
+  try{
+    const r = await fetch('/auth/status', {credentials:'same-origin', cache:'no-store'});
+    const s = await r.json();
+    if(!s.logged_in){ window.location.href='/?login=1'; return false; }
+    const role = (s.user && s.user.role) || 'customer';
+    if(role === 'admin'){ window.location.href='/admin'; return false; }
+    if(role !== 'merchant'){ window.location.href='/customer'; return false; }
+    return true;
+  }catch{
+    window.location.href='/?login=1'; return false;
+  }
+}
+
+/* ===== CSRF + My ID link ===== */
+let MERCHANT_CSRF = "";
+async function fetchAuth() {
+  try {
+    const r = await fetch('/auth/status', {credentials:'same-origin', cache:'no-store'});
+    const j = await r.json();
+    if (j && j.logged_in && j.user && j.user.role === 'merchant') {
+      MERCHANT_CSRF = j.csrf_token || "";
+      if (j.user.username) {
+        const a = document.getElementById('nav_myid');
+        if (a) a.href = '/u/' + encodeURIComponent(j.user.username);
+      }
+    }
+  } catch(e) { console.warn('auth fetch failed', e); }
+}
+
+/* ===== Live Exchange Rate ===== */
+let CURRENT_RATE = null;
+async function fetchRate(){
+  try{
+    const r = await fetch('/api/rate', {credentials:'same-origin', cache:'no-store'});
+    const j = await r.json();
+    if(j && j.ok){
+      CURRENT_RATE = Number(j.rate);
+      document.getElementById('live_rate').textContent = fmt(CURRENT_RATE);
+      document.getElementById('rate_time').textContent = 'updated just now';
+    }
+  }catch(e){ console.warn('Could not fetch live rate', e); }
+}
+
+/* ===== Field toggles (now with WAMD) ===== */
+function setCurrencyForceKWD(force){
+  const cur = document.getElementById('currency');
+  if(!cur) return;
+  if(force){
+    cur.value = 'KWD';
+    cur.setAttribute('disabled','disabled');
+  }else{
+    cur.removeAttribute('disabled');
+  }
+}
+function toggleFields(){
+  const method = document.getElementById('method').value;
+  const showMpesa = (method === 'Mpesa');
+  const showBank  = (method === 'Bank');
+  const showWamd  = (method === 'WAMD' || method === 'WAMD / Link');
+
+  document.getElementById('phone_wrap').classList.toggle('hidden', !showMpesa);
+  document.getElementById('bank_wrap').classList.toggle('hidden', !showBank);
+  document.getElementById('paybill_wrap').classList.toggle('hidden', !showBank);
+
+  // WAMD AT wrappers
+  ['wamd_at_info_wrap','wamd_at_payto_wrap','wamd_at_beneficiary_wrap',
+   'wamd_at_ref_wrap','wamd_at_rname_wrap','wamd_at_rphone_wrap','wamd_at_note_wrap'
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.toggle('hidden', !showWamd);
+  });
+
+  setCurrencyForceKWD(showWamd);
+
+  // Recompute preview
+  if (document.getElementById('amount').value) doCalculate('amount','currency','add_preview');
+}
+
+/* Small payment field toggles */
+function toggleSmallFields(){
+  const method = document.getElementById('sp_method').value;
+  const showMpesa = (method === 'Mpesa');
+  document.getElementById('sp_phone_wrap').classList.toggle('hidden', !showMpesa);
+  document.getElementById('sp_bank_wrap').classList.toggle('hidden', showMpesa);
+  document.getElementById('sp_paybill_wrap').classList.toggle('hidden', showMpesa);
+}
+
+/* ===== Global service charge toggle ===== */
+let feePassThrough = true;
+const feeToggleEl = document.getElementById('fee_pass_through');
+const feeModeLbl = document.getElementById('fee_mode_lbl');
+feeToggleEl.addEventListener('change', ()=>{
+  feePassThrough = feeToggleEl.checked;
+  feeModeLbl.textContent = feePassThrough ? 'Pass to customer' : 'Merchant absorbs';
+  if (document.getElementById('calc_amount').value) doCalculate('calc_amount','calc_currency','calc_result');
+  if (document.getElementById('amount').value)      doCalculate('amount','currency','add_preview');
+  if (document.getElementById('sp_amount').value)   spPreview();
+  if (document.getElementById('wamd_amount')?.value) wamdPreview();
+});
+
+/* ===== Calculator (pass-through/absorb aware) ===== */
+function renderWithFeeMode(targetId, d, currency){
+  const isKWD = currency === 'KWD';
+  const ex = CURRENT_RATE ?? (d.amount_kes && d.amount_kwd ? d.amount_kes/d.amount_kwd : null) ?? 0;
+
+  const amt_kwd = d.amount_kwd, amt_kes = d.amount_kes;
+  const fee_kwd = d.total_fee_kwd, fee_kes = d.total_fee_kes;
+  const cost_kwd = d.total_cost_kwd, cost_kes = d.total_cost_kes;
+
+  const clientPays_kwd = feePassThrough ? cost_kwd : amt_kwd;
+  const clientPays_kes = feePassThrough ? cost_kes : amt_kes;
+  const clientGets_kwd = feePassThrough ? amt_kwd : (amt_kwd - fee_kwd);
+  const clientGets_kes = feePassThrough ? amt_kes : (amt_kes - fee_kes);
+
+  const amountMain = isKWD ? `${fmt(amt_kwd)} KWD` : `${fmt(amt_kes)} KES`;
+  const amountAlt  = isKWD ? `${fmt(amt_kes)} KES` : `${fmt(amt_kwd)} KWD`;
+
+  const feeMain = isKWD ? `${fmt(fee_kwd)} KWD` : `${fmt(fee_kes)} KES`;
+  const feeAlt  = isKWD ? `${fmt(fee_kes)} KES` : `${fmt(fee_kwd)} KWD`;
+
+  const paysMain = isKWD ? `${fmt(clientPays_kwd)} KWD` : `${fmt(clientPays_kes)} KES`;
+  const paysAlt  = isKWD ? `${fmt(clientPays_kes)} KES` : `${fmt(clientPays_kwd)} KWD`;
+
+  const getsMain = isKWD ? `${fmt(clientGets_kwd)} KWD` : `${fmt(clientGets_kes)} KES`;
+  const getsAlt  = isKWD ? `${fmt(clientGets_kes)} KES` : `${fmt(clientGets_kwd)} KWD`;
+
+  const modeNote = feePassThrough ? 'Customer pays service charge' : 'Merchant absorbs service charge';
+
+  const html = `
+    <p>Exchange Rate: <span class="pill">1 KWD = <strong>${fmt(ex)}</strong> KES</span></p>
+    <p>Amount: <strong>${amountMain}</strong> <span class="small">(${amountAlt})</span></p>
+    <p>Transaction Fee: <strong>${feeMain}</strong> <span class="small">(${feeAlt})</span></p>
+    <p><strong>Client pays:</strong> ${paysMain} <span class="small">(${paysAlt}) • ${modeNote}</span></p>
+    <p><strong>Client receives:</strong> ${getsMain} <span class="small">(${getsAlt})</span></p>
+  `;
+  document.getElementById(targetId).innerHTML = html;
+}
+
+async function doCalculate(amountElId, currencyElId, targetId){
+  try{
+    const amount = parseFloat(document.getElementById(amountElId).value);
+    const currency = document.getElementById(currencyElId).value;
+    if(isNaN(amount) || amount <= 0){
+      document.getElementById(targetId).innerHTML = '';
+      return;
+    }
+    const fd = new FormData();
+    fd.append('amount', amount);
+    fd.append('currency', currency);
+    const res = await fetch('/calculate', {method:'POST', body: fd, cache:'no-store', credentials:'same-origin'});
+    if(!res.ok) throw new Error('Calculate failed');
+    const d = await res.json();
+    renderWithFeeMode(targetId, d, currency);
+    return d;
+  }catch(e){
+    console.error(e);
+    document.getElementById(targetId).innerHTML = '<span class="small" style="color:#b00020">Could not calculate right now.</span>';
+    return null;
+  }
+}
+
+/* ===== Modal helpers ===== */
+function buildReceiptUrlFromResponse(out){
+  if (out && out.receipt_url) return out.receipt_url;
+  const id = out?.receipt_id || out?.receipt?.id;
+  const token = out?.receipt_token || out?.receipt?.token;
+  if (id && token) return `/receipt/${encodeURIComponent(id)}?t=${encodeURIComponent(token)}`;
+  return null;
+}
+function setModalContent(html){ document.getElementById('cmod_body').innerHTML = html; }
+
+/* ===== Add Transaction — Review & Submit (branches for WAMD) ===== */
+function gatherAddTxInput(){
+  const uid = document.getElementById('uid_in').value.trim();
+  const amount = parseFloat(document.getElementById('amount').value);
+  const currency = document.getElementById('currency').value;
+  const method = document.getElementById('method').value;
+  const tx_type = document.getElementById('tx_type').value;
+  const phoneRaw = document.getElementById('phone').value.trim();
+  const phoneNormalized = normalizePhone(phoneRaw);
+  const bank_account = document.getElementById('bank_account').value.trim();
+  const paybill = document.getElementById('paybill').value.trim();
+
+  if(isNaN(amount) || amount <= 0) throw new Error('Enter a valid amount');
+
+  if(method === 'Mpesa' && !phoneOk(phoneRaw)) throw new Error('Enter Mpesa phone (07…, 01…, +254… accepted)');
+  if(method === 'Bank' && (!bank_account || !paybill)) throw new Error('Bank account and paybill are required');
+
+  return {
+    uid, amount, currency, method, tx_type,
+    phone: method==='Mpesa' ? (phoneNormalized || phoneRaw) : '',
+    bank_account: method==='Bank' ? bank_account : '',
+    paybill: method==='Bank' ? paybill : '',
+    pass_service_charge: feePassThrough ? '1' : '0'
+  };
+}
+
+async function openAddTxConfirm(){
+  try{
+    const method = document.getElementById('method').value;
+    if (method === 'WAMD' || method === 'WAMD / Link') { // branch to WAMD in Add Tx
+      await openWamdConfirmAT();
+      return;
+    }
+
+    const input = gatherAddTxInput();
+    doCalculate('amount','currency','add_preview');
+
+    const calcFd = new FormData();
+    calcFd.append('amount', input.amount);
+    calcFd.append('currency', input.currency);
+    const res = await fetch('/calculate', {method:'POST', body: calcFd, credentials:'same-origin', cache:'no-store'});
+    if(!res.ok) throw new Error('Could not calculate totals');
+    const d = await res.json();
+
+    const clientPays = feePassThrough ? d.total_cost_kwd : d.amount_kwd;
+    const clientGets = feePassThrough ? d.amount_kwd : (d.amount_kwd - d.total_fee_kwd);
+    const rate = (d.amount_kes && d.amount_kwd) ? (d.amount_kes/d.amount_kwd) : (CURRENT_RATE || 0);
+
+    setModalContent(`
+      <div id="cmod_alert" class="small" style="display:none; color:#b00020; margin-bottom:8px;"></div>
+      <div class="row">
+        <div class="col-6">
+          <div class="cbox">
+            <h3 style="margin:0 0 8px;">Transaction</h3>
+            <div class="small">
+              <div><strong>Type</strong>: ${input.tx_type}</div>
+              <div><strong>Method</strong>: ${input.method}</div>
+              <div><strong>Currency</strong>: ${input.currency}</div>
+              <div><strong>Service charge</strong>: ${feePassThrough ? 'Customer pays' : 'Merchant absorbs'}</div>
+              ${input.uid ? `<div><strong>Client</strong>: ${input.uid}</div>` : ''}
+              ${input.method==='Mpesa' ? `<div><strong>Mpesa Phone</strong>: ${input.phone}</div>` : ''}
+              ${input.method==='Bank' ? `<div><strong>Bank</strong>: ${input.bank_account}</div><div><strong>Paybill</strong>: ${input.paybill}</div>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="cbox">
+            <h3 style="margin:0 0 8px;">Amounts</h3>
+            <div class="small">
+              <div><strong>Amount</strong>: ${fmt(d.amount_kwd)} KWD <small>(${fmt(d.amount_kes)} KES)</small></div>
+              <div><strong>Total Fee</strong>: ${fmt(d.total_fee_kwd)} KWD <small>(${fmt(d.total_fee_kes)} KES)</small></div>
+              <div style="margin-top:6px;"><strong>Client pays</strong>: ${fmt(clientPays)} KWD <small>(${fmt(clientPays*rate)} KES)</small></div>
+              <div><strong>Client receives</strong>: ${fmt(clientGets)} KWD <small>(${fmt(clientGets*rate)} KES)</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cactions">
+        <button id="cmod_confirm_add" class="cbtn primary" type="button">Confirm &amp; Create</button>
+        <button class="cbtn ghost" type="button" onclick="hideModal()">Cancel</button>
+      </div>
+    `);
+    document.getElementById('cmod_title').textContent = 'Review & Submit — Add Transaction';
+
+    document.getElementById('cmod_confirm_add').onclick = async ()=>{
+      const alertEl = document.getElementById('cmod_alert');
+      try{
+        const fd = new FormData();
+        fd.append('amount', input.amount);
+        fd.append('currency', input.currency);
+        fd.append('method', input.method);
+        fd.append('tx_type', input.tx_type);
+        fd.append('pass_service_charge', input.pass_service_charge);
+        if(input.uid) fd.append('user_id', input.uid);
+        if(input.method==='Mpesa') fd.append('phone', input.phone);
+        if(input.method==='Bank'){ fd.append('bank_account', input.bank_account); fd.append('paybill', input.paybill); }
+
+        const url = input.uid ? '/api/merchant/tx/by-userid' : '/api/add-transaction';
+        const res2 = await fetch(url, {method:'POST', body: fd, cache:'no-store', credentials:'same-origin'});
+        const txt2 = await res2.text(); let out=null; try{ out=JSON.parse(txt2);}catch{}
+        if(!res2.ok || !out || out.ok !== true) throw new Error((out && out.error) || (txt2 || `HTTP ${res2.status}`));
+
+        document.getElementById('uid_in').value = '';
+        document.getElementById('amount').value = '';
+        document.getElementById('phone').value = '';
+        document.getElementById('bank_account').value = '';
+        document.getElementById('paybill').value = '';
+        document.getElementById('add_preview').innerHTML = '';
+        await loadTransactions();
+
+        const receiptUrl = buildReceiptUrlFromResponse(out);
+        setModalContent(`
+          <div class="cbox" style="text-align:center;">
+            <h3 style="margin:0 0 6px; color:#063d3f;">Transaction Created</h3>
+            <p class="small" style="color:#444; margin:6px 0 12px;">Your transaction has been submitted successfully.</p>
+            ${receiptUrl ? `<p style="margin:0 0 12px;">
+              <a href="${receiptUrl}" target="_blank" rel="noopener">
+                <button type="button" class="cbtn primary">Open Receipt</button>
+              </a>
+            </p>` : `<p class="small" style="color:#666;">Receipt will be available once processed.</p>`}
+            <div style="margin-top:10px;"><button class="cbtn ghost" onclick="hideModal()">Close</button></div>
+          </div>
+        `);
+      }catch(err){
+        alertEl.textContent = err.message || 'Failed to create transaction';
+        alertEl.style.display = 'block';
+      }
+    };
+
+    showModal();
+  }catch(e){ alert(e.message); }
+}
+
+/* ===== Small Payment ===== */
+function spPreview(){ doCalculate('sp_amount','sp_currency','sp_preview'); }
+async function openSmallPaymentConfirm(){
+  try{
+    const amount = parseFloat(document.getElementById('sp_amount').value);
+    const currency = document.getElementById('sp_currency').value;
+    const method = document.getElementById('sp_method').value;
+    const tx_type = document.getElementById('sp_type').value;
+    const phoneRaw = document.getElementById('sp_phone').value.trim();
+    const bank = document.getElementById('sp_bank').value.trim();
+    const paybill = document.getElementById('sp_paybill').value.trim();
+
+    if(isNaN(amount) || amount<=0) throw new Error('Enter a valid amount');
+    if(method==='Mpesa' && !phoneOk(phoneRaw)) throw new Error('Enter Mpesa phone (07…, 01…, +254… accepted)');
+    if(method==='Bank' && (!bank || !paybill)) throw new Error('Bank account and paybill are required');
+
+    const calcFd = new FormData();
+    calcFd.append('amount', amount);
+    calcFd.append('currency', currency);
+    const res = await fetch('/calculate', {method:'POST', body: calcFd, credentials:'same-origin', cache:'no-store'});
+    if(!res.ok) throw new Error('Could not calculate totals');
+    const d = await res.json();
+
+    const clientPays = feePassThrough ? d.total_cost_kwd : d.amount_kwd;
+    const clientGets = feePassThrough ? d.amount_kwd : (d.amount_kwd - d.total_fee_kwd);
+    const rate = (d.amount_kes && d.amount_kwd) ? (d.amount_kes/d.amount_kwd) : (CURRENT_RATE || 0);
+
+    setModalContent(`
+      <div id="cmod_alert_sp" class="small" style="display:none; color:#b00020; margin-bottom:8px;"></div>
+      <div class="row">
+        <div class="col-6">
+          <div class="cbox">
+            <h3 style="margin:0 0 8px;">Payment</h3>
+            <div class="small">
+              <div><strong>Type</strong>: ${tx_type}</div>
+              <div><strong>Method</strong>: ${method}</div>
+              <div><strong>Currency</strong>: ${currency}</div>
+              <div><strong>Service charge</strong>: ${feePassThrough ? 'Customer pays' : 'Merchant absorbs'}</div>
+              ${method==='Mpesa' ? `<div><strong>Mpesa Phone</strong>: ${phoneRaw}</div>` : ''}
+              ${method==='Bank' ? `<div><strong>Bank</strong>: ${bank}</div><div><strong>Paybill</strong>: ${paybill}</div>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="cbox">
+            <h3 style="margin:0 0 8px;">Amounts</h3>
+            <div class="small">
+              <div><strong>Amount</strong>: ${fmt(d.amount_kwd)} KWD <small>(${fmt(d.amount_kes)} KES)</small></div>
+              <div><strong>Total Fee</strong>: ${fmt(d.total_fee_kwd)} KWD <small>(${fmt(d.total_fee_kes)} KES)</small></div>
+              <div style="margin-top:6px;"><strong>Client pays</strong>: ${fmt(clientPays)} KWD <small>(${fmt(clientPays*rate)} KES)</small></div>
+              <div><strong>Client receives</strong>: ${fmt(clientGets)} KWD <small>(${fmt(clientGets*rate)} KES)</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cactions">
+        <button id="cmod_confirm_sp" class="cbtn primary" type="button">Confirm &amp; Create</button>
+        <button class="cbtn ghost" type="button" onclick="hideModal()">Cancel</button>
+      </div>
+    `);
+    document.getElementById('cmod_title').textContent = 'Review & Submit — Client Payment';
+
+    document.getElementById('cmod_confirm_sp').onclick = async ()=>{
+      const alertEl = document.getElementById('cmod_alert_sp');
+      try{
+        const fd = new FormData();
+        fd.append('amount', amount);
+        fd.append('currency', currency);
+        fd.append('method', method);
+        fd.append('tx_type', tx_type);
+        fd.append('pass_service_charge', feePassThrough ? '1' : '0');
+        if(method==='Mpesa'){ fd.append('phone', phoneRaw); }
+        if(method==='Bank'){ fd.append('bank_account', bank); fd.append('paybill', paybill); }
+
+        const res2 = await fetch('/api/add-transaction', {method:'POST', body: fd, cache:'no-store', credentials:'same-origin'});
+        const txt2 = await res2.text(); let out=null; try{ out=JSON.parse(txt2);}catch{}
+        if(!res2.ok || !out || out.ok !== true) throw new Error((out && out.error) || (txt2 || `HTTP ${res2.status}`));
+
+        document.getElementById('sp_preview').innerHTML = '';
+        document.getElementById('sp_amount').value = '';
+        document.getElementById('sp_phone').value = '';
+        document.getElementById('sp_bank').value = '';
+        document.getElementById('sp_paybill').value = '';
+        await loadTransactions();
+
+        const receiptUrl = buildReceiptUrlFromResponse(out);
+        setModalContent(`
+          <div class="cbox" style="text-align:center;">
+            <h3 style="margin:0 0 6px; color:#063d3f;">Payment Created</h3>
+            <p class="small" style="color:#444; margin:6px 0 12px;">Client payment submitted successfully.</p>
+            ${receiptUrl ? `<p style="margin:0 0 12px;">
+              <a href="${receiptUrl}" target="_blank" rel="noopener">
+                <button type="button" class="cbtn primary">Open Receipt</button>
+              </a>
+            </p>` : `<p class="small" style="color:#666;">Receipt will be available once processed.</p>`}
+            <div style="margin-top:10px;"><button class="cbtn ghost" onclick="hideModal()">Close</button></div>
+          </div>
+        `);
+      }catch(err){
+        alertEl.textContent = err.message || 'Failed to process payment';
+        alertEl.style.display = 'block';
+      }
+    };
+
+    showModal();
+  }catch(e){ alert(e.message); }
+}
+
+/* ===== Bulk Payments ===== */
+let bulkRowId = 0;
+function rowToggleByMethod(tr, method){
+  const phoneTd  = tr.children[5];
+  const bankTd   = tr.children[6];
+  const payTd    = tr.children[7];
+  if(method === 'Mpesa'){
+    phoneTd.classList.remove('hidden');
+    bankTd.classList.add('hidden');
+    payTd.classList.add('hidden');
+  }else{
+    phoneTd.classList.add('hidden');
+    bankTd.classList.remove('hidden');
+    payTd.classList.remove('hidden');
+  }
+}
+function addBulkRow(preset={}){
+  bulkRowId++;
+  const tb = document.querySelector('#bulk_table tbody');
+  const tr = document.createElement('tr');
+  tr.dataset.rid = bulkRowId;
+  const defaultMethod = preset.method || 'Mpesa';
+  tr.innerHTML = `
+    <td class="small">${bulkRowId}</td>
+    <td><input type="number" min="0" step="0.01" value="${preset.amount ?? ''}" placeholder="Amt"></td>
+    <td>
+      <select>
+        <option value="KWD" ${(preset.currency||'KWD')==='KWD'?'selected':''}>KWD</option>
+        <option value="KES" ${(preset.currency||'KWD')==='KES'?'selected':''}>KES</option>
+      </select>
+    </td>
+    <td>
+      <select class="bulk-method">
+        <option ${defaultMethod==='Mpesa'?'selected':''}>Mpesa</option>
+        <option ${defaultMethod==='Bank'?'selected':''}>Bank</option>
+      </select>
+    </td>
+    <td>
+      <select>
+        <option ${(preset.tx_type||'Deposit')==='Deposit'?'selected':''}>Deposit</option>
+        <option ${(preset.tx_type==='Withdrawal')?'selected':''}>Withdrawal</option>
+      </select>
+    </td>
+    <td><input type="text" placeholder="07… / 01… / +254…" value="${preset.phone ?? ''}"></td>
+    <td><input type="text" placeholder="Acct" value="${preset.bank_account ?? ''}"></td>
+    <td><input type="text" placeholder="Paybill" value="${preset.paybill ?? ''}"></td>
+    <td class="small" data-status>—</td>
+    <td><button type="button" class="row-del">✕</button></td>
+  `;
+  tb.appendChild(tr);
+
+  rowToggleByMethod(tr, defaultMethod);
+  tr.querySelector('.bulk-method').addEventListener('change', e=>{
+    const m = e.target.value;
+    rowToggleByMethod(tr, m);
+  });
+  tr.querySelector('.row-del').addEventListener('click', ()=> tr.remove());
+}
+function collectBulkRows(){
+  const rows = Array.from(document.querySelectorAll('#bulk_table tbody tr'));
+  return rows.map(tr=>{
+    const tds = tr.children;
+    const amount = parseFloat(tds[1].querySelector('input').value);
+    const currency = tds[2].querySelector('select').value;
+    const method = tds[3].querySelector('select').value;
+    const tx_type = tds[4].querySelector('select').value;
+    const phoneRaw = tds[5].querySelector('input').value.trim();
+    const bank_account = tds[6].querySelector('input').value.trim();
+    const paybill = tds[7].querySelector('input').value.trim();
+    const phoneNormalized = normalizePhone(phoneRaw);
+    return {
+      amount, currency, method, tx_type,
+      phone: method==='Mpesa' ? (phoneNormalized || phoneRaw) : '',
+      bank_account: method==='Bank' ? bank_account : '',
+      paybill: method==='Bank' ? paybill : ''
+    };
+  });
+}
+function openBulkConfirm(){
+  const items = collectBulkRows();
+  if(items.length===0){ alert('Add at least one row'); return; }
+  let invalid = 0;
+  for(const it of items){
+    if(isNaN(it.amount) || it.amount<=0){ invalid++; continue; }
+    if(it.method==='Mpesa' && !phoneOk(it.phone)){ invalid++; continue; }
+    if(it.method==='Bank' && (!it.bank_account || !it.paybill)){ invalid++; continue; }
+  }
+  if(invalid>0){ alert(`Please fix ${invalid} invalid row(s) before submitting.`); return; }
+
+  const mpesaCount = items.filter(i=>i.method==='Mpesa').length;
+  const bankCount = items.length - mpesaCount;
+
+  setModalContent(`
+    <div id="cmod_alert_bulk" class="small" style="display:none; color:#b00020; margin-bottom:8px;"></div>
+    <div class="cbox">
+      <h3 style="margin:0 0 8px;">Bulk Payments</h3>
+      <div class="small">
+        <div><strong>Total rows</strong>: ${items.length}</div>
+        <div><strong>Mpesa</strong>: ${mpesaCount} &nbsp; <strong>Bank</strong>: ${bankCount}</div>
+        <div><strong>Service charge</strong>: ${feePassThrough ? 'Pass to customer' : 'Merchant absorbs'}</div>
+      </div>
+    </div>
+    <div class="cactions">
+      <button id="cmod_confirm_bulk" class="cbtn primary" type="button">Submit All</button>
+      <button class="cbtn ghost" type="button" onclick="hideModal()">Cancel</button>
+    </div>
+  `);
+  document.getElementById('cmod_title').textContent = 'Confirm Bulk Payments';
+
+  document.getElementById('cmod_confirm_bulk').onclick = async ()=>{
+    const alertEl = document.getElementById('cmod_alert_bulk');
+    try{
+      let ok=0, fail=0;
+      for(const it of items){
+        try{
+          const fd = new FormData();
+          fd.append('amount', it.amount);
+          fd.append('currency', it.currency);
+          fd.append('method', it.method);
+          fd.append('tx_type', it.tx_type);
+          fd.append('pass_service_charge', feePassThrough ? '1' : '0');
+          if(it.method==='Mpesa') fd.append('phone', it.phone);
+          if(it.method==='Bank'){ fd.append('bank_account', it.bank_account); fd.append('paybill', it.paybill); }
+          const res = await fetch('/api/add-transaction', {method:'POST', body: fd, cache:'no-store', credentials:'same-origin'});
+          const txt = await res.text(); let out=null; try{ out=JSON.parse(txt);}catch{}
+          if(!res.ok || !out || out.ok!==true) throw new Error('failed');
+          ok++;
+        }catch{ fail++; }
+      }
+      await loadTransactions();
+      setModalContent(`
+        <div class="cbox" style="text-align:center;">
+          <h3 style="margin:0 0 6px; color:#063d3f;">Bulk Submit Finished</h3>
+          <p class="small" style="color:#444; margin:6px 0 12px;">
+            Successful: <strong>${ok}</strong> &nbsp; • &nbsp; Failed: <strong>${fail}</strong>
+          </p>
+          <div style="margin-top:10px;"><button class="cbtn ghost" onclick="hideModal()">Close</button></div>
+        </div>
+      `);
+    }catch(err){
+      alertEl.textContent = 'Bulk submission failed unexpectedly.';
+      alertEl.style.display = 'block';
+    }
+  };
+
+  showModal();
+}
+
+/* ===== Transaction Log ===== */
+function statusBadge(r){
+  const s = (r.status || 'in progress').toLowerCase();
+  if(s==='successful') return '<span class="badge status successful">Successful</span>';
+  if(s==='failed') return '<span class="badge status failed">Failed</span>';
+  return '<span class="badge status progress">In&nbsp;Progress</span>';
+}
+function resolveKES(kwd, kes, perTxRate){
+  if (typeof kes === 'number' && !Number.isNaN(kes)) return kes;
+  if (typeof perTxRate === 'number' && !Number.isNaN(perTxRate)) return kwd * perTxRate;
+  return null;
+}
+function buildReceiptUrl(r){
+  if (r && r.receipt_id && r.receipt_token) {
+    return `/receipt/${encodeURIComponent(r.receipt_id)}?t=${encodeURIComponent(r.receipt_token)}`;
+  }
+  return r?.receipt_url || null;
+}
+async function merchantSetStatus(txId){
+  try{
+    const sel = document.getElementById(`mstat-${txId}`);
+    const reasonEl = document.getElementById(`mreason-${txId}`);
+    if(!sel || !reasonEl) return;
+
+    const val = sel.value;
+    const reason = reasonEl.value.trim();
+    if (reason.length < 3) { alert('Please enter a short reason (3+ chars).'); return; }
+
+    const fd = new FormData();
+    fd.append('status', val);
+    fd.append('reason', reason);
+    fd.append('csrf', MERCHANT_CSRF);
+
+    const res = await fetch(`/api/merchant/tx/${txId}/status`, {
+      method:'POST', body: fd, credentials:'same-origin', cache:'no-store'
+    });
+
+    const txt = await res.text();
+    let out; try{ out = JSON.parse(txt); }catch{ out = null; }
+    if(!res.ok || !out || out.ok !== true){
+      const msg = (out && out.error) ? out.error : (txt || `HTTP ${res.status}`);
+      throw new Error(msg);
+    }
+    await loadTransactions(); 
+    alert('Status updated.');
+  }catch(e){
+    console.error(e);
+    alert(e.message || 'Failed to update status');
+  }
+}
+async function loadTransactions(){
+  try{
+    const res = await fetch('/api/my-transactions', {cache:'no-store', credentials:'same-origin'});
+    if(!res.ok) throw new Error('Failed to load transactions');
+    const rows = await res.json();
+    const tbody = document.querySelector('#logTable tbody');
+    tbody.innerHTML = '';
+
+    rows.forEach(r=>{
+      const m = (r.method||'').toLowerCase();
+      const t = (r.tx_type||'').toLowerCase();
+      const tr = document.createElement('tr');
+      const selId = `mstat-${r.id}`;
+      const reasonId = `mreason-${r.id}`;
+
+      const perTxRate = (typeof r.exchange_rate === 'number') ? r.exchange_rate
+                        : (typeof r.rate_at_tx === 'number') ? r.rate_at_tx : null;
+
+      const amountKES  = resolveKES(r.amount_kwd,  r.amount_kes,  perTxRate);
+      const chargesKES = resolveKES(r.charges_kwd || 0, r.charges_kes, perTxRate);
+
+      const receiptUrl = buildReceiptUrl(r);
+
+      tr.innerHTML = `
+        <td>${r.id}</td>
+        <td><span class="badge ${m}">${r.method}</span></td>
+        <td><span class="badge ${t}">${r.tx_type||''}</span></td>
+        <td class="num">
+          ${fmt(r.amount_kwd)} KWD
+          <br><span class="small">(${amountKES!=null ? fmt(amountKES) : '—'} KES)</span>
+        </td>
+        <td class="num">
+          ${fmt(r.charges_kwd)} KWD
+          <br><span class="small">(${chargesKES!=null ? fmt(chargesKES) : '—'} KES)</span>
+        </td>
+        <td>${statusBadge(r)}</td>
+        <td>${r.timestamp}</td>
+        <td>
+          ${receiptUrl
+            ? `<a href="${receiptUrl}" target="_blank" rel="noopener">
+                 <button class="btn-pill" type="button" title="View receipt">Receipt</button>
+               </a>`
+            : `<span class="small" style="color:#888">—</span>`}
+        </td>
+        <td>
+          <div class="status-ctrl">
+            <select id="${selId}">
+              <option value="in progress"  ${(r.status||'').toLowerCase()==='in progress'?'selected':''}>In progress</option>
+              <option value="successful"   ${(r.status||'').toLowerCase()==='successful'?'selected':''}>Successful</option>
+              <option value="failed"       ${(r.status||'').toLowerCase()==='failed'?'selected':''}>Failed</option>
+            </select>
+            <input id="${reasonId}" type="text" placeholder="Reason">
+            <button type="button" onclick="merchantSetStatus(${r.id})">Set</button>
+          </div>
+        </td>
+      `;
+
+      const settled = (r.status||'').toLowerCase()==='successful' || (r.status||'').toLowerCase()==='failed';
+      if (settled){
+        setTimeout(()=>{
+          const s = tr.querySelector(`#${selId}`); const rr = tr.querySelector(`#${reasonId}`); const b = tr.querySelector('button');
+          if(s) s.disabled = true; if(rr) rr.disabled = true; if(b) b.disabled = true;
+        });
+      }
+      tbody.appendChild(tr);
+    });
+  }catch(e){
+    console.error(e);
+    alert(e.message || 'Could not load transactions');
+  }
+}
+
+/* ===== WAMD (shared settings & tab) ===== */
+let WAMD_PAY_TO_PHONE = '';
+let WAMD_BENEFICIARY = '';
+const WAMD_REF_PREFIX = 'CMZ';
+
+async function loadWamdSettings(){
+  try{
+    const r = await fetch('/api/wamd/settings', {credentials:'same-origin', cache:'no-store'});
+    const j = await r.json();
+    if(j && j.ok){
+      WAMD_PAY_TO_PHONE = j.pay_to_phone || '';
+      WAMD_BENEFICIARY = j.beneficiary || '';
+
+      // Tab panel fields
+      const p1 = document.getElementById('wamd_pay_to');
+      const b1 = document.getElementById('wamd_beneficiary');
+      if (p1) p1.value = WAMD_PAY_TO_PHONE || '';
+      if (b1) b1.value = WAMD_BENEFICIARY || '';
+
+      // Add-Transaction WAMD fields
+      const p2 = document.getElementById('wamd_at_pay_to');
+      const b2 = document.getElementById('wamd_at_beneficiary');
+      if (p2) p2.value = WAMD_PAY_TO_PHONE || '';
+      if (b2) b2.value = WAMD_BENEFICIARY || '';
+    }
+  }catch(e){ console.warn('WAMD settings fetch failed', e); }
+}
+function genWamdRef(){
+  const d = new Date();
+  const pad2 = (n)=> String(n).padStart(2,'0');
+  const ts = `${d.getFullYear()}${pad2(d.getMonth()+1)}${pad2(d.getDate())}-${pad2(d.getHours())}${pad2(d.getMinutes())}${pad2(d.getSeconds())}`;
+  const rnd = Math.random().toString(36).slice(2,7).toUpperCase();
+  return `${WAMD_REF_PREFIX}-${ts}-${rnd}`;
+}
+function updateWamdInstructionLink(){
+  const ref = (document.getElementById('wamd_ref').value || '').trim();
+  const a = document.getElementById('wamd_instr_link');
+  if(ref){
+    a.href = `/wamd/${encodeURIComponent(ref)}`;
+    a.classList.remove('hidden');
+  }else{
+    a.href = '#'; a.classList.add('hidden');
+  }
+}
+async function wamdPreview(){
+  try{
+    const amount = parseFloat(document.getElementById('wamd_amount').value);
+    if(isNaN(amount) || amount<=0){ document.getElementById('wamd_preview').innerHTML = ''; return; }
+    const fd = new FormData();
+    fd.append('amount', amount);
+    fd.append('currency', 'KWD');
+    const res = await fetch('/calculate', {method:'POST', body: fd, credentials:'same-origin', cache:'no-store'});
+    if(!res.ok) throw new Error('calc failed');
+    const d = await res.json();
+    renderWithFeeMode('wamd_preview', d, 'KWD');
+  }catch(e){
+    console.warn(e);
+    document.getElementById('wamd_preview').innerHTML = '<span class="small" style="color:#b00020">Could not calculate.</span>';
+  }
+}
+async function openWamdConfirm(){
+  try{
+    const amount = parseFloat(document.getElementById('wamd_amount').value);
+    const tx_type = document.getElementById('wamd_type').value;
+    const ref = (document.getElementById('wamd_ref').value || '').trim();
+    const rname = (document.getElementById('wamd_rname').value || '').trim();
+    const rphone = (document.getElementById('wamd_rphone').value || '').trim();
+    const note = (document.getElementById('wamd_note').value || '').trim();
+
+    if(isNaN(amount) || amount<=0) throw new Error('Enter a valid amount (KWD)');
+    if(!ref) throw new Error('Reference is required');
+    if(!rname || !rphone) throw new Error('Recipient name and phone are required');
+
+    const calcFd = new FormData();
+    calcFd.append('amount', amount);
+    calcFd.append('currency', 'KWD');
+    const cres = await fetch('/calculate', {method:'POST', body: calcFd, credentials:'same-origin', cache:'no-store'});
+    if(!cres.ok) throw new Error('Could not calculate totals');
+    const d = await cres.json();
+
+    const clientPays = feePassThrough ? d.total_cost_kwd : d.amount_kwd;
+    const clientGets = feePassThrough ? d.amount_kwd : (d.amount_kwd - d.total_fee_kwd);
+    const rate = (d.amount_kes && d.amount_kwd) ? (d.amount_kes/d.amount_kwd) : (CURRENT_RATE || 0);
+
+    setModalContent(`
+      <div id="cmod_alert_wamd" class="small" style="display:none; color:#b00020; margin-bottom:8px;"></div>
+      <div class="row">
+        <div class="col-6">
+          <div class="cbox">
+            <h3 style="margin:0 0 8px;">WAMD / Link</h3>
+            <div class="small">
+              <div><strong>Type</strong>: ${tx_type}</div>
+              <div><strong>Amount</strong>: ${fmt(d.amount_kwd)} KWD</div>
+              <div><strong>Reference</strong>: <code>${ref}</code></div>
+              <div><strong>Recipient</strong>: ${rname} — ${rphone}</div>
+              <div><strong>Beneficiary</strong>: ${WAMD_BENEFICIARY}</div>
+              <div><strong>Pay To (Phone)</strong>: ${WAMD_PAY_TO_PHONE}</div>
+              <div><strong>Service charge</strong>: ${feePassThrough ? 'Customer pays' : 'Merchant absorbs'}</div>
+              ${note ? `<div><strong>Note</strong>: ${note}</div>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="cbox">
+            <h3 style="margin:0 0 8px;">Amounts</h3>
+            <div class="small">
+              <div><strong>Total Fee</strong>: ${fmt(d.total_fee_kwd)} KWD <small>(${fmt(d.total_fee_kes)} KES)</small></div>
+              <div style="margin-top:6px;"><strong>Client pays</strong>: ${fmt(clientPays)} KWD <small>(${fmt(clientPays*rate)} KES)</small></div>
+              <div><strong>Client receives</strong>: ${fmt(clientGets)} KWD <small>(${fmt(clientGets*rate)} KES)</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cactions">
+        <a href="/wamd/${encodeURIComponent(ref)}" target="_blank" rel="noopener">
+          <button class="cbtn ghost" type="button">Open Instructions</button>
+        </a>
+        <button id="cmod_confirm_wamd" class="cbtn primary" type="button">Confirm &amp; Create</button>
+        <button class="cbtn ghost" type="button" onclick="hideModal()">Cancel</button>
+      </div>
+    `);
+    document.getElementById('cmod_title').textContent = 'Review & Submit — WAMD / Link';
+
+    document.getElementById('cmod_confirm_wamd').onclick = async ()=>{
+      const alertEl = document.getElementById('cmod_alert_wamd');
+      try{
+        const fd = new FormData();
+        fd.append('amount', amount);
+        fd.append('currency', 'KWD');
+        fd.append('tx_type', tx_type);
+        fd.append('pass_service_charge', feePassThrough ? '1' : '0');
+        fd.append('wamd_reference', ref);
+        fd.append('wamd_pay_to', WAMD_PAY_TO_PHONE);
+        fd.append('wamd_beneficiary', WAMD_BENEFICIARY);
+        fd.append('wamd_recipient_name', rname);
+        fd.append('wamd_recipient_phone', rphone);
+        if(note) fd.append('wamd_note', note);
+
+        const res2 = await fetch('/api/add-transaction/wamd', {method:'POST', body: fd, cache:'no-store', credentials:'same-origin'});
+        const txt2 = await res2.text(); let out=null; try{ out=JSON.parse(txt2);}catch{}
+        if(!res2.ok || !out || out.ok !== true) throw new Error((out && out.error) || (txt2 || `HTTP ${res2.status}`));
+
+        document.getElementById('wamd_amount').value = '';
+        document.getElementById('wamd_note').value = '';
+        document.getElementById('wamd_preview').innerHTML = '';
+        document.getElementById('wamd_instr_link').classList.add('hidden');
+        await loadTransactions();
+
+        const receiptUrl = buildReceiptUrlFromResponse(out);
+        const instrUrl = out.wamd_instructions_url || `/wamd/${encodeURIComponent(ref)}`;
+
+        setModalContent(`
+          <div class="cbox" style="text-align:center;">
+            <h3 style="margin:0 0 6px; color:#063d3f;">WAMD Link Created</h3>
+            <p class="small" style="color:#444; margin:6px 0 12px;">Share the instructions and keep the reference exactly as shown.</p>
+            <p style="margin:0 0 12px;">
+              <a href="${instrUrl}" target="_blank" rel="noopener">
+                <button type="button" class="cbtn primary">Open Instructions</button>
+              </a>
+            </p>
+            ${receiptUrl ? `<p style="margin:0 0 12px;">
+              <a href="${receiptUrl}" target="_blank" rel="noopener">
+                <button type="button" class="cbtn primary">Open Receipt</button>
+              </a>
+            </p>` : `<p class="small" style="color:#666;">Receipt will be available once processed.</p>`}
+            <div style="margin-top:10px;"><button class="cbtn ghost" onclick="hideModal()">Close</button></div>
+          </div>
+        `);
+      }catch(err){
+        alertEl.textContent = err.message || 'Failed to create WAMD link';
+        alertEl.style.display = 'block';
+      }
+    };
+
+    showModal();
+  }catch(e){ alert(e.message); }
+}
+
+/* ===== NEW: WAMD inside Add Transaction (AT) ===== */
+function updateWamdInstructionLinkAT(){
+  const ref = (document.getElementById('wamd_at_ref').value || '').trim();
+  const a = document.getElementById('wamd_at_instr_link');
+  if(!a) return;
+  if(ref){
+    a.href = `/wamd/${encodeURIComponent(ref)}`;
+    a.classList.remove('hidden');
+  }else{
+    a.href = '#'; a.classList.add('hidden');
+  }
+}
+async function openWamdConfirmAT(){
+  try{
+    const amount = parseFloat(document.getElementById('amount').value);
+    const tx_type = document.getElementById('tx_type').value;
+    const ref = (document.getElementById('wamd_at_ref').value || '').trim();
+    const rname = (document.getElementById('wamd_at_rname').value || '').trim();
+    const rphone = (document.getElementById('wamd_at_rphone').value || '').trim();
+    const note = (document.getElementById('wamd_at_note').value || '').trim();
+    const uid = (document.getElementById('uid_in').value || '').trim();
+
+    if(isNaN(amount) || amount<=0) throw new Error('Enter a valid amount (KWD)');
+    if(!ref) throw new Error('Reference is required');
+    if(!rname || !rphone) throw new Error('Recipient name and phone are required');
+
+    // Force currency KWD for calculation
+    const calcFd = new FormData();
+    calcFd.append('amount', amount);
+    calcFd.append('currency', 'KWD');
+    const cres = await fetch('/calculate', {method:'POST', body: calcFd, credentials:'same-origin', cache:'no-store'});
+    if(!cres.ok) throw new Error('Could not calculate totals');
+    const d = await cres.json();
+
+    const clientPays = feePassThrough ? d.total_cost_kwd : d.amount_kwd;
+    const clientGets = feePassThrough ? d.amount_kwd : (d.amount_kwd - d.total_fee_kwd);
+    const rate = (d.amount_kes && d.amount_kwd) ? (d.amount_kes/d.amount_kwd) : (CURRENT_RATE || 0);
+
+    setModalContent(`
+      <div id="cmod_alert_wamd_at" class="small" style="display:none; color:#b00020; margin-bottom:8px;"></div>
+      <div class="row">
+        <div class="col-6">
+          <div class="cbox">
+            <h3 style="margin:0 0 8px;">WAMD / Link (Add Transaction)</h3>
+            <div class="small">
+              ${uid ? `<div><strong>Client</strong>: ${uid}</div>` : ''}
+              <div><strong>Type</strong>: ${tx_type}</div>
+              <div><strong>Amount</strong>: ${fmt(d.amount_kwd)} KWD</div>
+              <div><strong>Reference</strong>: <code>${ref}</code></div>
+              <div><strong>Recipient</strong>: ${rname} — ${rphone}</div>
+              <div><strong>Beneficiary</strong>: ${WAMD_BENEFICIARY}</div>
+              <div><strong>Pay To (Phone)</strong>: ${WAMD_PAY_TO_PHONE}</div>
+              <div><strong>Service charge</strong>: ${feePassThrough ? 'Customer pays' : 'Merchant absorbs'}</div>
+              ${note ? `<div><strong>Note</strong>: ${note}</div>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="cbox">
+            <h3 style="margin:0 0 8px;">Amounts</h3>
+            <div class="small">
+              <div><strong>Total Fee</strong>: ${fmt(d.total_fee_kwd)} KWD <small>(${fmt(d.total_fee_kes)} KES)</small></div>
+              <div style="margin-top:6px;"><strong>Client pays</strong>: ${fmt(clientPays)} KWD <small>(${fmt(clientPays*rate)} KES)</small></div>
+              <div><strong>Client receives</strong>: ${fmt(clientGets)} KWD <small>(${fmt(clientGets*rate)} KES)</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="cactions">
+        <a href="/wamd/${encodeURIComponent(ref)}" target="_blank" rel="noopener">
+          <button class="cbtn ghost" type="button">Open Instructions</button>
+        </a>
+        <button id="cmod_confirm_wamd_at" class="cbtn primary" type="button">Confirm &amp; Create</button>
+        <button class="cbtn ghost" type="button" onclick="hideModal()">Cancel</button>
+      </div>
+    `);
+    document.getElementById('cmod_title').textContent = 'Review & Submit — WAMD / Link';
+
+    document.getElementById('cmod_confirm_wamd_at').onclick = async ()=>{
+      const alertEl = document.getElementById('cmod_alert_wamd_at');
+      try{
+        const fd = new FormData();
+        fd.append('amount', amount);
+        fd.append('currency', 'KWD');
+        fd.append('tx_type', tx_type);
+        fd.append('pass_service_charge', feePassThrough ? '1' : '0');
+        fd.append('wamd_reference', ref);
+        fd.append('wamd_pay_to', WAMD_PAY_TO_PHONE);
+        fd.append('wamd_beneficiary', WAMD_BENEFICIARY);
+        fd.append('wamd_recipient_name', rname);
+        fd.append('wamd_recipient_phone', rphone);
+        if(note) fd.append('wamd_note', note);
+        if(uid)  fd.append('user_id', uid);
+
+        const res2 = await fetch('/api/add-transaction/wamd', {method:'POST', body: fd, cache:'no-store', credentials:'same-origin'});
+        const txt2 = await res2.text(); let out=null; try{ out=JSON.parse(txt2);}catch{}
+        if(!res2.ok || !out || out.ok !== true) throw new Error((out && out.error) || (txt2 || `HTTP ${res2.status}`));
+
+        // Reset WAMD AT fields (keep UID)
+        document.getElementById('wamd_at_ref').value = '';
+        document.getElementById('wamd_at_rname').value = '';
+        document.getElementById('wamd_at_rphone').value = '';
+        document.getElementById('wamd_at_note').value = '';
+        document.getElementById('add_preview').innerHTML = '';
+        updateWamdInstructionLinkAT();
+        await loadTransactions();
+
+        const receiptUrl = buildReceiptUrlFromResponse(out);
+        const instrUrl = out.wamd_instructions_url || `/wamd/${encodeURIComponent(ref)}`;
+
+        setModalContent(`
+          <div class="cbox" style="text-align:center;">
+            <h3 style="margin:0 0 6px; color:#063d3f;">WAMD Link Created</h3>
+            <p class="small" style="color:#444; margin:6px 0 12px;">Share the instructions and keep the reference exactly as shown.</p>
+            <p style="margin:0 0 12px;">
+              <a href="${instrUrl}" target="_blank" rel="noopener">
+                <button type="button" class="cbtn primary">Open Instructions</button>
+              </a>
+            </p>
+            ${receiptUrl ? `<p style="margin:0 0 12px;">
+              <a href="${receiptUrl}" target="_blank" rel="noopener">
+                <button type="button" class="cbtn primary">Open Receipt</button>
+              </a>
+            </p>` : `<p class="small" style="color:#666;">Receipt will be available once processed.</p>`}
+            <div style="margin-top:10px;"><button class="cbtn ghost" onclick="hideModal()">Close</button></div>
+          </div>
+        `);
+      }catch(err){
+        alertEl.textContent = err.message || 'Failed to create WAMD link';
+        alertEl.style.display = 'block';
+      }
+    };
+
+    showModal();
+  }catch(e){ alert(e.message); }
+}
+
+/* ===== Tabs ===== */
+function activateTab(which){
+  const tabs = ['small','bulk','wamd'];
+  tabs.forEach(t=>{
+    document.getElementById(`tab_${t}`).classList.toggle('active', t===which);
+    document.getElementById(`panel_${t}`).classList.toggle('hidden', t!==which);
+  });
+}
+document.getElementById('tab_small').addEventListener('click', ()=>activateTab('small'));
+document.getElementById('tab_bulk').addEventListener('click',  ()=>activateTab('bulk'));
+document.getElementById('tab_wamd').addEventListener('click',  ()=>activateTab('wamd'));
+
+/* ===== Event wiring ===== */
+document.getElementById('method').addEventListener('change', toggleFields);
+document.getElementById('calc_amount').addEventListener('input', ()=>doCalculate('calc_amount','calc_currency','calc_result'));
+document.getElementById('calc_currency').addEventListener('change', ()=>doCalculate('calc_amount','calc_currency','calc_result'));
+document.getElementById('currency').addEventListener('change', ()=>doCalculate('amount','currency','add_preview'));
+document.getElementById('amount').addEventListener('input',  ()=>doCalculate('amount','currency','add_preview'));
+document.getElementById('btn_add').addEventListener('click', openAddTxConfirm);
+
+/* Small payment events */
+document.getElementById('sp_method').addEventListener('change', toggleSmallFields);
+document.getElementById('sp_amount').addEventListener('input', ()=>doCalculate('sp_amount','sp_currency','sp_preview'));
+document.getElementById('sp_currency').addEventListener('change', ()=>doCalculate('sp_amount','sp_currency','sp_preview'));
+document.getElementById('btn_sp_submit').addEventListener('click', openSmallPaymentConfirm);
+
+/* Bulk events */
+document.getElementById('btn_add_row').addEventListener('click', ()=>addBulkRow({currency:'KWD', method:'Mpesa', tx_type:'Deposit'}));
+document.getElementById('btn_submit_all').addEventListener('click', openBulkConfirm);
+document.getElementById('btn_clear_rows').addEventListener('click', ()=>{ document.querySelector('#bulk_table tbody').innerHTML=''; });
+document.getElementById('btn_refresh').addEventListener('click', loadTransactions);
+
+/* WAMD tab events */
+document.getElementById('wamd_amount').addEventListener('input', wamdPreview);
+document.getElementById('wamd_type').addEventListener('change', wamdPreview);
+document.getElementById('btn_wamd_submit').addEventListener('click', openWamdConfirm);
+document.getElementById('btn_copy_payto').addEventListener('click', ()=>copyText(WAMD_PAY_TO_PHONE));
+document.getElementById('btn_ref_gen').addEventListener('click', ()=>{
+  const v = genWamdRef(); document.getElementById('wamd_ref').value = v; updateWamdInstructionLink();
+});
+document.getElementById('wamd_ref').addEventListener('input', updateWamdInstructionLink);
+document.getElementById('btn_copy_ref').addEventListener('click', ()=>copyText(document.getElementById('wamd_ref').value||''));
+
+/* WAMD in Add Transaction events */
+document.getElementById('btn_at_copy_payto').addEventListener('click', ()=>copyText(WAMD_PAY_TO_PHONE));
+document.getElementById('btn_at_ref_gen').addEventListener('click', ()=>{
+  const v = genWamdRef(); document.getElementById('wamd_at_ref').value = v; updateWamdInstructionLinkAT();
+});
+document.getElementById('wamd_at_ref').addEventListener('input', updateWamdInstructionLinkAT);
+document.getElementById('btn_at_copy_ref').addEventListener('click', ()=>copyText(document.getElementById('wamd_at_ref').value||''));
+
+/* ===== On load ===== */
+window.addEventListener('load', async ()=>{
+  const ok = await ensureMerchant();
+  if(!ok) return;
+
+  await fetchAuth();
+  await fetchRate();
+  await loadWamdSettings();
+
+  toggleFields();
+  toggleSmallFields();
+  activateTab('small');
+  await loadTransactions();
+
+  if(document.getElementById('calc_amount').value){
+    doCalculate('calc_amount','calc_currency','calc_result');
+  }
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+/* ===== QR Scanner (fills #uid_in) ===== */
+(function(){
+  const btnOpen = document.getElementById('uid_scan');
+  const modal   = document.getElementById('qrModal');
+  const btnClose= document.getElementById('qrClose');
+  const video   = document.getElementById('qrVideo');
+  const canvas  = document.getElementById('qrCanvas');
+  const hint    = document.getElementById('qrHint');
+  const uidInput= document.getElementById('uid_in');
+
+  let stream = null;
+  let rafId  = null;
+  let detector = null;
+  const supportsDetector = 'BarcodeDetector' in window;
+
+  if (supportsDetector) {
+    try { detector = new BarcodeDetector({ formats: ['qr_code'] }); }
+    catch(_) { detector = null; }
+  }
+
+  function showQr(){ modal.style.display = 'grid'; }
+  function hideQr(){ modal.style.display = 'none'; }
+
+  async function startCamera(){
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width:{ideal:1280}, height:{ideal:720} },
+        audio: false
+      });
+      video.srcObject = stream;
+      await video.play();
+      if (detector) loopDetector();
+      else loopJsQR();
+    }catch(e){
+      hint.textContent = 'Camera access failed. Please allow permission or use a different device.';
+      console.error(e);
+    }
+  }
+
+  function stopCamera(){
+    if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    try{ video.pause(); }catch{}
+    if (stream){ stream.getTracks().forEach(t=> t.stop()); stream = null; }
+  }
+
+  function parseQrPayload(text){
+    text = (text||'').trim();
+    if (text.startsWith('CM-')) return text;
+    try{
+      const u = new URL(text);
+      const parts = u.pathname.split('/').filter(Boolean);
+      const i = parts.indexOf('u');
+      if (i >= 0 && parts[i+1]) return text;
+    }catch(_){}
+    return text;
+  }
+
+  async function loopDetector(){
+    if (!detector) return;
+    try{
+      const codes = await detector.detect(video);
+      if (codes && codes.length){
+        const raw = codes[0].rawValue || '';
+        uidInput.value = parseQrPayload(raw);
+        done(); return;
+      }
+    }catch(e){}
+    rafId = requestAnimationFrame(loopDetector);
+  }
+
+  function loopJsQR(){
+    const ctx = canvas.getContext('2d');
+    const w = video.videoWidth, h = video.videoHeight;
+    if (!w || !h){ rafId = requestAnimationFrame(loopJsQR); return; }
+    canvas.width = w; canvas.height = h;
+    ctx.drawImage(video, 0, 0, w, h);
+    const img = ctx.getImageData(0, 0, w, h);
+    const code = jsQR(img.data, img.width, img.height, { inversionAttempts: 'dontInvert' });
+    if (code && code.data){
+      uidInput.value = parseQrPayload(code.data);
+      done(); return;
+    }
+    rafId = requestAnimationFrame(loopJsQR);
+  }
+
+  function done(){
+    stopCamera();
+    hideQr();
+    document.getElementById('amount')?.focus();
+  }
+
+  btnOpen.addEventListener('click', async ()=>{ showQr(); await startCamera(); });
+  btnClose.addEventListener('click', ()=>{ stopCamera(); hideQr(); });
+  modal.addEventListener('click', (e)=>{ if (e.target === modal){ stopCamera(); hideQr(); }});
+  window.addEventListener('beforeunload', stopCamera);
+})();
+</script>
+</body>
+</html>

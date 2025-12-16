@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sign Up - Chapaa</title>
+<style>
+  body{font-family:Arial,sans-serif;background:#f4f6f8;margin:0}
+  .wrap{max-width:380px;margin:60px auto;background:#fff;padding:24px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+  h2{margin-top:0;color:#00315c}
+  label{font-weight:600;display:block;margin:12px 0 6px}
+  input{width:100%;padding:12px;border:1px solid #cfd7e3;border-radius:8px}
+  .hint{font-size:12px;color:#666}
+  .strength{height:8px;background:#e9eef6;border-radius:6px;margin:8px 0 4px;overflow:hidden}
+  .bar{height:100%;width:0}
+  .err{color:#c62828;margin-top:8px;min-height:18px}
+  .btn{width:100%;padding:12px;background:#004080;color:#fff;border:none;border-radius:8px;font-weight:700;margin-top:14px;cursor:pointer}
+  .btn:hover{background:#0057c2}
+  .alt{margin-top:12px;text-align:center}
+  a{color:#004080;text-decoration:none}
+  .flash{margin:8px 0;color:#c62828}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h2>Create your account</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="flash">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" onsubmit="return validateSignup()">
+      <label>Email</label>
+      <input type="email" name="email" id="email" required placeholder="you@example.com"/>
+
+      <label>Username</label>
+      <input type="text" name="username" id="username" required placeholder="uniqueusername"/>
+
+      <label>Password</label>
+      <input type="password" name="password" id="password" required placeholder="At least 8 chars"/>
+      <div class="strength"><div id="bar" class="bar"></div></div>
+      <div class="hint">Use at least 8 characters, with letters and numbers.</div>
+
+      <label>Confirm Password</label>
+      <input type="password" name="confirm_password" id="confirm" required placeholder="Re-enter password"/>
+      <div id="err" class="err"></div>
+
+      <button class="btn" type="submit">Sign Up</button>
+      <div class="alt">Already have an account? <a href="{{ url_for('login') }}">Log in</a></div>
+    </form>
+  </div>
+
+<script>
+function scorePassword(p){
+  let s=0;
+  if(!p) return 0;
+  const variations = [/[a-z]/, /[A-Z]/, /\d/, /[^A-Za-z0-9]/];
+  variations.forEach(rx => { if (rx.test(p)) s += 1; });
+  if (p.length >= 8) s += 1;
+  if (p.length >= 12) s += 1;
+  return Math.min(s,5);
+}
+
+function updateStrengthBar(){
+  const p = document.getElementById('password').value;
+  const bar = document.getElementById('bar');
+  const s = scorePassword(p);
+  const widths = ['0%','20%','40%','60%','80%','100%'];
+  const colors = ['#e9eef6','#e53935','#fb8c00','#fdd835','#43a047','#1e88e5'];
+  bar.style.width = widths[s];
+  bar.style.background = colors[s];
+}
+
+function validateSignup(){
+  const email = document.getElementById('email').value.trim();
+  const user = document.getElementById('username').value.trim();
+  const p = document.getElementById('password').value;
+  const c = document.getElementById('confirm').value;
+  const err = document.getElementById('err');
+
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRe.test(email)){ err.textContent = 'Enter a valid email.'; return false; }
+
+  if (p.length < 8 || !/[A-Za-z]/.test(p) || !/\d/.test(p)){
+    err.textContent = 'Password must be 8+ chars and include letters & numbers.'; return false;
+  }
+  if (p !== c){ err.textContent = 'Passwords do not match.'; return false; }
+  if (user.length < 3){ err.textContent = 'Username should be at least 3 characters.'; return false; }
+
+  err.textContent = '';
+  return true;
+}
+
+document.getElementById('password').addEventListener('input', updateStrengthBar);
+</script>
+</body>
+</html>

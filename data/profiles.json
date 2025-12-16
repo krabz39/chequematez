@@ -1,0 +1,15 @@
+{
+  "john": {
+    "username": "john",
+    "user_id": "CM-CUST-KW-2025-F4FA51427E",
+    "full_name": "",
+    "phone": "",
+    "dob": "",
+    "nationality": "",
+    "country": "KW",
+    "created_at": "2025-09-07T21:32:08Z",
+    "locked": false,
+    "id_status": "pending",
+    "notify_whatsapp": false
+  }
+}

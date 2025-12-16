@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>chequematez Customer</title>
+<style>
+:root{
+  --brand-black:#000; --brand-red:#ff0000; --brand-teal-1:#063d3f; --brand-teal-2:#053c3f;
+  --brand-teal-3:#053d3f; --brand-teal-4:#063d40; --brand-teal-5:#063c3f; --brand-teal-6:#053d40;
+  --brand-gold:#d4a017;
+}
+/* Base */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{font-family:Arial, sans-serif; margin:0; background:#f5f5f5; color:#111; line-height:1.35}
+/* Header */
+header{
+  position:sticky; top:0; z-index:10;
+  background:var(--brand-teal-1); color:#fff;
+  padding:12px 16px; border-bottom:4px solid var(--brand-gold);
+  display:flex; align-items:center; justify-content:space-between;
+}
+header h1{margin:0; font-size:1.1rem; letter-spacing:.2px}
+.nav-right{display:flex; align-items:center; gap:10px}
+header a{color:#fff; text-decoration:none; border:1px solid rgba(255,255,255,0.3); padding:8px 12px; border-radius:8px; font-size:.95rem}
+/* Hamburger */
+.nav-toggle{display:none; border:1px solid rgba(255,255,255,.35); background:transparent; color:#fff;
+  padding:8px 10px; border-radius:8px; font-size:0.95rem; cursor:pointer;}
+.nav-menu{display:flex; gap:8px}
+.nav-menu a{white-space:nowrap}
+/* Layout */
+.container{padding:16px; max-width:1100px; margin:0 auto;}
+.card{background:#fff; border-radius:12px; padding:16px; box-shadow:0 4px 16px rgba(0,0,0,0.08); border-top:4px solid var(--brand-teal-4); margin-bottom:16px;}
+h2{margin:0 0 10px; color:var(--brand-teal-2); font-size:1.1rem}
+.row{display:grid; grid-template-columns:repeat(12, 1fr); gap:14px;}
+.col-2{grid-column:span 2;} .col-3{grid-column:span 3;} .col-4{grid-column:span 4;} .col-6{grid-column:span 6;} .col-12{grid-column:span 12;}
+/* Forms */
+label{font-weight:600;color:var(--brand-teal-5); font-size:.95rem}
+input, select{width:100%; padding:12px 12px; margin-top:6px; border:1px solid #d5d7da; border-radius:10px; font-size:16px; background:#fff;}
+input[readonly]{background:#f7f7f7}
+button{padding:12px 16px; border:none; border-radius:28px; background:var(--brand-gold); font-weight:700; cursor:pointer; font-size:16px;}
+button:hover{background:#e1b632; outline:2px solid var(--brand-red);}
+
+/* NEW: make inputs in inline rows expand properly */
+.field-row{display:flex; gap:8px; align-items:center}
+.field-row input{flex:1; min-width:0}
+.field-row .btn-ghost, .field-row button{white-space:nowrap}
+
+/* Pills */
+.btn-pill{padding:8px 12px; border:none; border-radius:999px; background:var(--brand-teal-1); color:#fff; font-weight:700; font-size:.9rem; cursor:pointer;}
+.btn-pill:hover{background:#07474a}
+/* Small ghost */
+.btn-ghost{padding:10px 12px; border:none; border-radius:12px; background:#e5e7eb; font-weight:700; cursor:pointer; font-size:.9rem;}
+.btn-ghost:hover{background:#d9dbdf}
+/* Misc */
+.hidden{display:none}
+.nowrap{white-space:nowrap;}
+.small{color:#555; font-size:.92rem;}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.highlight{color:#ff0000; font-weight:700;}
+/* Badges */
+.badge{display:inline-block; padding:4px 10px; border-radius:999px; font-weight:700; font-size:0.85rem;}
+.badge.mpesa{background:#e8f7ff; color:#066;}
+.badge.bank{background:#e8ffe8; color:#064;}
+.badge.wamd{background:#f4f7ff; color:#163;}
+.badge.deposit{background:#fff7e8; color:#640;}
+.badge.withdrawal{background:#ffe8e8; color:#a04040;}
+.badge.status{padding:4px 8px; border-radius:999px; font-size:0.8rem; font-weight:700;}
+.badge.status.successful{background:#e8ffe8; color:#1f7a1f; border:1px solid #bde5bd;}
+.badge.status.in{background:#fff7e0; color:#8a6d1f; border:1px solid #f1dfae;}
+.badge.status.failed{background:#ffe8e8; color:#a33; border:1px solid #f1b9b9;}
+/* Table */
+.table-wrap{overflow:auto; -webkit-overflow-scrolling:touch; border-radius:10px;}
+table.styled-table{width:100%; border-collapse:separate; border-spacing:0; border:1px solid #e9ecef; border-radius:10px; overflow:hidden; background:#fff;}
+.styled-table thead th{background:#f8fafc; color:#222; font-weight:700; text-align:left; padding:12px; border-bottom:1px solid #e9ecef; font-size:.95rem}
+.styled-table tbody td{padding:12px; border-bottom:1px solid #f1f3f5; vertical-align:top; font-size:.95rem}
+.styled-table tbody tr:hover{background:#fcfcfd;}
+.num{text-align:right;}
+/* Toggle */
+.toggle-wrap{display:flex; align-items:center; gap:10px; background:#fff8e1; border:1px solid #f5e1a3; padding:8px 10px; border-radius:999px; width:fit-content}
+.switch { position:relative; width:46px; height:26px; display:inline-block; vertical-align:middle; }
+.switch input { opacity:0; width:0; height:0; }
+.switch .slider{position:absolute; inset:0; cursor:pointer; background:#dfe8e8; border-radius:999px; transition:background .2s ease; box-shadow:inset 0 0 0 1px #cfdada;}
+.switch .slider::before{content:""; position:absolute; height:20px; width:20px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .2s ease; box-shadow:0 2px 6px rgba(0,0,0,.18);}
+.switch input:checked + .slider{ background:#063d3f33 }
+.switch input:checked + .slider::before{ transform:translateX(20px) }
+/* Modal */
+#txConfirmModal{position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.5); z-index:2000;}
+.txc-card{background:#fff; width:min(720px,95vw); border-radius:12px; overflow:hidden; box-shadow:0 12px 40px rgba(0,0,0,0.25);}
+.txc-head{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid #eee;}
+.txc-body{padding:14px;}
+.txc-box{background:#fafafa; border:1px solid #eee; border-radius:10px; padding:12px;}
+.txc-actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;}
+.txc-btn{padding:10px 14px; border:none; border-radius:30px; font-weight:750; cursor:pointer;}
+.txc-primary{background:var(--brand-gold);}
+.txc-ghost{background:#e5e7eb;}
+/* Chart */
+.chart-wrap{ position:relative; height:clamp(220px, 34vw, 420px); }
+/* Responsive */
+@media (max-width: 900px){
+  header h1{font-size:1rem}
+  .nav-toggle{display:inline-block}
+  .nav-menu{display:none; flex-direction:column; gap:8px; position:absolute; right:16px; top:58px; background:var(--brand-teal-1); padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,.25)}
+  .nav-menu.open{display:flex}
+}
+@media (max-width: 900px){
+  .row{grid-template-columns:1fr;}
+  .col-2,.col-3,.col-4,.col-6,.col-12{grid-column:span 12;}
+  .container{padding:12px}
+  button{width:100%}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>chequematez Customer</h1>
+  <div class="nav-right">
+    <button id="navToggle" class="nav-toggle" aria-expanded="false" aria-controls="menu">Menu ☰</button>
+    <nav id="menu" class="nav-menu" role="navigation" aria-label="Main">
+      <a href="/">Home</a>
+      <a id="nav_myid" href="/my-id">My ID</a>
+      <a href="/logout">Logout</a>
+    </nav>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Preferences -->
+  <div class="card" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
+    <h2 style="margin:0">Preferences</h2>
+    <div class="toggle-wrap" title="When ON, you pay the service charge. When OFF, the merchant absorbs it.">
+      <label class="switch" aria-label="Service charge pass-through">
+        <input type="checkbox" id="fee_pass_through" checked>
+        <span class="slider"></span>
+      </label>
+      <div>
+        <div><strong>Service charge</strong>: <span id="fee_mode_lbl">Pass to me</span></div>
+        <div class="small">OFF = merchant absorbs</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Calculator -->
+  <div class="card">
+    <h2>Quick Calculator</h2>
+    <div class="row">
+      <div class="col-6">
+        <label for="calc_amount">Amount</label>
+        <input id="calc_amount" type="number" placeholder="Enter amount" inputmode="decimal">
+      </div>
+      <div class="col-6">
+        <label for="calc_currency">Currency</label>
+        <select id="calc_currency">
+          <option value="KWD" selected>KWD</option>
+          <option value="KES">KES</option>
+        </select>
+      </div>
+      <div class="col-12" id="calc_preview" style="margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <!-- Add Transaction -->
+  <div class="card">
+    <h2>Add Transaction</h2>
+    <div class="row">
+      <div class="col-3">
+        <label>Amount</label>
+        <input id="amount" type="number" placeholder="Enter amount" inputmode="decimal">
+        <div id="amount_hint" class="small" style="margin-top:6px;color:#666">Allowed range (in KWD): <strong>5 – 600</strong>.</div>
+      </div>
+      <div class="col-3">
+        <label>Currency</label>
+        <select id="currency">
+          <option value="KWD" selected>KWD</option>
+          <option value="KES">KES</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label class="nowrap">Transaction Method</label>
+        <select id="method">
+          <option value="Mpesa">Mpesa</option>
+          <option value="Bank">Bank</option>
+          <option value="WAMD" selected>WAMD/Link</option>
+        </select>
+      </div>
+      <div class="col-3">
+        <label class="nowrap">Transaction Type</label>
+        <select id="tx_type">
+          <option>Deposit</option>
+          <option>Withdrawal</option>
+        </select>
+      </div>
+
+      <!-- Mpesa -->
+      <div class="col-3" id="phone_wrap">
+        <label>Mpesa Phone (254...)</label>
+        <input id="phone" type="tel" placeholder="254712345678" inputmode="tel">
+      </div>
+
+      <!-- Bank -->
+      <div class="col-4 hidden" id="bank_wrap">
+        <label>Bank Account</label>
+        <input id="bank_account" type="text" placeholder="Account number" autocomplete="off" inputmode="numeric">
+      </div>
+      <div class="col-4 hidden" id="paybill_wrap">
+        <label>Paybill Number</label>
+        <input id="paybill" type="text" placeholder="Paybill" autocomplete="off" inputmode="numeric">
+      </div>
+
+      <!-- WAMD — admin-driven inputs -->
+      <div class="col-4 hidden" id="wamd_ref_wrap">
+        <label>Order / Reference</label>
+        <div class="field-row">
+          <input id="wamd_ref" class="mono" placeholder="CMZ-YYYYMMDD-XXXXXX" readonly>
+          <button id="wamd_ref_refresh" type="button" class="btn-ghost">Refresh</button>
+        </div>
+        <div class="small">This is also pasted in your bank <em>transfer notes</em>.</div>
+      </div>
+      <div class="col-4 hidden" id="wamd_payto_wrap">
+        <label>Pay To (Phone)</label>
+        <input id="wamd_pay_to" class="mono" value="+965914413" readonly>
+      </div>
+      <div class="col-4 hidden" id="wamd_benef_wrap">
+        <label>Beneficiary</label>
+        <input id="wamd_beneficiary" value="Eugene" readonly>
+      </div>
+
+      <div class="col-3 hidden" id="wamd_rec_name_wrap">
+        <label>Recipient Name</label>
+        <input id="wamd_rec_name" placeholder="kim">
+      </div>
+      <div class="col-3 hidden" id="wamd_rec_phone_wrap">
+        <label>Mpesa Phone</label>
+        <input id="wamd_rec_phone" placeholder="254706445567" inputmode="tel">
+      </div>
+      <div class="col-6 hidden" id="wamd_note_wrap">
+        <label>Note (optional)</label>
+        <input id="wamd_note" placeholder="purpose…">
+      </div>
+
+      <div class="col-12 hidden" id="wamd_steps_wrap">
+        <div class="small" id="wamd_steps" style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:10px;">
+          <strong>How to pay (WAMD / Transfer by phone)</strong><br>
+          1) Open your bank app → choose <em>WAMD / Transfer by phone</em>.<br>
+          2) Enter phone <span id="wamd_steps_phone" class="mono">+965914413</span> and the amount in KWD.<br>
+          3) Paste reference in notes: <span id="wamd_ref_echo" class="mono"></span>.<br>
+          4) Confirm.
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div id="preview" class="small" style="margin:10px 0;"></div>
+        <button id="btn_add" type="button">Submit Transaction</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart -->
+  <div class="card">
+    <h2>Successful Transactions & Service Charge  (KWD)</h2>
+    <div class="chart-wrap"><canvas id="txChart"></canvas></div>
+    <div class="small" style="margin-top:6px;color:#555;">
+      Only transactions with status <strong>Successful</strong> are included.
+    </div>
+  </div>
+
+  <!-- My Transaction Log -->
+  <div class="card">
+    <h2>My Transactions</h2>
+    <div class="table-wrap">
+      <table id="logTable" class="styled-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th class="nowrap">Method</th>
+            <th class="nowrap">Type</th>
+            <th class="nowrap num">Amount</th>
+            <th class="nowrap num">Charges</th>
+            <th class="nowrap">Status</th>
+            <th class="nowrap">Date/Time (UTC)</th>
+            <th class="nowrap">Receipt</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Confirm Modal -->
+<div id="txConfirmModal">
+  <div class="txc-card">
+    <div class="txc-head">
+      <strong>Review &amp; Submit</strong>
+      <button id="txc_close" type="button" class="txc-btn txc-ghost">Close</button>
+    </div>
+    <div class="txc-body" id="txc_body">
+      <div id="txc_alert" class="small" style="display:none; color:#b00020; margin-bottom:8px;"></div>
+      <div class="row">
+        <div class="col-6">
+          <div class="txc-box">
+            <h3 style="margin:0 0 8px;">Transaction</h3>
+            <div id="txc_tx_meta" class="small" style="color:#444;"></div>
+            <div id="txc_tx_party" class="small" style="margin-top:6px; color:#444;"></div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="txc-box">
+            <h3 style="margin:0 0 8px;">Amounts</h3>
+            <div id="txc_amounts" class="small" style="color:#222;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="txc-actions" id="txc_actions">
+        <button id="txc_submit" type="button" class="txc-btn txc-primary">Confirm &amp; Create</button>
+        <button id="txc_cancel" type="button" class="txc-btn txc-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* ===== Admin-provided WAMD settings (fetched) ===== */
+let WAMD_PAY_TO_PHONE = '+965914413'; // fallback
+let WAMD_BENEFICIARY  = 'Eugene';     // fallback
+const WAMD_REF_PREFIX = 'CMZ';
+
+/* Settings fetcher (expects backend to expose /api/wamd/settings) */
+async function loadWamdSettings(){
+  try{
+    const r = await fetch('/api/wamd/settings', {credentials:'same-origin', cache:'no-store'});
+    const j = await r.json();
+    if(r.ok && j && j.ok){
+      if(j.pay_to_phone){ WAMD_PAY_TO_PHONE = j.pay_to_phone; }
+      if(j.beneficiary){  WAMD_BENEFICIARY  = j.beneficiary; }
+    }
+  }catch(e){}
+  // reflect into UI (if WAMD is selected/visible) and steps text
+  const payToEl = document.getElementById('wamd_pay_to');
+  const benefEl = document.getElementById('wamd_beneficiary');
+  if (payToEl) payToEl.value = WAMD_PAY_TO_PHONE;
+  if (benefEl) benefEl.value = WAMD_BENEFICIARY;
+  const stepsPhone = document.getElementById('wamd_steps_phone');
+  if (stepsPhone) stepsPhone.textContent = WAMD_PAY_TO_PHONE;
+}
+
+/* Where to open the WAMD instructions page — don't touch */
+function wamdInstructionsUrl(ref){
+  return `/wamd/${encodeURIComponent(ref)}`;
+}
+
+/* ====== UI: hamburger ====== */
+const navToggle = document.getElementById('navToggle');
+const menu = document.getElementById('menu');
+navToggle.addEventListener('click', ()=>{
+  const open = menu.classList.toggle('open');
+  navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+});
+
+/* ===== Utilities ===== */
+const fmt = (v)=> Number(v).toLocaleString(undefined,{minimumFractionDigits:1, maximumFractionDigits:1});
+/* service-charge mode */
+let feePassThrough = true;
+const feeToggleEl = document.getElementById('fee_pass_through');
+const feeModeLbl = document.getElementById('fee_mode_lbl');
+feeToggleEl.addEventListener('change', ()=>{
+  feePassThrough = feeToggleEl.checked;
+  feeModeLbl.textContent = feePassThrough ? 'Pass to me' : 'Merchant absorbs';
+  if (document.getElementById('calc_amount').value) doCalculate('calc_amount','calc_currency','calc_preview');
+  if (document.getElementById('amount').value)      doCalculate('amount','currency','preview');
+});
+/* phone helpers */
+function normalizePhone(raw){
+  if(!raw) return "";
+  const digits = String(raw).replace(/\D/g,'');
+  if(digits.length === 12 && digits.startsWith('254') && (digits[3] === '7' || digits[3] === '1')) return digits;
+  if(digits.length === 10 && digits.startsWith('0') && (digits[1] === '7' || digits[1] === '1')) return '254' + digits.slice(1);
+  return "";
+}
+const phoneOk = (p)=> !!normalizePhone(p);
+
+/* ===== Live Exchange Rate (no hardcode) ===== */
+let CURRENT_RATE = null;
+const RATE_POLL_MS = 30000;
+
+async function fetchRate(){
+  try{
+    const r = await fetch('/api/rate', {credentials:'same-origin', cache:'no-store'});
+    const j = await r.json();
+    if(r.ok && j && typeof j.rate !== 'undefined'){
+      const v = Number(j.rate);
+      if (Number.isFinite(v) && v > 0) CURRENT_RATE = v;
+    }
+  }catch(e){
+    console.warn('rate fetch failed', e);
+  }
+}
+
+/* helper: ensure rate present when needed (for KES conversions) */
+function ensureRateOrThrow(currency){
+  if (currency === 'KES' && (!Number.isFinite(CURRENT_RATE) || CURRENT_RATE <= 0)){
+    throw new Error('Fetching live rate… try again in a moment.');
+  }
+}
+
+/* auth */
+(async function(){
+  try{
+    const r = await fetch('/auth/status', {credentials:'same-origin', cache:'no-store'});
+    const j = await r.json();
+    if(!j?.logged_in){ location.href='/?login=1'; return; }
+    if(j.user?.username){ document.getElementById('nav_myid').href = '/u/' + encodeURIComponent(j.user.username); }
+  }catch{ location.href='/?login=1'; }
+})();
+
+/* show/hide inputs + WAMD field defaults */
+function toggleFields(){
+  const m = document.getElementById('method').value;
+  const mp = (m==='Mpesa'), bk=(m==='Bank'), wd=(m==='WAMD');
+  document.getElementById('phone_wrap').classList.toggle('hidden', !mp);
+  document.getElementById('bank_wrap').classList.toggle('hidden', !bk);
+  document.getElementById('paybill_wrap').classList.toggle('hidden', !bk);
+
+  // WAMD groups
+  ['wamd_ref_wrap','wamd_payto_wrap','wamd_benef_wrap','wamd_rec_name_wrap','wamd_rec_phone_wrap','wamd_note_wrap','wamd_steps_wrap']
+    .forEach(id=>document.getElementById(id).classList.toggle('hidden', !wd));
+
+  const curSel = document.getElementById('currency');
+  if (wd){
+    // WAMD is KWD-only; lock currency
+    curSel.value = 'KWD';
+    curSel.setAttribute('disabled','disabled');
+    // Generate a reference if empty
+    const refEl = document.getElementById('wamd_ref');
+    if(!refEl.value) {
+      refEl.value = newRef(WAMD_REF_PREFIX);
+      document.getElementById('wamd_ref_echo').textContent = refEl.value;
+    }
+    // ensure latest settings reflected
+    document.getElementById('wamd_pay_to').value = WAMD_PAY_TO_PHONE;
+    document.getElementById('wamd_beneficiary').value = WAMD_BENEFICIARY;
+    const stepsPhone = document.getElementById('wamd_steps_phone');
+    if (stepsPhone) stepsPhone.textContent = WAMD_PAY_TO_PHONE;
+  }else{
+    curSel.removeAttribute('disabled');
+  }
+}
+document.getElementById('method').addEventListener('change', toggleFields);
+
+// Refresh reference button
+document.getElementById('wamd_ref_refresh').addEventListener('click', ()=>{
+  const ref = newRef(WAMD_REF_PREFIX);
+  document.getElementById('wamd_ref').value = ref;
+  document.getElementById('wamd_ref_echo').textContent = ref;
+});
+
+/* calculator rendering (show server's rate from /calculate when available) */
+function renderCalcWithMode(targetId, d, currency){
+  const isKWD = currency === 'KWD';
+  const ex = (typeof d.exchange_rate !== 'undefined') ? Number(d.exchange_rate) : CURRENT_RATE;
+  const amt_kwd = d.amount_kwd, amt_kes = d.amount_kes;
+  const fee_kwd = d.total_fee_kwd, fee_kes = d.total_fee_kes;
+  const cost_kwd = d.total_cost_kwd, cost_kes = d.total_cost_kes;
+
+  const clientPays_kwd = feePassThrough ? cost_kwd : amt_kwd;
+  const clientPays_kes = feePassThrough ? cost_kes : amt_kes;
+  const clientGets_kwd = feePassThrough ? amt_kwd : (amt_kwd - fee_kwd);
+  const clientGets_kes = feePassThrough ? amt_kes : (amt_kes - fee_kes);
+
+  const amountMain = isKWD ? `${fmt(amt_kwd)} KWD` : `${fmt(amt_kes)} KES`;
+  const amountAlt  = isKWD ? `${fmt(amt_kes)} KES` : `${fmt(amt_kwd)} KWD`;
+
+  const feeMain = isKWD ? `${fmt(fee_kwd)} KWD` : `${fmt(fee_kes)} KES`;
+  const feeAlt  = isKWD ? `${fmt(fee_kes)} KES` : `${fmt(fee_kwd)} KWD`;
+
+  const paysMain = isKWD ? `${fmt(clientPays_kwd)} KWD` : `${fmt(clientPays_kes)} KES`;
+  const paysAlt  = isKWD ? `${fmt(clientPays_kes)} KES` : `${fmt(clientPays_kwd)} KWD`;
+
+  const getsMain = isKWD ? `${fmt(clientGets_kwd)} KWD` : `${fmt(clientGets_kes)} KES`;
+  const getsAlt  = isKWD ? `${fmt(clientGets_kes)} KES` : `${fmt(clientGets_kwd)} KWD`;
+
+  const modeNote = feePassThrough ? 'You pay the service charge' : 'Merchant absorbs the service charge';
+
+  document.getElementById(targetId).innerHTML = `
+    <p>Exchange Rate: <span class="highlight">1 KWD = ${fmt(ex)} KES</span></p>
+    <p>Amount: <strong>${amountMain}</strong><br><span class="small">(${amountAlt})</span></p>
+    <p>Service Fee: <strong>${feeMain}</strong><br><span class="small">(${feeAlt})</span></p>
+    <p><strong>Client Pays:</strong> ${paysMain}<br><span class="small">(${paysAlt}) • ${modeNote}</span></p>
+    <p><strong>Client Receives:</strong> ${getsMain}<br><span class="small">(${getsAlt})</span></p>
+  `;
+}
+
+/* ===== RANGE GUARD (KWD) — core of your ask (no 420 fallback) ===== */
+function kwdFrom(amount, currency){
+  if (currency === 'KES'){
+    ensureRateOrThrow(currency);
+    return Number(amount) / Number(CURRENT_RATE);
+  }
+  return Number(amount);
+}
+function isKwdInRange(amount, currency){
+  const kwd = kwdFrom(amount, currency);
+  if (!isFinite(kwd) || kwd <= 0) return false;
+  if (kwd < 5 || kwd > 600) return false;
+  return true;
+}
+function checkKwdBounds(amount, currency){
+  const kwd = kwdFrom(amount, currency);
+  if (!isFinite(kwd) || kwd <= 0) throw new Error('Enter a valid amount');
+  if (kwd < 5)  throw new Error('Minimum transaction is 5 KWD');
+  if (kwd > 600) throw new Error('Maximum transaction is 600 KWD');
+  return kwd;
+}
+
+/* ===== Calculate (single, consolidated) ===== */
+async function doCalculate(amountElId, currencyElId, targetId){
+  try{
+    const amount = parseFloat(document.getElementById(amountElId).value);
+    const currency = document.getElementById(currencyElId).value;
+
+    // block if KES and rate not ready
+    if (currency === 'KES') ensureRateOrThrow(currency);
+
+    // Don’t show results if out of 5–600 KWD range
+    if(!isKwdInRange(amount, currency)){
+      document.getElementById(targetId).innerHTML = '';
+      return;
+    }
+
+    const fd = new FormData(); 
+    fd.append('amount', amount); 
+    fd.append('currency', currency);
+    const res = await fetch('/calculate', {
+      method:'POST', body: fd, cache:'no-store', credentials:'same-origin'
+    });
+    if(!res.ok) throw new Error('Calculate failed ('+res.status+')');
+    const d = await res.json();
+    renderCalcWithMode(targetId, d, currency);
+  }catch(e){
+    // silent clear is nicer during initial load
+    document.getElementById(targetId).innerHTML = '';
+  }
+}
+
+/* confirmation modal helpers */
+function openTxConfirm(){ document.getElementById('txConfirmModal').style.display='grid'; }
+function closeTxConfirm(){ document.getElementById('txConfirmModal').style.display='none'; }
+document.getElementById('txc_close').onclick = closeTxConfirm;
+
+/* input gather */
+function gatherTxInput(){
+  const amount = parseFloat(document.getElementById('amount').value);
+  const currency = document.getElementById('currency').value;
+  let method = document.getElementById('method').value;
+  if (method === 'WAMD/Link') method = 'WAMD'; // normalize
+  const tx_type = document.getElementById('tx_type').value;
+
+  // ✅ Enforce 5–600 KWD band at submit-time (KES is converted using LIVE rate)
+  checkKwdBounds(amount, currency);
+
+  const phoneRaw = (document.getElementById('phone')?.value || '').trim();
+  const phoneNormalized = normalizePhone(phoneRaw);
+  const bank_account = (document.getElementById('bank_account')?.value || '').trim();
+  const paybill = (document.getElementById('paybill')?.value || '').trim();
+
+  const w_ref = (document.getElementById('wamd_ref')?.value || '').trim();
+  const w_rec_name = (document.getElementById('wamd_rec_name')?.value || '').trim();
+  const w_rec_phone = (document.getElementById('wamd_rec_phone')?.value || '').trim();
+  const w_note = (document.getElementById('wamd_note')?.value || '').trim();
+
+  if(isNaN(amount) || amount <= 0) throw new Error('Enter a valid amount');
+  if(method === 'Mpesa' && !phoneOk(phoneRaw)) throw new Error('Enter Mpesa phone in format 254712345678');
+  if(method === 'Bank' && (!bank_account || !paybill)) throw new Error('Bank account and paybill are required');
+  if(method === 'WAMD'){
+    if(currency !== 'KWD') throw new Error('WAMD/Link payments must be in KWD');
+    if(!w_ref) throw new Error('Order / Reference is missing');
+    if(!w_rec_name) throw new Error('Recipient name is required for WAMD/Link');
+    if(!phoneOk(w_rec_phone)) throw new Error('Enter Mpesa phone in format 254712345678 for WAMD/Link');
+  }
+
+  return {
+    amount, currency, method, tx_type,
+    phone: method==='Mpesa' ? (phoneNormalized || phoneRaw) : '',
+    bank_account: method==='Bank' ? bank_account : '',
+    paybill: method==='Bank' ? paybill : '',
+    pass_service_charge: feePassThrough ? '1' : '0',
+    w_ref, w_rec_name, w_rec_phone, w_note
+  };
+}
+
+/* preview block */
+async function buildPreview(input){
+  const fd = new FormData();
+  fd.append('amount', input.amount);
+  fd.append('currency', input.currency);
+  const res = await fetch('/calculate', {method:'POST', body: fd, credentials:'same-origin', cache:'no-store'});
+  if(!res.ok) throw new Error('Could not calculate totals');
+  const d = await res.json();
+
+  const clientPays = feePassThrough ? d.total_cost_kwd : d.amount_kwd;
+  const clientGets = feePassThrough ? d.amount_kwd : (d.amount_kwd - d.total_fee_kwd);
+  const rate = (typeof d.exchange_rate !== 'undefined') ? Number(d.exchange_rate) : CURRENT_RATE;
+
+  document.getElementById('txc_tx_meta').innerHTML = `
+    <div><strong>Type</strong>: ${input.tx_type}</div>
+    <div><strong>Method</strong>: ${input.method}</div>
+    <div><strong>Currency</strong>: ${input.currency}</div>
+    <div><strong>Service charge</strong>: ${feePassThrough ? 'Customer pays' : 'Merchant absorbs'}</div>
+    ${input.method==='WAMD' ? `<div><strong>Order / Ref</strong>: <span class="mono">${input.w_ref}</span></div>` : ``}
+  `;
+  document.getElementById('txc_tx_party').innerHTML = `
+    ${input.method==='Mpesa' ? `<div><strong>Mpesa Phone</strong>: ${input.phone}</div>` : ''}
+    ${input.method==='Bank' ? `<div><strong>Bank Account</strong>: ${input.bank_account}</div><div><strong>Paybill</strong>: ${input.paybill}</div>` : ''}
+    ${input.method==='WAMD' ? `
+      <div><strong>Pay To</strong>: <span class="mono">${WAMD_PAY_TO_PHONE}</span></div>
+      <div><strong>Beneficiary</strong>: ${WAMD_BENEFICIARY}</div>
+      <div><strong>Recipient</strong>: ${input.w_rec_name||''}</div>
+      <div><strong>Mpesa Phone</strong>: ${input.w_rec_phone||''}</div>
+    ` : ''}
+  `;
+  document.getElementById('txc_amounts').innerHTML = `
+    <div><strong>Amount</strong>: ${fmt(d.amount_kwd)} KWD <small>(${fmt(d.amount_kes)} KES)</small></div>
+    <div><strong>Total Fee</strong>: ${fmt(d.total_fee_kwd)} KWD <small>(${fmt(d.total_fee_kes)} KES)</small></div>
+    <div style="margin-top:6px;"><strong>Client pays</strong>: ${fmt(clientPays)} KWD <small>(${fmt(clientPays*rate)} KES)</small></div>
+    <div><strong>Client receives</strong>: ${fmt(clientGets)} KWD <small>(${fmt(clientGets*rate)} KES)</small></div>
+  `;
+  return { d, clientPays, clientGets };
+}
+
+/* build a CMZ reference */
+function newRef(prefix){
+  const d=new Date();
+  const y=String(d.getFullYear()), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  const rnd=Math.random().toString(16).slice(2,8).toUpperCase();
+  return `${prefix}-${y}${m}${day}-${rnd}`;
+}
+
+/* receipt url helpers */
+function buildReceiptUrlFromResponse(out){
+  if (out && out.receipt_url) return out.receipt_url;
+  const id = out?.receipt_id || out?.entry?.receipt_id || out?.receipt?.id;
+  const token = out?.receipt_token || out?.entry?.receipt_token || out?.receipt?.token;
+  if (id && token) return `/receipt/${encodeURIComponent(id)}?t=${encodeURIComponent(token)}`;
+  return null;
+}
+
+/* NEW: open the same receipt page but with ?print=1 to trigger browser print */
+function toPrintUrl(receiptUrl){
+  if (!receiptUrl) return null;
+  const u = new URL(receiptUrl, window.location.origin);
+  u.searchParams.set('print','1');
+  return u.toString();
+}
+
+/* submit to backend */
+async function submitToBackend(input, extras={}){
+  const fd = new FormData();
+  fd.append('amount', input.amount);
+  fd.append('currency', input.currency);
+  fd.append('method', input.method);
+  fd.append('tx_type', input.tx_type);
+  fd.append('pass_service_charge', input.pass_service_charge);
+  if(input.method==='Mpesa') fd.append('phone', input.phone);
+  if(input.method==='Bank'){ fd.append('bank_account', input.bank_account); fd.append('paybill', input.paybill); }
+  // extras for WAMD
+  Object.entries(extras).forEach(([k,v])=> fd.append(k, v));
+  const res = await fetch('/api/add-transaction', { method:'POST', body: fd, cache:'no-store', credentials:'same-origin' });
+  const txt = await res.text(); let out=null; try{ out=JSON.parse(txt);}catch{}
+  if(!res.ok || !out || out.ok !== true) throw new Error((out && out.error) || (txt || `HTTP ${res.status}`));
+  return out;
+}
+
+/* handle submit */
+async function handleSubmitClick(){
+  // inline preview updates (non-blocking)
+  doCalculate('amount','currency','preview');
+
+  // open modal with details + confirm
+  const alertEl = document.getElementById('txc_alert');
+  alertEl.style.display='none'; alertEl.textContent='';
+  try{
+    const input = gatherTxInput(); // <-- contains the 5–600 KWD range check
+    await buildPreview(input);
+
+    const submitBtn = document.getElementById('txc_submit');
+    const cancelBtn = document.getElementById('txc_cancel');
+    submitBtn.onclick = async ()=>{
+      submitBtn.disabled = true; submitBtn.textContent = 'Submitting…';
+      try{
+        if (input.method === 'WAMD') {
+          // Ensure a reference exists, keep UI in sync
+          let ref = input.w_ref || newRef(WAMD_REF_PREFIX);
+          document.getElementById('wamd_ref').value = ref;
+          document.getElementById('wamd_ref_echo').textContent = ref;
+
+          // Log to backend so it appears in Transaction Log
+          const extras = {
+            wamd_reference: ref,
+            wamd_pay_to: WAMD_PAY_TO_PHONE,
+            wamd_beneficiary: WAMD_BENEFICIARY,
+            wamd_recipient_name: input.w_rec_name || '',
+            wamd_recipient_phone: input.w_rec_phone || '',
+            wamd_note: input.w_note || ''
+          };
+          await submitToBackend(input, extras);
+
+          // Open WAMD instructions page
+          const url = wamdInstructionsUrl(ref);
+          window.open(url, '_blank', 'noopener,noreferrer');
+
+          // clear WAMD fields
+          ['amount','wamd_rec_name','wamd_rec_phone','wamd_note'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+          document.getElementById('preview').innerHTML = '';
+
+          await loadTransactions();
+
+          // modal success
+          document.getElementById('txc_body').innerHTML = `
+            <div class="txc-box" style="text-align:center;">
+              <h3 style="margin:0 0 6px; color:#063d3f;">WAMD/Link Created</h3>
+              <p class="small" style="color:#444; margin:6px 0 12px;">
+                Reference <span class="mono">${ref}</span>. The <strong>WAMD instructions</strong> opened in a new tab.
+              </p>
+              <p class="small"><a href="${url}" target="_blank" rel="noopener">Open instructions again</a></p>
+              <div style="margin-top:10px;"><button class="txc-btn txc-ghost" onclick="closeTxConfirm()">Close</button></div>
+            </div>
+          `;
+          return;
+        }
+
+        // Mpesa / Bank
+        const out = await submitToBackend(input);
+        // clear
+        ['amount','phone','bank_account','paybill'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+        document.getElementById('preview').innerHTML = '';
+        await loadTransactions();
+
+        const receiptUrl = buildReceiptUrlFromResponse(out);
+        const printUrl = toPrintUrl(receiptUrl);
+        document.getElementById('txc_body').innerHTML = `
+          <div class="txc-box" style="text-align:center;">
+            <h3 style="margin:0 0 6px; color:#063d3f;">Transaction Created</h3>
+            <p class="small" style="color:#444; margin:6px 0 12px;">Your transaction has been submitted successfully.</p>
+            ${receiptUrl ? `<p style="margin:0 0 12px;">
+              <a href="${receiptUrl}" target="_blank" rel="noopener"><button class="txc-btn txc-primary">Open Receipt</button></a>
+              ${printUrl ? `<a href="${printUrl}" target="_blank" rel="noopener" style="margin-left:8px"><button class="txc-btn txc-ghost">Print / Save PDF</button></a>` : ``}
+            </p>` : `<p class="small" style="color:#666;">Receipt will be available once processed.</p>`}
+            <div style="margin-top:10px;"><button class="txc-btn txc-ghost" onclick="closeTxConfirm()">Close</button></div>
+          </div>
+        `;
+      }catch(e){
+        alertEl.textContent = e.message || 'Failed to create transaction';
+        alertEl.style.display='block';
+      }finally{
+        submitBtn.disabled = false; submitBtn.textContent = 'Confirm & Create';
+      }
+    };
+    cancelBtn.onclick = closeTxConfirm;
+    openTxConfirm();
+  }catch(e){
+    alert(e.message);
+  }
+}
+
+/* status badge */
+function statusBadge(statusRaw){
+  const s = (statusRaw || 'in progress').toLowerCase();
+  if (s === 'successful') return '<span class="badge status successful">Successful</span>';
+  if (s === 'failed') return '<span class="badge status failed">Failed</span>';
+  return '<span class="badge status in">In&nbsp;Progress</span>';
+}
+
+/* frozen KES helpers */
+function resolveKES(kwd, kes, perTxRate){
+  if (typeof kes === 'number' && !Number.isNaN(kes)) return kes;
+  if (typeof perTxRate === 'number' && !Number.isNaN(perTxRate)) return kwd * perTxRate;
+  return null;
+}
+function buildReceiptUrl(r){
+  if (r && r.receipt_id && r.receipt_token) return `/receipt/${encodeURIComponent(r.receipt_id)}?t=${encodeURIComponent(r.receipt_token)}`;
+  return r?.receipt_url || null;
+}
+
+/* chart state */
+let txChart = null;
+
+/* load my tx + chart */
+async function loadTransactions(){
+  try{
+    const res = await fetch('/api/my-transactions', {cache:'no-store', credentials:'same-origin'});
+    if(!res.ok) throw new Error('Failed to load transactions');
+    const rows = await res.json();
+
+    /* table */
+    const tbody = document.querySelector('#logTable tbody');
+    tbody.innerHTML = '';
+    rows.forEach(r=>{
+      const m = (r.method || '').toLowerCase();
+      const t = (r.tx_type || '').toLowerCase();
+      const perTxRate = (typeof r.exchange_rate === 'number') ? r.exchange_rate : (typeof r.rate_at_tx === 'number') ? r.rate_at_tx : null;
+      const amountKES  = resolveKES(r.amount_kwd,  r.amount_kes,  perTxRate);
+      const chargesKES = resolveKES(r.charges_kwd || 0, r.charges_kes, perTxRate);
+      const receiptUrl = buildReceiptUrl(r);
+      const printUrl = toPrintUrl(receiptUrl);
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${r.id}</td>
+        <td><span class="badge ${m}">${r.method}</span></td>
+        <td><span class="badge ${t}">${r.tx_type || ''}</span></td>
+        <td class="num">${fmt(r.amount_kwd)} KWD<br><span class="small">(${amountKES!=null?fmt(amountKES):'—'} KES)</span></td>
+        <td class="num">${fmt(r.charges_kwd)} KWD<br><span class="small">(${chargesKES!=null?fmt(chargesKES):'—'} KES)</span></td>
+        <td>${statusBadge(r.status)}</td>
+        <td>${r.timestamp}</td>
+        <td>${
+          receiptUrl
+            ? `<a href="${receiptUrl}" target="_blank" rel="noopener"><button class="btn-pill" type="button">Receipt</button></a>
+               ${printUrl ? `<a href="${printUrl}" target="_blank" rel="noopener" style="margin-left:6px"><button class="btn-pill" type="button">Print / PDF</button></a>`:''}`
+            : `<span class="small" style="color:#888">—</span>`
+        }</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    /* chart successful only */
+    const ok = rows.filter(r => /success/i.test(r.status || ''));
+    const labels = ok.map(r=> r.timestamp).reverse();
+    const depAmounts = ok.map(r=> r.tx_type === 'Deposit' ? (r.amount_kwd || 0) : 0).reverse();
+    const wdrAmounts = ok.map(r=> r.tx_type === 'Withdrawal' ? (r.amount_kwd || 0) : 0).reverse();
+    const profits = ok.map(r=> (r.charges_kwd || 0)).reverse();
+
+    if (txChart && txChart.destroy) txChart.destroy();
+    const ctx = document.getElementById('txChart').getContext('2d');
+    txChart = new Chart(ctx, {
+      type: 'bar',
+      data: { labels,
+        datasets: [
+          { label:'Deposit (KWD)', data: depAmounts, borderWidth:1, stack:'amount' },
+          { label:'Withdrawal (KWD)', data: wdrAmounts, borderWidth:1, stack:'amount' },
+          { label:'Service Charge (KWD)', data: profits, type:'line', borderWidth:2, tension:0.2, yAxisID:'y1' }
+        ]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{ position:'top' } },
+        scales: {
+          y:  { stacked:true, ticks:{ callback:(v)=>fmt(v) } },
+          y1: { position:'right', grid:{ drawOnChartArea:false }, ticks:{ callback:(v)=>fmt(v) } }
+        }
+      }
+    });
+  }catch(e){ alert(e.message || 'Could not load transactions'); }
+}
+
+/* Events */
+document.getElementById('btn_add').addEventListener('click', handleSubmitClick);
+document.getElementById('calc_amount').addEventListener('input', ()=>doCalculate('calc_amount','calc_currency','calc_preview'));
+document.getElementById('calc_currency').addEventListener('change', ()=>doCalculate('calc_amount','calc_currency','calc_preview'));
+document.getElementById('amount').addEventListener('input', ()=>doCalculate('amount','currency','preview'));
+document.getElementById('currency').addEventListener('change', ()=>doCalculate('amount','currency','preview'));
+document.getElementById('method').addEventListener('change', toggleFields);
+
+/* Init */
+window.addEventListener('load', async ()=>{
+  await fetchRate();                    // get live rate first
+  setInterval(fetchRate, RATE_POLL_MS); // keep it fresh for all devices
+  await loadWamdSettings();             // fetch PayTo/Beneficiary
+
+  // Force default to WAMD/Link and show its sections on first load
+  const methodSel = document.getElementById('method');
+  methodSel.value = 'WAMD';
+  toggleFields();
+
+  // seed ref echo if already visible
+  const refEl = document.getElementById('wamd_ref');
+  if (!refEl.value) {
+    refEl.value = newRef(WAMD_REF_PREFIX);
+  }
+  document.getElementById('wamd_ref_echo').textContent = refEl.value;
+
+  await loadTransactions();
+  if (document.getElementById('calc_amount').value) await doCalculate('calc_amount','calc_currency','calc_preview');
+});
+</script>
+</body>
+</html>

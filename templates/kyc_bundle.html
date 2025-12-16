@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cheque Matez — KYC</title>
+<style>
+  :root{
+    /* ==== Brand palette (from your logo) ==== */
+    --brand-black:#000000;
+    --brand-red:#ff0000;
+    --brand-teal:#063d3f;     /* main brand text */
+    --brand-teal-900:#053c3f; /* very dark teal */
+    --brand-teal-800:#053d3f; /* near-dark teal */
+    --brand-teal-700:#063d40; /* slightly lighter teal */
+    --brand-teal-950:#063c3f; /* deep teal variation */
+    --brand-gold:#d4a017;     /* warm gold/orange */
+
+    /* ==== UI neutrals ==== */
+    --bg:#f6f8f8;
+    --card-bg:#ffffff;
+    --text:#0e1010;
+    --muted:#6c7a7a;
+    --border:#e5ecec;
+
+    --radius:14px;
+    --shadow:0 8px 24px rgba(6,61,63,.08);
+    --shadow-strong:0 10px 30px rgba(6,61,63,.12);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    margin:0; padding:0;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
+  .wrap{max-width:980px; margin:24px auto; padding:0 16px;}
+
+  /* ==== Cards ==== */
+  .card{
+    background:var(--card-bg);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:18px;
+    margin:16px 0;
+    box-shadow:var(--shadow);
+  }
+  .card h2,.card h3{margin:.1rem 0 1rem; letter-spacing:.01em}
+  .card h2::before{
+    content:"";
+    width:8px; height:24px; border-radius:6px;
+    background:linear-gradient(180deg,var(--brand-teal),var(--brand-gold));
+    display:inline-block; margin-right:.5rem; vertical-align:middle;
+  }
+
+  /* ==== Status badges ==== */
+  .badge{
+    display:inline-block;
+    font-size:.85rem; font-weight:700;
+    padding:.35rem .6rem; border-radius:999px;
+    border:1px solid transparent; letter-spacing:.01em;
+  }
+  .badge-approved{color:#0d4d4f; background:#e8f4f4; border-color:rgba(6,61,63,.18)}
+  .badge-declined{color:#7a0410; background:#fdecec; border-color:rgba(255,0,0,.18)}
+  .badge-pending{color:#8a6a09; background:#fff7e6; border-color:rgba(212,160,23,.35)}
+
+  /* ==== Form controls ==== */
+  label{display:block; font-weight:600; margin:.6rem 0 .35rem; color:var(--brand-teal-900)}
+  input,select{
+    width:100%;
+    padding:.7rem .8rem;
+    border:1px solid var(--border); border-radius:10px;
+    background:#fff; color:var(--text);
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+  input:focus,select:focus{
+    border-color:var(--brand-teal);
+    outline:none;
+    box-shadow:0 0 0 3px rgba(6,61,63,.15);
+  }
+
+  /* ==== Buttons ==== */
+  .btn{
+    display:inline-block;
+    padding:.65rem 1rem;
+    border-radius:10px;
+    font-weight:700;
+    border:1.5px solid var(--brand-teal);
+    color:var(--brand-teal);
+    background:#fff;
+    cursor:pointer;
+    text-decoration:none;
+    transition:transform .05s ease, box-shadow .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .btn:hover{box-shadow:0 6px 18px rgba(6,61,63,.12)}
+  .btn:active{transform:translateY(1px)}
+  .btn:focus{outline:3px solid rgba(6,61,63,.25); outline-offset:2px}
+
+  .btn.primary{
+    background:linear-gradient(180deg,var(--brand-teal-700),var(--brand-teal-900));
+    color:#fff; border-color:transparent;
+  }
+  .btn.primary:hover{
+    background:linear-gradient(180deg,var(--brand-teal),var(--brand-teal-900));
+    box-shadow:var(--shadow-strong);
+  }
+
+  .btn.danger{
+    border-color:var(--brand-red);
+    color:var(--brand-red);
+    background:#fff;
+  }
+  .btn.danger:hover{
+    background:linear-gradient(180deg,#ff0000,#cc0000);
+    color:#fff; border-color:transparent;
+    box-shadow:0 10px 26px rgba(255,0,0,.22);
+  }
+
+  .btn.link{
+    border:none; color:var(--brand-teal);
+    padding:.35rem .2rem; background:transparent;
+  }
+  .btn.link:hover{color:var(--brand-teal-700); text-decoration:underline}
+
+  .inline{display:inline-block; margin-right:.5rem}
+
+  /* ==== Tables (admin list) ==== */
+  table{width:100%; border-collapse:collapse; margin-top:1rem; background:#fff; border-radius:12px; overflow:hidden}
+  thead th{
+    text-align:left; padding:.7rem .6rem;
+    background:linear-gradient(180deg,#f8fbfb,#f1f6f6);
+    border-bottom:2px solid #dfeaea;
+    color:#113234; font-weight:800; letter-spacing:.01em;
+  }
+  tbody td{padding:.6rem .6rem; border-bottom:1px solid #eef3f3; vertical-align:top}
+  tbody tr:hover{background:#fbfefe}
+
+  .toolbar{display:flex; gap:.5rem; flex-wrap:wrap; margin:8px 0 16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  {# ========================= USER ID PAGE ========================= #}
+  {% if view == "user_id" %}
+  <div class="card">
+    <h2>User ID: {{ user.issued_id }}</h2>
+    <p><strong>Name:</strong> {{ user.full_name or user.username }}</p>
+    <p><strong>Status:</strong>
+      {% if user.id_status == 'approved' %}
+        <span class="badge badge-approved">Approved</span>
+      {% elif user.id_status == 'declined' %}
+        <span class="badge badge-declined">Declined</span>
+      {% else %}
+        <span class="badge badge-pending">Pending</span>
+      {% endif %}
+    </p>
+    <div class="toolbar">
+      <a class="btn" href="{{ url_for('user_id_qr_png', user_id=user.issued_id) }}?t={{ user.qr_token }}" target="_blank">View QR</a>
+      <a class="btn" href="{{ url_for('scan_user_landing', user_id=user.issued_id, t=user.qr_token) }}" target="_blank">Open Scanner View</a>
+    </div>
+  </div>
+
+  {% if can_transact %}
+  <div class="card">
+    <h3>Add Transaction</h3>
+    <form method="post" action="./transactions/new">
+      {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
+      <label>Amount (KWD)</label>
+      <input name="amount_kwd" type="number" step="0.001" required>
+      <label>FX rate (KWD→KES)</label>
+      <input name="fx_rate" type="number" step="0.0001" value="{{ exchange_rate or '' }}" required>
+      <button class="btn primary" type="submit">Create</button>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>Create Voucher</h3>
+    <form method="post" action="./voucher/new">
+      {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
+      <label>Amount (KES or total)</label>
+      <input name="amount" type="number" step="0.01" required>
+      <button class="btn" type="submit">Create Voucher</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="card">
+    {% if user.id_status == 'pending' %}
+      <p>Your KYC is under review.</p>
+    {% elif user.id_status == 'declined' %}
+      <p>Your KYC was declined. Please resubmit.</p>
+      <a class="btn primary" href="{{ url_for('kyc_start') }}">Resubmit KYC</a>
+    {% else %}
+      <p>You have not submitted KYC yet.</p>
+      <a class="btn primary" href="{{ url_for('kyc_start') }}">Start KYC</a>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% endif %}
+
+  {# ========================= KYC QUEUE (ADMIN/MERCHANT) ========================= #}
+  {% if view == "kyc_queue" %}
+  <div class="card">
+    <h2>Pending KYC Cases</h2>
+    {% if rows|length == 0 %}
+      <p>No pending cases.</p>
+    {% else %}
+    <table>
+      <thead>
+        <tr>
+          <th>Case</th>
+          <th>User</th>
+          <th>ID Type</th>
+          <th>ID Number</th>
+          <th>Files</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td>#{{ r.id }}<br><small>{{ r.created_at }}</small></td>
+          <td>{{ r.phone_e164 or r.username or '—' }}</td>
+          <td>{{ r.id_type }}</td>
+          <td>{{ r.id_number }}</td>
+          <td>
+            <a href="{{ url_for('admin_kyc_file', case_id=r.id) }}?type=selfie" target="_blank">Selfie</a> |
+            <a href="{{ url_for('admin_kyc_file', case_id=r.id) }}?type=id_front" target="_blank">ID Front</a>
+            {% if r.id_back_path %} | <a href="{{ url_for('admin_kyc_file', case_id=r.id) }}?type=id_back" target="_blank">ID Back</a>{% endif %}
+          </td>
+          <td>
+            <form class="inline" method="post" action="{{ url_for('admin_kyc_approve_case', case_id=r.id) }}" onsubmit="return confirm('Approve this KYC case?')">
+              {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
+              <button class="btn primary">Approve</button>
+            </form>
+            <form class="inline" method="post" action="{{ url_for('admin_kyc_reject_case', case_id=r.id) }}" onsubmit="return confirm('Reject this KYC case?')">
+              {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
+              <input name="reason" placeholder="Reason" style="width:180px">
+              <button class="btn danger">Reject</button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# ========================= START KYC (CUSTOMER) ========================= #}
+  {% if view == "kyc_start" %}
+  <div class="card">
+    <h2>Verify your identity</h2>
+    <p>Upload your ID and a selfie to complete verification.</p>
+
+    <form action="{{ url_for('kyc_start') }}" method="post" enctype="multipart/form-data">
+      {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
+
+      <label for="id_type">ID Type</label>
+      <select id="id_type" name="id_type" required>
+        <option value="">Select…</option>
+        <option value="ke_national_id">Kenya – National ID</option>
+        <option value="kw_civil_id">Kuwait – Civil ID</option>
+        <option value="passport">Passport</option>
+      </select>
+
+      <label for="id_number">ID Number</label>
+      <input id="id_number" name="id_number" type="text" required placeholder="e.g., 12345678">
+
+      <label for="selfie">Selfie (JPEG/PNG)</label>
+      <input id="selfie" name="selfie" type="file" accept="image/jpeg,image/png" required>
+
+      <label for="id_front">ID Front (JPEG/PNG)</label>
+      <input id="id_front" name="id_front" type="file" accept="image/jpeg,image/png" required>
+
+      <label for="id_back">ID Back (optional)</label>
+      <input id="id_back" name="id_back" type="file" accept="image/jpeg,image/png">
+
+      <div style="margin-top:12px">
+        <button class="btn primary" type="submit">Submit for review</button>
+      </div>
+    </form>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+  /* no flash messages; only small confirms on admin actions (handled inline on forms) */
+</script>
+</body>
+</html>

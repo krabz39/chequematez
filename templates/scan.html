@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scan ID — Cheque Matez</title>
+<style>
+  :root{--teal:#063d3f;--gold:#d4a017;--paper:#f5f7fa;--ink:#0e1a1b}
+  body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.4 system-ui,Inter,Segoe UI,Arial}
+  .wrap{max-width:920px;margin:0 auto;padding:16px}
+  h1{font-size:20px;margin:8px 0 12px}
+  .panel{background:#fff;border:1px solid #e3eaed;border-radius:12px;box-shadow:0 8px 20px rgba(6,61,63,.07);padding:14px}
+  .row{display:grid;gap:12px}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid #cfd8de;background:#fff;padding:10px 12px;border-radius:10px;cursor:pointer}
+  .btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+  .note{font-size:12px;color:#51676b}
+  video,canvas{width:100%;max-height:360px;border-radius:10px;background:#000}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  label{font-size:12px;color:#3a4b4e}
+  input,select{width:100%;padding:10px;border:1px solid #cfd8de;border-radius:8px;font:inherit}
+  .ok{color:#0b8457}
+  .err{color:#c21d1d}
+  .tag{display:inline-block;background:#f0f6f7;border:1px solid #d7e6e9;border-radius:999px;padding:4px 8px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Scan User ID</h1>
+  <div class="panel row">
+    <div class="grid">
+      <div>
+        <button id="startCam" class="btn primary">🎥 Start Camera (QR)</button>
+        <div class="note">Aim at the QR on the user’s card / screen.</div>
+        <video id="video" playsinline></video>
+        <canvas id="canvas" hidden></canvas>
+      </div>
+      <div>
+        <button id="nfcBtn" class="btn">📶 Read NFC (if supported)</button>
+        <div id="nfcStatus" class="note">Web NFC works on some Android Chrome devices.</div>
+        <div id="scanResult" style="margin-top:10px"></div>
+      </div>
+    </div>
+
+    <hr>
+
+    <div id="profileBox" hidden>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span class="tag" id="p_user_id">USER_ID:</span>
+        <span class="tag" id="p_username">USER:</span>
+        <span class="tag" id="p_name">NAME:</span>
+        <span class="tag" id="p_phone">PHONE:</span>
+      </div>
+
+      <form id="txForm" class="row">
+        <div class="grid">
+          <div>
+            <label>Transaction Type</label>
+            <select name="tx_type" required>
+              <option>Deposit</option>
+              <option>Withdrawal</option>
+            </select>
+          </div>
+          <div>
+            <label>Method</label>
+            <select name="method" required>
+              <option>Mpesa</option>
+              <option>Bank</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label>Amount</label>
+            <input name="amount" type="number" step="0.01" min="0.01" required>
+          </div>
+          <div>
+            <label>Currency</label>
+            <select name="currency">
+              <option>KWD</option>
+              <option>KES</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Optional, only used if Method=Bank -->
+        <div class="grid" id="bankFields" style="display:none">
+          <div>
+            <label>Bank Account</label>
+            <input name="bank_account" placeholder="Account #">
+          </div>
+          <div>
+            <label>Paybill</label>
+            <input name="paybill" placeholder="Paybill #">
+          </div>
+        </div>
+
+        <button class="btn primary" type="submit">Create Transaction</button>
+        <div id="txMsg" class="note"></div>
+      </form>
+    </div>
+
+    <div id="err" class="err"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script>
+const video   = document.getElementById('video');
+const canvas  = document.getElementById('canvas');
+const ctx     = canvas.getContext('2d');
+const start   = document.getElementById('startCam');
+const nfcBtn  = document.getElementById('nfcBtn');
+const nfcStatus = document.getElementById('nfcStatus');
+const scanResult = document.getElementById('scanResult');
+const errBox = document.getElementById('err');
+
+const pBox   = document.getElementById('profileBox');
+const pUser  = document.getElementById('p_user_id');
+const pUsern = document.getElementById('p_username');
+const pName  = document.getElementById('p_name');
+const pPhone = document.getElementById('p_phone');
+const bankFields = document.getElementById('bankFields');
+const txForm = document.getElementById('txForm');
+const txMsg  = document.getElementById('txMsg');
+
+txForm.methodSelect = txForm.querySelector('select[name="method"]');
+txForm.methodSelect.addEventListener('change', () => {
+  bankFields.style.display = (txForm.methodSelect.value === 'Bank') ? 'grid' : 'none';
+});
+
+let foundProfile = null; // {username,user_id,full_name,phone}
+
+function showProfile(prof) {
+  foundProfile = prof;
+  pUser.textContent  = 'USER_ID: ' + prof.user_id;
+  pUsern.textContent = 'USER: ' + prof.username;
+  pName.textContent  = 'NAME: ' + (prof.full_name || '—');
+  pPhone.textContent = 'PHONE: ' + (prof.phone || '—');
+  pBox.hidden = false;
+}
+
+async function resolvePayload(payload) {
+  // payload may be: absolute URL, relative /u/<username>, or raw USER_ID
+  try {
+    const url = new URL(payload, window.location.origin);
+    // If it looks like /u/<username>, fetch /api/user/<username>
+    const parts = url.pathname.split('/').filter(Boolean);
+    if (parts.length === 2 && parts[0] === 'u') {
+      const username = parts[1];
+      const r = await fetch(`/api/user/${encodeURIComponent(username)}`);
+      const j = await r.json();
+      if (j.ok) return j.profile;
+    }
+  } catch(e) {
+    // not a URL, assume it's a raw user_id
+  }
+
+  // Try resolving as USER_ID
+  const fd = new FormData();
+  fd.set('user_id', payload.trim());
+  const r = await fetch('/api/resolve-userid', { method:'POST', body: fd });
+  const j = await r.json();
+  if (j.ok) return j.profile;
+
+  throw new Error(j.error || 'Unrecognized code');
+}
+
+function drawLoop(){
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+    if (code && code.data) {
+      stopCamera();
+      scanResult.textContent = 'QR: ' + code.data;
+      resolvePayload(code.data)
+        .then(showProfile)
+        .catch(e => errBox.textContent = e.message || 'Failed to resolve QR');
+      return; // stop loop
+    }
+  }
+  requestAnimationFrame(drawLoop);
+}
+
+async function startCamera(){
+  errBox.textContent = '';
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }});
+    video.srcObject = stream;
+    await video.play();
+    drawLoop();
+  } catch(e) {
+    errBox.textContent = 'Camera error: ' + (e.message || e);
+  }
+}
+
+function stopCamera(){
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+  }
+}
+
+start.addEventListener('click', startCamera);
+
+// Optional: Web NFC read (Android Chrome)
+nfcBtn.addEventListener('click', async () => {
+  errBox.textContent = '';
+  if (!('NDEFReader' in window)) {
+    nfcStatus.textContent = 'Web NFC not supported on this device/browser.';
+    return;
+  }
+  try {
+    const reader = new NDEFReader();
+    await reader.scan();
+    nfcStatus.textContent = 'Hold card near NFC reader...';
+    reader.onreadingerror = () => { errBox.textContent = 'NFC read error'; };
+    reader.onreading = (event) => {
+      let payload = '';
+      for (const record of event.message.records) {
+        if (record.recordType === 'text') {
+          const dec = new TextDecoder(record.encoding || 'utf-8');
+          payload = dec.decode(record.data);
+        } else if (record.recordType === 'url') {
+          payload = new TextDecoder().decode(record.data);
+        }
+      }
+      if (payload) {
+        scanResult.textContent = 'NFC: ' + payload;
+        resolvePayload(payload)
+          .then(showProfile)
+          .catch(e => errBox.textContent = e.message || 'Failed to resolve NFC');
+      }
+    };
+  } catch(e) {
+    errBox.textContent = 'NFC error: ' + (e.message || e);
+  }
+});
+
+// Submit transaction as MERCHANT, using the resolved user_id
+txForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  txMsg.textContent = '';
+  if (!foundProfile) { txMsg.textContent = 'Scan a user first.'; return; }
+
+  const fd = new FormData(txForm);
+  fd.set('user_id', foundProfile.user_id); // required by your /api/merchant/tx/by-userid
+
+  const r = await fetch('/api/merchant/tx/by-userid', { method: 'POST', body: fd });
+  const j = await r.json();
+  if (j.ok) {
+    txMsg.innerHTML = '<span class="ok">Transaction created. ID: '+ j.entry.id +'</span>';
+    txForm.reset();
+  } else {
+    txMsg.innerHTML = '<span class="err">' + (j.error || 'Failed') + '</span>';
+  }
+});
+</script>
+</body>
+</html>

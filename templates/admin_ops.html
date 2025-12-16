@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Ops Console — Reconciliation · Reports · Risk</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <style>
+    :root{
+      --bg:#0b0d10; --panel:#12161b; --muted:#a9b1bd; --fg:#e7edf5;
+      --brand:#d4a017; --soft:#1b2129; --line:#222a34; --accent:#4da3ff;
+      --ok:#2ecc71; --warn:#f1c40f; --bad:#e74c3c;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--fg); background:linear-gradient(180deg,#0b0d10, #0f1318 60%, #0b0d10);}
+    a{color:var(--accent); text-decoration:none}
+    .wrap{max-width:1100px; margin:24px auto; padding:0 14px}
+    header{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:16px}
+    .title{display:flex; align-items:center; gap:10px}
+    .logo{width:36px; height:36px; border-radius:8px; background:linear-gradient(135deg,var(--brand),#ffc84d); box-shadow:0 8px 30px rgba(212,160,23,.25)}
+    h1{font-size:1.15rem; margin:0; letter-spacing:.2px}
+    nav.tabs{display:flex; gap:8px; flex-wrap:wrap}
+    .tab{
+      padding:10px 14px; border-radius:999px; background:var(--soft); color:var(--fg);
+      border:1px solid var(--line); cursor:pointer; font-weight:600
+    }
+    .tab.active{background:var(--brand); color:#111; border-color:transparent}
+    .panel{
+      background:rgba(18,22,27,.7); backdrop-filter: blur(6px);
+      border:1px solid var(--line); border-radius:var(--radius);
+      padding:16px; margin-top:14px; box-shadow:0 12px 40px rgba(0,0,0,.35)
+    }
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    label{opacity:.8}
+    input[type="date"], input[type="month"]{
+      background:#0e1318; color:var(--fg); border:1px solid var(--line);
+      padding:10px 12px; border-radius:10px; outline:none
+    }
+    .btn, .linkbtn{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 14px; border-radius:12px; font-weight:700; cursor:pointer;
+      border:1px solid var(--line); background:var(--soft); color:var(--fg)
+    }
+    .btn.primary{background:var(--brand); color:#111; border-color:transparent}
+    .btn.ghost{background:transparent}
+    .grid{display:grid; gap:12px}
+    @media (min-width: 860px){ .grid.cols-2{grid-template-columns: 1fr 1fr} }
+    table{width:100%; border-collapse:collapse; overflow:auto; border:1px solid var(--line); border-radius:10px}
+    th,td{padding:10px; border-bottom:1px solid var(--line); text-align:left; font-size:.95rem}
+    th{background:#0e1318; position:sticky; top:0; z-index:1}
+    tr:hover td{background:#0f141a}
+    .muted{color:var(--muted)}
+    .pill{display:inline-block; padding:2px 8px; border-radius:999px; background:#0f141a; border:1px solid var(--line); margin-right:4px}
+    .tag-ok{background:rgba(46,204,113,.12); border-color:rgba(46,204,113,.35)}
+    .tag-warn{background:rgba(241,196,15,.12); border-color:rgba(241,196,15,.35)}
+    .tag-bad{background:rgba(231,76,60,.12); border-color:rgba(231,76,60,.35)}
+    .hint{font-size:.9rem; color:var(--muted)}
+    footer{opacity:.6; font-size:.85rem; text-align:center; margin:18px 0}
+    .hide{display:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="title">
+        <div class="logo"></div>
+        <div>
+          <h1>ChequeMatez · Ops Console</h1>
+          <div class="hint">Daily Reconciliation · Monthly Reports · Risk & Fraud Flags</div>
+        </div>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="recon" role="tab" aria-selected="true">Reconciliation</button>
+        <button class="tab" data-tab="reports" role="tab" aria-selected="false">Reports</button>
+        <button class="tab" data-tab="risk" role="tab" aria-selected="false">Risk Flags</button>
+        <a href="/admin" class="tab" style="text-decoration:none">Admin Home</a>
+      </nav>
+    </header>
+
+    <!-- Reconciliation -->
+    <section id="panel-recon" class="panel" role="tabpanel">
+      <div class="grid cols-2">
+        <div>
+          <h2 style="margin:.2rem 0 8px">Daily Reconciliation</h2>
+          <div class="row" style="margin:8px 0 12px">
+            <label for="reconDate">Date (UTC)</label>
+            <input id="reconDate" type="date"/>
+            <button id="btnReconPreview" class="btn">Preview</button>
+            <a id="dlReconCsv" class="btn" download>CSV</a>
+            <!-- CHANGED: PDF link -> Print button -->
+            <button id="viewReconPdf" class="btn" type="button">Print / Save PDF</button>
+          </div>
+          <div class="hint">Compares internal tx vs M-Pesa callbacks. Use CSV/PDF for records.</div>
+        </div>
+        <div>
+          <div class="row" style="justify-content:flex-end">
+            <span id="reconStats" class="pill">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="reconTableWrap" style="margin-top:12px; overflow:auto">
+        <table id="reconTable" class="hide">
+          <thead>
+            <tr><th>Status</th><th>Receipt</th><th>Int Amount / Ext</th><th>Ext Amount / Phone</th><th>Timestamp</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div id="reconEmpty" class="hint">No preview yet.</div>
+      </div>
+    </section>
+
+    <!-- Reports -->
+    <section id="panel-reports" class="panel hide" role="tabpanel">
+      <h2 style="margin:.2rem 0 8px">Regulatory Monthly Report</h2>
+      <div class="row" style="margin:8px 0 12px">
+        <label for="repMonth">Month (UTC)</label>
+        <input id="repMonth" type="month"/>
+        <button id="btnRepPreview" class="btn">Preview</button>
+        <a id="dlRepCsv" class="btn">CSV</a>
+        <!-- CHANGED: PDF link -> Print button -->
+        <button id="viewRepPdf" class="btn" type="button">Print / Save PDF</button>
+      </div>
+      <div class="hint">Totals, fees, counts by day + suspicious flags summary.</div>
+
+      <div id="repTableWrap" style="margin-top:12px; overflow:auto">
+        <table id="repTable" class="hide">
+          <thead></thead><tbody></tbody>
+        </table>
+        <div id="repEmpty" class="hint">No preview yet.</div>
+      </div>
+
+      <h3 style="margin-top:18px">Suspicious Flags (summary)</h3>
+      <div id="repFlags" class="hint">—</div>
+    </section>
+
+    <!-- Risk -->
+    <section id="panel-risk" class="panel hide" role="tabpanel">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h2 style="margin:.2rem 0 8px">Risk & Fraud Flags</h2>
+        <button id="btnRiskReload" class="btn">Reload</button>
+      </div>
+      <div class="hint">Velocity, structuring, odd-hours checks. Source: <code>/admin/risk/json</code>.</div>
+      <div style="margin-top:12px; overflow:auto">
+        <table id="riskTable">
+          <thead>
+            <tr><th>#</th><th>Tx/Voucher</th><th>Reason</th><th>Severity</th><th>Tags</th><th>Time</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer>© ChequeMatez — internal tools</footer>
+  </div>
+
+  <script>
+    // ---------- basic tabbing ----------
+    const tabs = document.querySelectorAll('.tab[data-tab]');
+    const panels = {
+      recon: document.getElementById('panel-recon'),
+      reports: document.getElementById('panel-reports'),
+      risk: document.getElementById('panel-risk'),
+    };
+    tabs.forEach(t=>{
+      t.addEventListener('click', ()=>{
+        tabs.forEach(x=>x.classList.remove('active'));
+        t.classList.add('active');
+        Object.values(panels).forEach(p=>p.classList.add('hide'));
+        panels[t.dataset.tab].classList.remove('hide');
+      });
+    });
+
+    // ---------- helpers ----------
+    function todayUTC(){
+      const d = new Date();
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth()+1).padStart(2,'0');
+      const day = String(d.getUTCDate()).padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
+    function thisMonthUTC(){
+      const d = new Date();
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth()+1).padStart(2,'0');
+      return `${y}-${m}`;
+    }
+    function csvToRows(csv){
+      const lines = csv.trim().split(/\r?\n/);
+      return lines.map(line => line.split(',').map(s=>s.replace(/^"|"$/g,'')));
+    }
+    function setBtnLinks(dateStr, monthStr){
+      if(dateStr){
+        document.getElementById('dlReconCsv').href = `/admin/reconcile.csv?date=${encodeURIComponent(dateStr)}`;
+        // store for print header
+        document.getElementById('viewReconPdf').dataset.date = dateStr;
+      }
+      if(monthStr){
+        document.getElementById('dlRepCsv').href = `/admin/reports/monthly.csv?ym=${encodeURIComponent(monthStr)}`;
+        // store for print header
+        document.getElementById('viewRepPdf').dataset.ym = monthStr;
+      }
+    }
+
+    // ---------- reconciliation preview ----------
+    const reconDate = document.getElementById('reconDate');
+    const btnReconPreview = document.getElementById('btnReconPreview');
+    const reconTbl = document.getElementById('reconTable');
+    const reconTB = reconTbl.querySelector('tbody');
+    const reconEmpty = document.getElementById('reconEmpty');
+    const reconStats = document.getElementById('reconStats');
+
+    reconDate.value = todayUTC();
+    setBtnLinks(reconDate.value, null);
+
+    btnReconPreview.addEventListener('click', async()=>{
+      const d = reconDate.value || todayUTC();
+      setBtnLinks(d, null);
+      const url = `/admin/reconcile.csv?date=${encodeURIComponent(d)}`;
+      reconTB.innerHTML = '';
+      reconTbl.classList.add('hide'); reconEmpty.textContent = 'Loading…';
+
+      try{
+        const res = await fetch(url, {cache:'no-store'});
+        const csv = await res.text();
+        const rows = csvToRows(csv); // headers: status,receipt,int/ext,ext/phone,ts
+
+        // quick counts
+        let missingExt=0, missingInt=0, mism=0;
+        rows.slice(1).forEach(r=>{
+          if(r[0]==='INT_ONLY') missingExt++;
+          else if(r[0]==='EXT_ONLY') missingInt++;
+          else if(r[0]==='AMOUNT_DIFF') mism++;
+        });
+        reconStats.textContent = `Missing ext: ${missingExt} · Missing int: ${missingInt} · Amount mismatches: ${mism}`;
+
+        // fill table
+        rows.slice(1, 1+200).forEach(r=>{
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${r[0]||''}</td><td>${r[1]||''}</td><td>${r[2]||''}</td><td>${r[3]||''}</td><td>${r[4]||''}</td>`;
+          reconTB.appendChild(tr);
+        });
+        reconTbl.classList.remove('hide'); reconEmpty.textContent = rows.length<=1 ? 'No data.' : '';
+      }catch(e){
+        reconEmpty.textContent = 'Failed to load CSV.';
+      }
+    });
+
+    // ---------- reports preview ----------
+    const repMonth = document.getElementById('repMonth');
+    const btnRepPreview = document.getElementById('btnRepPreview');
+    const repTbl = document.getElementById('repTable');
+    const repThead = repTbl.querySelector('thead');
+    const repTB = repTbl.querySelector('tbody');
+    const repEmpty = document.getElementById('repEmpty');
+    const repFlags = document.getElementById('repFlags');
+
+    repMonth.value = thisMonthUTC();
+    setBtnLinks(null, repMonth.value);
+
+    btnRepPreview.addEventListener('click', async()=>{
+      const ym = repMonth.value || thisMonthUTC();
+      setBtnLinks(null, ym);
+      const url = `/admin/reports/monthly.csv?ym=${encodeURIComponent(ym)}`;
+      repThead.innerHTML = ''; repTB.innerHTML = '';
+      repTbl.classList.add('hide'); repEmpty.textContent = 'Loading…';
+      repFlags.textContent = '—';
+
+      try{
+        const res = await fetch(url, {cache:'no-store'});
+        const csv = await res.text();
+        const rows = csvToRows(csv);
+
+        if(rows.length){
+          // first row headers
+          const headers = rows[0] || [];
+          repThead.innerHTML = `<tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`;
+
+          // find "Suspicious Flags" footer row to display count
+          const sfRow = rows.find(r=> (r[0]||'').toLowerCase().includes('suspicious'));
+          if(sfRow){ repFlags.textContent = `Flags this month: ${sfRow[1]||0}`; }
+
+          // main table rows (skip empty lines)
+          rows.slice(1).filter(r=>r.filter(Boolean).length>0 && (r[0]||'').toUpperCase()!=='TOTALS' && !(r[0]||'').toLowerCase().includes('suspicious'))
+              .slice(0,200)
+              .forEach(r=>{
+                const tr = document.createElement('tr');
+                tr.innerHTML = r.map(c=>`<td>${c}</td>`).join('');
+                repTB.appendChild(tr);
+              });
+          repTbl.classList.remove('hide'); repEmpty.textContent = '';
+        } else {
+          repEmpty.textContent = 'No data.';
+        }
+      }catch(e){
+        repEmpty.textContent = 'Failed to load CSV.';
+      }
+    });
+
+    // ---------- risk table ----------
+    const riskTbl = document.getElementById('riskTable');
+    const riskTB = riskTbl.querySelector('tbody');
+    async function loadRisk(){
+      riskTB.innerHTML = `<tr><td colspan="6" class="muted">Loading…</td></tr>`;
+      try{
+        const res = await fetch('/admin/risk/json', {cache:'no-store'});
+        const j = await res.json();
+        if(!j.ok){ riskTB.innerHTML = `<tr><td colspan="6" class="muted">Unauthorized</td></tr>`; return; }
+        const items = j.items || [];
+        if(!items.length){ riskTB.innerHTML = `<tr><td colspan="6" class="muted">No flags.</td></tr>`; return; }
+        riskTB.innerHTML = '';
+        items.slice(0,300).forEach(a=>{
+          const sev = (a.severity||'').toLowerCase();
+          const tagClass = sev==='high' ? 'tag-bad' : (sev==='med'?'tag-warn':'tag-ok');
+          const tagsHTML = (a.tags||[]).map(t=>`<span class="pill">${t}</span>`).join('');
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${a.id}</td>
+            <td>${a.tx_id||''}</td>
+            <td>${a.reason||''}</td>
+            <td><span class="pill ${tagClass}">${a.severity||''}</span></td>
+            <td>${tagsHTML}</td>
+            <td>${a.timestamp||''}</td>`;
+          riskTB.appendChild(tr);
+        });
+      }catch(e){
+        riskTB.innerHTML = `<tr><td colspan="6" class="muted">Failed to load.</td></tr>`;
+      }
+    }
+    document.getElementById('btnRiskReload').addEventListener('click', loadRisk);
+
+    // ---------- PRINT (window.print) ----------
+    function openPrintFromTable(opts){
+      const { title, subtitleLines = [], tableEl } = opts || {};
+      if(!tableEl || tableEl.classList.contains('hide')){
+        alert('Please preview first.'); return;
+      }
+      const css = `
+        body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif; margin:24px; color:#111;}
+        h1{margin:0 0 4px; font-size:20px}
+        .sub{color:#444; margin:0 0 12px; font-size:12px}
+        table{width:100%; border-collapse:collapse; font-size:12px}
+        th,td{border:1px solid #ddd; padding:6px 8px; text-align:left; vertical-align:top}
+        th{background:#f5f7fa}
+        .meta{margin-bottom:12px; font-size:12px; color:#333}
+      `;
+      const now = new Date().toISOString().replace('T',' ').replace('Z',' UTC');
+      const subHTML = [
+        ...subtitleLines,
+        `Generated: ${now}`
+      ].map(l=>`<div>${l}</div>`).join('');
+      const doc = `
+        <!doctype html><html><head><meta charset="utf-8">
+        <title>${title}</title><style>${css}</style></head>
+        <body>
+          <h1>${title}</h1>
+          <div class="sub">${subHTML}</div>
+          ${tableEl.outerHTML}
+          <script>window.onload=()=>window.print()</` + `script>
+        </body></html>`;
+      const w = window.open('', '_blank', 'noopener,noreferrer,width=1100,height=800');
+      if(!w){ alert('Pop-up blocked. Please allow pop-ups.'); return; }
+      w.document.open(); w.document.write(doc); w.document.close();
+    }
+
+    document.getElementById('viewReconPdf').addEventListener('click', ()=>{
+      const dateStr = document.getElementById('viewReconPdf').dataset.date || document.getElementById('reconDate').value || '';
+      const stats = document.getElementById('reconStats').textContent || '';
+      openPrintFromTable({
+        title: 'ChequeMatez — Daily Reconciliation',
+        subtitleLines: [
+          dateStr ? `Date (UTC): ${dateStr}` : '',
+          stats ? `Stats: ${stats}` : ''
+        ].filter(Boolean),
+        tableEl: document.getElementById('reconTable')
+      });
+    });
+
+    document.getElementById('viewRepPdf').addEventListener('click', ()=>{
+      const ym = document.getElementById('viewRepPdf').dataset.ym || document.getElementById('repMonth').value || '';
+      const flags = document.getElementById('repFlags').textContent || '';
+      openPrintFromTable({
+        title: 'ChequeMatez — Monthly Report',
+        subtitleLines: [
+          ym ? `Month (UTC): ${ym}` : '',
+          flags ? flags : ''
+        ].filter(Boolean),
+        tableEl: document.getElementById('repTable')
+      });
+    });
+
+    // defaults
+    btnReconPreview.click();
+    btnRepPreview.click();
+    loadRisk();
+  </script>
+</body>
+</html>

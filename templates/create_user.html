@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Create User — chequematez</title>
+<style>
+/* === Brand Palette === */
+:root{
+  --brand-black:#000000;
+  --brand-red:#ff0000;
+  --brand-teal-1:#063d3f;
+  --brand-teal-2:#053c3f;
+  --brand-teal-3:#053d3f;
+  --brand-teal-4:#063d40;
+  --brand-teal-5:#063c3f;
+  --brand-teal-6:#053d40;
+  --brand-gold:#d4a017;
+}
+
+/* Base */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{font-family:Arial, sans-serif; margin:0; background:#f5f5f5; color:#111;}
+
+/* Header / Nav */
+header{background:var(--brand-teal-1); color:#fff; padding:16px; display:flex; align-items:center; justify-content:space-between; border-bottom:4px solid var(--brand-gold);}
+header h1{margin:0; font-size:1.4rem}
+header .right{display:flex; gap:8px; align-items:center;}
+header a{color:#fff; text-decoration:none; border:1px solid rgba(255,255,255,0.3); padding:8px 12px; border-radius:8px;}
+header a:hover{border-color:#fff}
+
+/* Page container */
+.container{padding:24px; max-width:520px; margin:32px auto;}
+
+/* Card */
+.card{
+  background:#fff; padding:24px; border-radius:10px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.08);
+  border-top:4px solid var(--brand-teal-4);
+}
+.card h2{margin:0 0 6px; color:var(--brand-teal-2);}
+.card p.sub{margin:0 0 16px; color:#333}
+
+/* Form */
+.field{margin-top:12px;}
+label{font-weight:600;color:var(--brand-teal-5);}
+input, select{width:100%; padding:12px; margin-top:6px; border:1px solid #ccc; border-radius:8px; font-size:1rem;}
+input:focus, select:focus{outline:2px solid var(--brand-teal-6); border-color:var(--brand-teal-6);}
+
+/* Actions */
+.actions{margin-top:16px; display:flex; gap:10px; align-items:center;}
+.btn{
+  padding:12px 16px; border:none; border-radius:30px;
+  background:var(--brand-gold); font-weight:700; cursor:pointer; color:#1a1a1a;
+}
+.btn:hover{background:#e1b632; outline:2px solid var(--brand-red);}
+
+/* Helper / Error */
+.note{margin-top:10px; font-size:0.95rem; color:#333;}
+.error{color:#b00020; min-height:18px; margin-top:6px; font-size:0.95rem;}
+
+/* Footer */
+footer{background:var(--brand-teal-2); color:white; text-align:center; padding:15px; margin-top:32px; border-top:4px solid var(--brand-gold);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>chequematez Admin</h1>
+  <div class="right">
+    <a href="/admin">Admin Home</a>
+    <a href="/">Public Site</a>
+    <a href="/logout">Logout</a>
+  </div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Create New User</h2>
+    <p class="sub">Add a new account and choose their role. After creation, the server should redirect them to the relevant dashboard.</p>
+
+    <!-- IMPORTANT:
+         - The server should accept: email, username, password, confirm_password, role
+         - Role values used here: customer | admin | merchant
+         - On success, backend may redirect to: /customer, /admin, or /merchant (your choice)
+    -->
+    <form method="POST" action="/admin/create-user" onsubmit="return validateCreateUser();">
+      <div class="field">
+        <label for="cu_email">Email</label>
+        <input id="cu_email" name="email" type="email" placeholder="user@example.com" required>
+      </div>
+
+      <div class="field">
+        <label for="cu_username">Username</label>
+        <input id="cu_username" name="username" type="text" placeholder="uniqueusername" required>
+      </div>
+
+      <div class="field">
+        <label for="cu_password">Password</label>
+        <input id="cu_password" name="password" type="password" placeholder="At least 8 characters" required>
+      </div>
+
+      <div class="field">
+        <label for="cu_confirm">Confirm Password</label>
+        <input id="cu_confirm" name="confirm_password" type="password" placeholder="Re-enter password" required>
+      </div>
+
+      <div class="field">
+        <label for="cu_role">Role</label>
+        <select id="cu_role" name="role" required>
+          <option value="customer" selected>Customer</option>
+          <option value="admin">Admin</option>
+          <option value="merchant">Merchant</option>
+        </select>
+      </div>
+
+      <div class="error" id="formError"></div>
+
+      <div class="actions">
+        <button class="btn" type="submit">Create User</button>
+        <a class="btn" href="/admin" style="text-decoration:none; display:inline-block;">Cancel</a>
+      </div>
+
+      <div class="note">
+        Tip: Make sure the email is valid. Passwords must be at least 8 characters and include letters & numbers.
+      </div>
+    </form>
+  </div>
+</div>
+
+<footer>
+  &copy; 2025 chequematez. All Rights Reserved.
+</footer>
+
+<script>
+function validateCreateUser(){
+  const email = document.getElementById('cu_email').value.trim();
+  const user  = document.getElementById('cu_username').value.trim();
+  const p     = document.getElementById('cu_password').value;
+  const c     = document.getElementById('cu_confirm').value;
+  const role  = document.getElementById('cu_role').value;
+  const errEl = document.getElementById('formError');
+
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRe.test(email)){ errEl.textContent='Enter a valid email.'; return false; }
+  if(user.length < 3){ errEl.textContent='Username should be at least 3 characters.'; return false; }
+  if(p.length < 8 || !/[A-Za-z]/.test(p) || !/\d/.test(p)){
+    errEl.textContent='Password must be 8+ chars and include letters & numbers.'; return false;
+  }
+  if(p !== c){ errEl.textContent='Passwords do not match.'; return false; }
+  if(!['customer','admin','merchant'].includes(role)){
+    errEl.textContent='Please select a valid role.'; return false;
+  }
+  errEl.textContent='';
+  return true;
+}
+</script>
+
+</body>
+</html>

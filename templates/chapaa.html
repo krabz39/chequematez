@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>chequematez — Calculator</title>
+<style>
+/* === Brand Palette === */
+:root{
+  --brand-black:#000000;
+  --brand-red:#ff0000;
+  --brand-teal-1:#063d3f;
+  --brand-teal-2:#053c3f;
+  --brand-teal-4:#063d40;
+  --brand-teal-5:#063c3f;
+  --brand-gold:#d4a017;
+}
+
+/* Base */
+*{box-sizing:border-box}
+html { scroll-behavior: smooth; }
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; color: var(--brand-black); }
+
+/* Header / Nav */
+header { background: var(--brand-teal-1); color:white; padding:20px; text-align:center; border-bottom: 4px solid var(--brand-gold); }
+nav { display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:10px;}
+nav a { color:white; text-decoration:none; font-weight:600; }
+nav a:hover { border-bottom: 2px solid var(--brand-gold); }
+
+/* Gold pill buttons */
+.pill {
+  background: var(--brand-gold);
+  color: var(--brand-black);
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-weight: 700;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+.pill:hover { border-color: var(--brand-red); background: #e1b632; }
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, var(--brand-teal-1), var(--brand-teal-4)),
+              url("/static/images/") center/contain no-repeat;
+  min-height: 48vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  flex-direction: column;
+  padding: 40px 16px;
+}
+.hero h1 { font-size:2.2rem; margin-bottom:10px; text-shadow: 2px 2px 5px rgba(0,0,0,0.6); border-bottom: 3px solid var(--brand-gold); padding: 0 10px 6px; }
+
+/* Section wrappers */
+.section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 16px;
+}
+.section h2 {
+  color: var(--brand-teal-1);
+  margin: 0 0 12px;
+  border-left: 6px solid var(--brand-gold);
+  padding-left: 10px;
+}
+
+/* Cards / grids */
+.cards { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:16px; }
+.card {
+  background: #fff;
+  border-radius: 10px;
+  border-top: 4px solid var(--brand-teal-4);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  padding: 18px;
+}
+.card h3 { margin: 0 0 8px; color: var(--brand-teal-5); }
+.card p { margin: 6px 0; color:#333; }
+
+/* Calculator card */
+main { display:flex; justify-content:center; padding:20px; }
+.calculator {
+  background:white; padding:24px; border-radius:10px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.08); width:420px;
+  border-top: 4px solid var(--brand-teal-4);
+}
+label{font-weight:600;color:var(--brand-teal-5);}
+input, select { width:100%; padding:12px; margin-top:8px; border-radius:8px; border:1px solid #ccc; font-size:1rem; }
+input:focus, select:focus { outline: 2px solid var(--brand-teal-4); border-color: var(--brand-teal-4); }
+
+/* === Service charge toggle === */
+.toggle-row{ display:flex; align-items:center; gap:12px; margin-top:12px; }
+.toggle{position:relative; width:46px; height:26px; flex:0 0 auto}
+.toggle input{opacity:0; width:0; height:0}
+.toggle .slider{
+  position:absolute; cursor:pointer; inset:0;
+  background:#dfe8e8; border-radius:999px; transition:background .2s ease;
+  box-shadow:inset 0 0 0 1px #cfdada;
+}
+.toggle .slider::before{
+  content:""; position:absolute; height:20px; width:20px; left:3px; top:3px;
+  background:#fff; border-radius:50%; transition:transform .2s ease;
+  box-shadow:0 2px 6px rgba(0,0,0,.18);
+}
+.toggle input:checked + .slider{ background:#063d3f33 }
+.toggle input:checked + .slider::before{ transform:translateX(20px) }
+.toggle-help{color:#333; font-size:.9rem}
+
+/* Auth options under calculator */
+.auth-options { margin-top:18px; text-align:center; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+/* Results */
+#result p { margin:6px 0; line-height:1.45; }
+#result small { color:#333; }
+.highlight { font-weight:bold; color: var(--brand-red); }
+#rangeMsg { margin-top:6px; color:#a33; font-size:.95rem; display:none; }
+#rateMsg  { margin-top:6px; color:#a33; font-size:.95rem; display:none; }
+
+/* Chart wrapper */
+.calc-chart { margin-top:18px; padding-top:8px; border-top:1px dashed #ddd; }
+
+/* Footer */
+footer { background: var(--brand-teal-2); color:white; text-align:center; padding:15px; margin-top:24px; border-top: 4px solid var(--brand-gold); }
+
+/* Modals */
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 9999; }
+.modal { background: #fff; width: 360px; max-width: 92vw; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); padding: 20px; border-top: 4px solid var(--brand-gold); position: relative; }
+.modal h3 { margin: 0 0 10px; color: var(--brand-teal-1); }
+.modal .close { position: absolute; top: 10px; right: 14px; background: transparent; border: none; font-size: 20px; cursor: pointer; color: var(--brand-black); }
+.modal .field { margin-top: 10px; }
+.modal .field label { font-weight: 600; font-size: 0.95rem; color: var(--brand-teal-5); }
+.modal .field input { width: 100%; padding: 10px; margin-top: 6px; border:1px solid #ccc; border-radius: 6px; }
+.modal .actions { margin-top: 14px; }
+.modal .btn { width: 100%; padding: 12px; background: var(--brand-gold); color:#1a1a1a; border:none; border-radius: 6px; cursor:pointer; font-weight:700; }
+.modal .btn:hover { background:#e1b632; border:2px solid var(--brand-red); }
+.modal .note a { color: var(--brand-teal-1); text-decoration: none; }
+.modal .note a:hover { text-decoration: underline; }
+.modal .error { color:#b00020; min-height: 18px; margin-top: 6px; font-size: 0.9rem; }
+
+@media(max-width:1024px){ .cards{grid-template-columns: repeat(2,minmax(0,1fr));} }
+@media(max-width:768px){ nav { flex-direction: column; gap:10px;} .calculator{width:92%;} .cards{grid-template-columns: 1fr;} }
+</style>
+</head>
+<!-- Flask sets data-open-login to "1" when redirected from /admin -->
+<body data-open-login="{{ '1' if open_login else '0' }}">
+
+<header id="home">
+  <h1>chequematez Exchange</h1>
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#rates">Rates</a>
+    <a href="#services">Services</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <h1>Reliable Money Exchange</h1>
+  <p>Calculate fees instantly with chequematez</p>
+</section>
+
+<!-- HOME content (kept your calculator exactly where it was) -->
+<main class="section">
+  <section class="calculator" aria-labelledby="calcTitle">
+    <h2 id="calcTitle" style="margin-top:0;">Quick Calculator</h2>
+
+    <div class="field">
+      <label for="amount">Amount</label>
+      <input type="number" id="amount" placeholder="Enter amount" inputmode="decimal" step="0.01" min="0">
+      <div id="rangeMsg">Allowed range is <strong>5 – 600 KWD</strong>. Adjust the amount or change currency.</div>
+      <div id="rateMsg">Fetching live rate… please try again in a moment.</div>
+    </div>
+
+    <div class="field" style="margin-top:10px;">
+      <label for="currency">Currency</label>
+      <select id="currency">
+        <option value="KWD" selected>KWD</option>
+        <option value="KES">KES</option>
+      </select>
+    </div>
+
+    <!-- Service charge toggle -->
+    <div class="toggle-row" title="When ON, the customer pays the fee. When OFF, the merchant absorbs it.">
+      <label class="toggle" aria-label="Pass service charge to customer">
+        <input id="fee_pass_through" type="checkbox" checked>
+        <span class="slider"></span>
+      </label>
+      <div>
+        <div><strong>Pass service charge to customer</strong></div>
+        <div class="toggle-help">Turn off if the merchant will absorb the fee.</div>
+      </div>
+    </div>
+
+    <div id="result" style="margin-top:16px;"></div>
+
+    <!-- Line chart of recent calculations -->
+    <div class="calc-chart">
+      <canvas id="calcChart" height="140"></canvas>
+    </div>
+
+    <!-- Login / Signup buttons -->
+    <div class="auth-options">
+      <button id="openLogin" class="pill" type="button">Login</button>
+      <!-- <button id="openSignup" class="pill" type="button">Sign Up</button> -->
+    </div>
+  </section>
+</main>
+
+<!-- RATES -->
+<section id="rates" class="section">
+  <h2>Rates</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Live Exchange</h3>
+      <p>1 KWD =&nbsp;<strong id="liveRate">—</strong>&nbsp;KES</p>
+      <p style="font-size:.9rem;color:#555">Updated automatically.For transactions contact +96565914413</p>
+    </div>
+    <div class="card">
+      <h3>Transfer Range</h3>
+      <p>Supported range: <strong>5 – 600 KWD</strong>.</p>
+      <p>For larger amounts, contact support for a tailored quote.</p>
+    </div>
+    <div class="card">
+      <h3>Fees</h3>
+      <p>Fees are dynamic and shown in the calculator results.</p>
+      <p>You can pass fees to the customer or absorb them.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="section">
+  <h2>Services</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Wallet to M-Pesa</h3>
+      <p>Top up M-Pesa numbers quickly and reliably.</p>
+    </div>
+    <div class="card">
+      <h3>Bank Payouts</h3>
+      <p>Send to Kenyan bank accounts. Settlement per our payout rails.</p>
+    </div>
+    <div class="card">
+      <h3>Merchant Vouchers</h3>
+      <p>Create one-time vouchers for customers and auto-payout to merchants.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" class="section">
+  <h2>Contact</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Get in Touch</h3>
+      <p><strong>Email:</strong> support@chequematez.com</p>
+      <p><strong>WhatsApp/Call:</strong> +965 65914413</p>
+      <p><strong>Hours:</strong> Mon–Sun, 9:00–12:00 EAT</p>
+      <p style="font-size:.9rem;color:#555;">For compliance/KYC queries please use the email above.</p>
+    </div>
+    <div class="card">
+      <h3>Quick Message</h3>
+      <form onsubmit="event.preventDefault(); alert('Thanks! We will get back to you.');">
+        <label>Name</label>
+        <input type="text" placeholder="Your name" required>
+        <label style="margin-top:8px;">Email</label>
+        <input type="email" placeholder="you@example.com" required>
+        <label style="margin-top:8px;">Message</label>
+        <textarea rows="4" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px" placeholder="How can we help?" required></textarea>
+        <button class="pill" type="submit" style="margin-top:12px;">Send</button>
+      </form>
+    </div>
+    <div class="card">
+      <h3>Legal</h3>
+      <p>Read our latest policies and terms.</p>
+      <p><a href="{{ url_for('legal_index') }}" target="_blank" style="color:#063d3f; font-weight:700; text-decoration:none;">View Legal &raquo;</a></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  &copy; 2025 chequematez. All Rights Reserved.
+</footer>
+
+<!-- Login modal -->
+<div id="loginBackdrop" class="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="loginTitle" aria-modal="true">
+    <button class="close" type="button" aria-label="Close" data-close="loginBackdrop">&times;</button>
+    <h3 id="loginTitle">Login</h3>
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="login_username">Username</label>
+        <input id="login_username" name="username" type="text" placeholder="yourusername" required minlength="3">
+      </div>
+      <div class="field">
+        <label for="login_password">Password</label>
+        <input id="login_password" name="password" type="password" placeholder="••••••••" required minlength="8">
+      </div>
+      <div class="error" id="loginError"></div>
+      <div class="actions">
+        <button class="btn" type="submit">Log In</button>
+      </div>
+      <div class="note" style="margin-top:8px;"><a href="/request-reset">Forgot password?</a></div>
+    </form>
+  </div>
+</div>
+
+<!-- Signup modal -->
+<div id="signupBackdrop" class="modal-backdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-labelledby="signupTitle" aria-modal="true">
+    <button class="close" type="button" aria-label="Close" data-close="signupBackdrop">&times;</button>
+    <h3 id="signupTitle">Create Account</h3>
+    <form id="signupForm" novalidate>
+      <div class="field">
+        <label for="su_email">Email</label>
+        <input id="su_email" name="email" type="email" placeholder="you@example.com" required>
+      </div>
+      <div class="field">
+        <label for="su_username">Username</label>
+        <input id="su_username" name="username" type="text" placeholder="uniqueusername" required minlength="3">
+      </div>
+      <div class="field">
+        <label for="su_password">Password</label>
+        <input id="su_password" name="password" type="password" placeholder="At least 8 characters" required minlength="8">
+      </div>
+      <div class="field">
+        <label for="su_confirm">Confirm Password</label>
+        <input id="su_confirm" name="confirm_password" type="password" placeholder="Re-enter password" required minlength="8">
+      </div>
+      <div class="error" id="signupError"></div>
+      <div class="actions">
+        <button class="btn" type="submit">Sign Up</button>
+      </div>
+      <div class="note" style="margin-top:8px; font-size:0.9rem; color:#333;">
+        <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
+          <input type="checkbox" name="accept_legal" checked style="display:none;">
+          <span style="width:34px; height:18px; background:#ccc; border-radius:18px; position:relative; flex-shrink:0;" class="toggle">
+            <span style="content:''; position:absolute; left:2px; top:2px; width:14px; height:14px; background:#fff; border-radius:50%; transition:0.2s;"></span>
+          </span>
+          <span>
+            By signing up you agree to our
+            <a href="{{ url_for('legal_index') }}" target="_blank" style="color:#063d3f; font-weight:600; text-decoration:none;">
+              📄 Legal
+            </a>
+          </span>
+        </label>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+/* number format */
+const fmt = (v)=> Number(v).toLocaleString(undefined,{minimumFractionDigits:1, maximumFractionDigits:1});
+
+/* ===== Live exchange rate (no hardcode) ===== */
+let CURRENT_RATE = null;
+const RATE_POLL_MS = 30000;
+
+async function fetchRate(){
+  try{
+    const r = await fetch('/api/rate', {credentials:'same-origin', cache:'no-store'});
+    const j = await r.json();
+    if(r.ok && j && typeof j.rate !== 'undefined'){
+      const v = Number(j.rate);
+      if (Number.isFinite(v) && v > 0) {
+        CURRENT_RATE = v;
+        const live = document.getElementById('liveRate');
+        if (live) live.textContent = v.toLocaleString(undefined, {maximumFractionDigits: 2});
+      }
+    }
+  }catch(e){ /* ignore */ }
+}
+
+/* helper to require rate for KES conversions */
+function ensureRateOrThrow(currency){
+  if (currency === 'KES' && (!Number.isFinite(CURRENT_RATE) || CURRENT_RATE <= 0)){
+    throw new Error('RATE_NOT_READY');
+  }
+}
+
+/* === KWD range guard (5–600 KWD) === */
+function kwdFrom(amount, currency){
+  const a = Number(amount);
+  if(!isFinite(a) || a <= 0) return NaN;
+  if (currency === 'KES'){
+    ensureRateOrThrow(currency);
+    return a / Number(CURRENT_RATE);
+  }
+  return a;
+}
+function isKwdInRange(amount, currency){
+  try{
+    const kwd = kwdFrom(amount, currency);
+    return isFinite(kwd) && kwd >= 5 && kwd <= 600;
+  }catch(e){
+    if (String(e?.message) === 'RATE_NOT_READY') return false;
+    return false;
+  }
+}
+function showRangeMessage(show){
+  const el = document.getElementById('rangeMsg');
+  if(!el) return;
+  el.style.display = show ? 'block' : 'none';
+}
+function showRateMessage(show){
+  const el = document.getElementById('rateMsg');
+  if(!el) return;
+  el.style.display = show ? 'block' : 'none';
+}
+
+/* === Calculator (chart without Profit) === */
+let calcChart = null;
+const calcLabels = [];
+const seriesFee   = [];
+const seriesCost  = [];
+
+/* keep last calculation to re-render when toggle flips (no new fetch) */
+let lastCalc = null;
+
+function buildChart(unit){
+  const ctx = document.getElementById('calcChart').getContext('2d');
+  if (calcChart && typeof calcChart.destroy === 'function') calcChart.destroy();
+  calcChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: calcLabels,
+      datasets: [
+        { label:`Transaction Fee (${unit})`, data: seriesFee,  borderWidth:2, tension:0.25, fill:false },
+        { label:`Total Cost (${unit})`,      data: seriesCost, borderWidth:2, tension:0.25, fill:false }
+      ]
+    },
+    options: {
+      responsive:true,
+      plugins:{ legend:{ position:'top' } },
+      scales: { y: { ticks:{ callback:(v)=>fmt(v) } } }
+    }
+  });
+}
+
+function appendPoint(label, feeVal, costVal, unit){
+  calcLabels.push(label);
+  seriesFee.push(feeVal);
+  seriesCost.push(costVal);
+  if(calcLabels.length > 20){ calcLabels.shift(); seriesFee.shift(); seriesCost.shift(); }
+  buildChart(unit);
+}
+
+async function fetchFees(amount, currency){
+  const resultEl = document.getElementById("result");
+
+  // If KES is selected but rate isn't ready yet, show hint and skip
+  try{
+    ensureRateOrThrow(currency);
+    showRateMessage(false);
+  }catch(e){
+    showRateMessage(true);
+    resultEl.innerHTML = "";
+    lastCalc = null;
+    return;
+  }
+
+  // Guard: block display + chart outside 5–600 KWD
+  if(isNaN(amount) || amount <= 0 || !isKwdInRange(amount, currency)){
+    resultEl.innerHTML = "";
+    showRangeMessage(!isNaN(amount) && amount > 0);
+    lastCalc = null;
+    return;
+  }
+  showRangeMessage(false);
+
+  const fd = new FormData();
+  fd.append("amount", amount);
+  fd.append("currency", currency);
+
+  try {
+    const res = await fetch("/calculate", { method:"POST", body: fd, cache:'no-store', credentials:'same-origin' });
+    if(!res.ok){ throw new Error("Failed to calculate"); }
+    const data = await res.json();
+    lastCalc = { amount, currency, data }; // store and then render with toggle
+    renderResultWithToggle();
+    // Chart point (unit follows selected currency)
+    const isKWD = currency === "KWD";
+    const unit = isKWD ? 'KWD' : 'KES';
+    const label = new Date().toLocaleTimeString();
+    const feeForChart  = isKWD ? data.total_fee_kwd  : data.total_fee_kes;
+    const costForChart = isKWD ? data.total_cost_kwd : data.total_cost_kes;
+    appendPoint(label, feeForChart, costForChart, unit);
+  } catch(err){
+    console.error(err);
+    resultEl.innerHTML = "<p style='color:#b00020'>Could not calculate right now.</p>";
+    lastCalc = null;
+  }
+}
+
+/* render using existing results + toggle-only extras */
+function renderResultWithToggle(){
+  if(!lastCalc) return;
+  const { currency, data } = lastCalc;
+  const isKWD = currency === "KWD";
+  const ex = (typeof data.exchange_rate !== 'undefined') ? Number(data.exchange_rate) : CURRENT_RATE;
+
+  const amountMain = isKWD ? `${fmt(data.amount_kwd)} KWD` : `${fmt(data.amount_kes)} KES`;
+  const amountAlt  = isKWD ? `${fmt(data.amount_kes)} KES` : `${fmt(data.amount_kwd)} KWD`;
+
+  const feeKwdOnly = `${fmt(data.total_fee_kwd)} KWD`;
+
+  const costMain = isKWD ? `${fmt(data.total_cost_kwd)} KWD` : `${fmt(data.total_cost_kes)} KES`;
+  const costAlt  = isKWD ? `${fmt(data.total_cost_kes)} KES` : `${fmt(data.total_cost_kwd)} KWD`;
+
+  const passToCustomer = document.getElementById('fee_pass_through')?.checked ?? true;
+
+  const baseKwd = Number(data.amount_kwd);
+  const baseKes = Number(data.amount_kes);
+  const feeKwd  = Number(data.total_fee_kwd);
+  const feeKes  = Number(data.total_fee_kes);
+
+  const totalChargedKwd = passToCustomer ? Number(data.total_cost_kwd) : baseKwd;
+  const totalChargedKes = passToCustomer ? Number(data.total_cost_kes) : baseKes;
+
+  const netToMerchantKwd = passToCustomer ? baseKwd : (baseKwd - feeKwd);
+  const netToMerchantKes = passToCustomer ? baseKes : (baseKes - feeKes);
+
+  const modeLine = passToCustomer
+    ? `<p>Mode: <strong>Customer pays service charge</strong></p>`
+    : `<p>Mode: <strong>Merchant absorbs service charge</strong></p>`;
+
+  const chargedMain = isKWD ? `${fmt(totalChargedKwd)} KWD` : `${fmt(totalChargedKes)} KES`;
+  const chargedAlt  = isKWD ? `${fmt(totalChargedKes)} KES` : `${fmt(totalChargedKwd)} KWD`;
+
+  const netMain = isKWD ? `${fmt(netToMerchantKwd)} KWD` : `${fmt(netToMerchantKes)} KES`;
+  const netAlt  = isKWD ? `${fmt(netToMerchantKes)} KES` : `${fmt(netToMerchantKwd)} KWD`;
+
+  document.getElementById("result").innerHTML = `
+    <p>Exchange Rate: <span class="highlight">1 KWD = ${fmt(ex)} KES</span></p>
+
+    <p>
+      Amount: <strong>${amountMain}</strong><br>
+      <small>(${amountAlt})</small>
+    </p>
+
+    <p>
+      Transaction Fee: <strong>${feeKwdOnly}</strong>
+    </p>
+
+    <p>
+      Total Cost: <strong>${costMain}</strong><br>
+      <small>(${costAlt})</small>
+    </p>
+
+    ${modeLine}
+
+    <p>
+      Total charged:
+      <strong>${chargedMain}</strong><br>
+      <small>(${chargedAlt})</small>
+    </p>
+
+    <p>
+      ${passToCustomer ? 'Net after fee' : 'Net to merchant'}:
+      <strong>${netMain}</strong><br>
+      <small>(${netAlt})</small>
+    </p>
+  `;
+}
+
+/* inputs */
+document.getElementById("amount").addEventListener("input", () => {
+  const amt = parseFloat(document.getElementById("amount").value);
+  const cur = document.getElementById("currency").value;
+  fetchFees(amt, cur);
+});
+document.getElementById("currency").addEventListener("change", () => {
+  const amt = parseFloat(document.getElementById("amount").value);
+  const cur = document.getElementById("currency").value;
+  fetchFees(amt, cur);
+});
+
+/* re-render only (no extra fetching) when the toggle changes */
+document.getElementById('fee_pass_through').addEventListener('change', renderResultWithToggle);
+
+/* === Modals open/close === */
+const loginBackdrop = document.getElementById('loginBackdrop');
+const signupBackdrop = document.getElementById('signupBackdrop');
+
+document.getElementById('openLogin').addEventListener('click', ()=>{ loginBackdrop.style.display='flex'; });
+document.getElementById('openSignup').addEventListener('click', ()=>{ signupBackdrop.style.display='flex'; });
+document.querySelectorAll('[data-close]').forEach(btn=>{
+  btn.addEventListener('click', (e)=>{
+    const id = e.currentTarget.getAttribute('data-close');
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+});
+window.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ loginBackdrop.style.display='none'; signupBackdrop.style.display='none'; }});
+window.addEventListener('click', (e)=>{
+  if(e.target === loginBackdrop) loginBackdrop.style.display='none';
+  if(e.target === signupBackdrop) signupBackdrop.style.display='none';
+});
+
+/* === Login: client validation + AJAX submit === */
+function showLoginError(msg){ document.getElementById('loginError').textContent = msg || ''; }
+document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  showLoginError('');
+  const username = document.getElementById('login_username').value.trim();
+  const password = document.getElementById('login_password').value;
+
+  if(username.length < 3){ return showLoginError('Username must be at least 3 characters.'); }
+  if(password.length < 8){ return showLoginError('Password must be at least 8 characters.'); }
+
+  try{
+    const fd = new FormData();
+    fd.append('username', username);
+    fd.append('password', password);
+    const res = await fetch('/login', {method:'POST', body: fd, credentials:'same-origin', redirect:'follow'});
+    if (res.redirected) { window.location.href = res.url; return; }
+    if (res.status === 401) { showLoginError('Invalid username or password.'); return; }
+    if (res.ok) { window.location.reload(); return; }
+    showLoginError(`Login failed (HTTP ${res.status}).`);
+  }catch(err){
+    showLoginError('Network error. Please try again.');
+  }
+});
+
+/* === Signup: client validation + AJAX submit === */
+function showSignupError(msg){ document.getElementById('signupError').textContent = msg || ''; }
+document.getElementById('signupForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  showSignupError('');
+
+  const email = document.getElementById('su_email').value.trim();
+  const username = document.getElementById('su_username').value.trim();
+  const password = document.getElementById('su_password').value;
+  const confirm  = document.getElementById('su_confirm').value;
+
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRe.test(email))  return showSignupError('Enter a valid email.');
+  if(username.length < 3)   return showSignupError('Username should be at least 3 characters.');
+  if(password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password))
+    return showSignupError('Password must be 8+ chars and include letters & numbers.');
+  if(password !== confirm)  return showSignupError('Passwords do not match.');
+
+  try{
+    const fd = new FormData();
+    fd.append('email', email);
+    fd.append('username', username);
+    fd.append('password', password);
+    fd.append('confirm_password', confirm);
+
+    const res = await fetch('/signup', {method:'POST', body: fd, credentials:'same-origin', redirect:'follow'});
+    if (res.redirected) { window.location.href = res.url; return; }
+    const txt = await res.text();
+    if (res.status === 400) {
+      if (/already exists/i.test(txt)) return showSignupError('Username already exists.');
+      if (/Invalid email/i.test(txt)) return showSignupError('Invalid email.');
+      if (/Username too short/i.test(txt)) return showSignupError('Username too short.');
+      if (/Invalid password/i.test(txt)) return showSignupError('Password invalid (min 8 chars & match confirm).');
+      return showSignupError('Sign up failed. Please review your inputs.');
+    }
+    if (res.ok) { window.location.reload(); return; }
+    showSignupError(`Sign up failed (HTTP ${res.status}).`);
+  }catch(err){
+    showSignupError('Network error. Please try again.');
+  }
+});
+
+/* === Auto-init: fetch live rate, keep it fresh, maybe open login === */
+window.addEventListener('load', async ()=>{
+  await fetchRate();
+  setInterval(fetchRate, RATE_POLL_MS);
+  const shouldOpen = document.body.getAttribute('data-open-login') === '1';
+  if(shouldOpen){ document.getElementById('loginBackdrop').style.display = 'flex'; }
+});
+
+// Simple JS to animate toggle in signup note
+document.querySelectorAll('label input[name="accept_legal"]').forEach(cb=>{
+  cb.addEventListener('change', e=>{
+    const knob = e.target.nextElementSibling.querySelector('span');
+    if(e.target.checked){
+      e.target.nextElementSibling.style.background = '#063d3f';
+      knob.style.left = '18px';
+    } else {
+      e.target.nextElementSibling.style.background = '#ccc';
+      knob.style.left = '2px';
+    }
+  });
+  cb.dispatchEvent(new Event('change'));
+});
+</script>
+</body>
+</html>

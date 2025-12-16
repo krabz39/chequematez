@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voucher • Cheque Matez</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+  :root{
+    --panel:#fff; --line:#e9edf2; --ink:#0b3b27; --muted:#475467; --gold:#d4a017;
+    --ok:#2f7d32; --warn:#8a6d00; --err:#b00020;
+    --radius:14px; --pad:18px;
+  }
+  /* Base */
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:#f5f7fb;font:15px/1.45 ui-sans-serif,system-ui,Segoe UI,Inter,Arial;color:#111}
+  .wrap{max-width:920px;margin:16px auto;padding:12px}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:0 8px 24px rgba(16,24,40,.12);padding:var(--pad)
+  }
+  h1{margin:0 0 10px;font-size:clamp(20px,3.2vw,26px);color:#0c2e2f}
+  p.small{margin:0 0 14px;color:#667085;font-size:clamp(14px,2.4vw,15px)}
+
+  /* Fields */
+  label{display:block;font-weight:800;color:#0f2f30;margin-top:6px}
+  .control{
+    display:flex;align-items:center;gap:8px;margin-top:6px
+  }
+  input,select{
+    width:100%;padding:12px 14px;border:1px solid #d0d5dd;border-radius:12px;
+    font-size:16px;background:#fff;line-height:1.2;appearance:none;-webkit-appearance:none
+  }
+  /* Uniform height for input/select */
+  select{padding-right:36px} /* room for native caret */
+
+  /* Responsive grid rows */
+  .row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:12px;
+  }
+  .row-1{
+    display:grid;grid-template-columns:1fr;gap:12px
+  }
+
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    border:none;border-radius:999px;padding:12px 18px;font-weight:900;
+    background:linear-gradient(135deg,var(--gold),#f2d46b);cursor:pointer
+  }
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+
+  .status{display:none;padding:8px 12px;border-radius:999px;font-weight:800;font-size:.92rem}
+  .status.warn{display:inline-block;background:#fff7e0;color:var(--warn)}
+  .status.ok{display:inline-block;background:#e8ffe8;color:var(--ok)}
+  .status.err{display:inline-block;background:#ffe8e8;color:var(--err)}
+  .mt8{margin-top:8px}
+  .fine{font-size:.95rem;color:#667085}
+
+  /* Action row: button + status + QR */
+  .actions{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px
+  }
+  .qr{
+    margin-left:auto;width:86px;height:86px;border:1px solid var(--line);border-radius:10px;background:#fff
+  }
+
+  /* Breakpoints */
+  @media (max-width:700px){
+    .actions{justify-content:space-between}
+    .qr{margin-left:0}
+  }
+  @media (max-width:520px){
+    .wrap{padding:8px}
+    .card{padding:14px}
+    .actions{flex-direction:column;align-items:stretch}
+    .btn{width:100%}
+    .status{align-self:center}
+    .qr{width:96px;height:96px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>Voucher:</h1>
+    <p class="small">Shop: <strong>{{ merchant_id }}</strong>. One-time QR; expires after ~10 minutes or once paid.</p>
+
+    <!-- Amount + Method (aligned, responsive) -->
+    <div class="row">
+      <div>
+        <label for="amount">Amount (KES)</label>
+        <div class="control">
+          <input id="amount" type="number" min="1" step="1" placeholder="Enter amount" inputmode="numeric">
+        </div>
+      </div>
+      <div>
+        <label for="method">Payout method</label>
+        <div class="control">
+          <select id="method">
+            <option value="">Select…</option>
+            <option value="phone">Mpesa (phone)</option>
+            <option value="till">Buy Goods / Till</option>
+            <option value="bank">Bank transfer</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Method-specific inputs -->
+    <div id="pm_phone" class="row-1" style="display:none">
+      <div>
+        <label>Phone (2547… / 2541…)</label>
+        <input id="target_phone" placeholder="2547XXXXXXXX" inputmode="numeric">
+      </div>
+    </div>
+
+    <div id="pm_till" class="row-1" style="display:none">
+      <div>
+        <label>Till / BuyGoods number</label>
+        <input id="target_till" placeholder="e.g. 123456" inputmode="numeric">
+      </div>
+    </div>
+
+    <div id="pm_bank" class="row" style="display:none">
+      <div>
+        <label>Bank account</label>
+        <input id="target_bank" placeholder="e.g. 010123456789" inputmode="numeric">
+      </div>
+      <div>
+        <label>Branch (optional)</label>
+        <input id="bank_branch" placeholder="e.g. Westlands">
+      </div>
+      <div>
+        <label>Bank name (optional)</label>
+        <input id="bank_name" placeholder="e.g. KCB">
+      </div>
+    </div>
+
+    <div id="fee_line" class="fine mt8"></div>
+
+    <!-- Button + status + QR (responsive) -->
+    <div class="actions">
+      <button id="pay" class="btn">Request STK</button>
+      <span id="st" class="status warn">Processing…</span>
+      <img class="qr" alt="Voucher QR" src="{{ url_for('voucher_qr', code=code) }}">
+    </div>
+
+    <div id="ok_block" class="mt8" style="display:none">
+      <span class="status ok">Success</span>
+      <div class="fine mt8">Payment received. Deliver goods / start payout.</div>
+      <div id="receipt_link" class="mt8"></div>
+    </div>
+
+    <div id="err_block" class="mt8" style="display:none">
+      <span class="status err">Failed</span>
+      <div id="errmsg" class="fine mt8"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Injected by Flask/Jinja. If not provided, it becomes an empty string.
+  const code = "{{ code|default('') }}";
+
+  // Grab DOM nodes once
+  const amountEl = document.getElementById('amount');
+  const methodEl = document.getElementById('method');
+  const stEl = document.getElementById('st');
+  const okBlock = document.getElementById('ok_block');
+  const linkBox = document.getElementById('receipt_link');
+  const errBlock = document.getElementById('err_block');
+  const errMsg = document.getElementById('errmsg');
+  const feeLine = document.getElementById('fee_line');
+
+  const pmPhone = document.getElementById('pm_phone');
+  const pmTill  = document.getElementById('pm_till');
+  const pmBank  = document.getElementById('pm_bank');
+
+  let poller = null;
+
+  // Helper: fee in KES for a given amount in KES
+  function feeKES(x) {
+    const a = Number(x || 0);
+    return Math.min(200, a * 0.018 + 10).toFixed(2);
+  }
+
+  // Live fee preview as amount changes
+  amountEl.addEventListener('input', () => {
+    const v = parseFloat(amountEl.value || '0');
+    feeLine.textContent = v > 0 ? `Estimated service fee: KES ${feeKES(v)}` : '';
+  });
+
+  // Show/hide payout target inputs
+  methodEl.addEventListener('change', () => {
+    pmPhone.style.display = methodEl.value === 'phone' ? 'grid' : 'none';
+    pmTill .style.display = methodEl.value === 'till'  ? 'grid' : 'none';
+    pmBank .style.display = methodEl.value === 'bank'  ? 'grid' : 'none';
+  });
+
+  // Pay button
+  document.getElementById('pay').addEventListener('click', async () => {
+    // Quick guard if template didn't inject a code
+    if (!code) {
+      errBlock.style.display = 'block';
+      errMsg.textContent = 'Invalid voucher code in page.';
+      return;
+    }
+
+    okBlock.style.display = 'none';
+    errBlock.style.display = 'none';
+    stEl.textContent = 'Processing…';
+    stEl.className = 'status warn';
+    stEl.style.display = 'inline-block';
+
+    const fd = new FormData();
+    fd.append('amount', amountEl.value || '');
+    fd.append('payout_method', methodEl.value || '');
+
+    if (methodEl.value === 'phone') {
+      fd.append('payout_target', (document.getElementById('target_phone').value || ''));
+    }
+    if (methodEl.value === 'till') {
+      fd.append('payout_target', (document.getElementById('target_till').value || ''));
+    }
+    if (methodEl.value === 'bank') {
+      fd.append('payout_target', (document.getElementById('target_bank').value || ''));
+      fd.append('payout_bank_name', (document.getElementById('bank_name').value || ''));
+      fd.append('payout_bank_branch', (document.getElementById('bank_branch').value || ''));
+    }
+
+    try {
+      const r = await fetch(`/api/vouchers/${encodeURIComponent(code)}/pay`, { method: 'POST', body: fd });
+      const j = await r.json();
+      if (!r.ok || j.ok !== true) throw new Error(j.error || ('HTTP ' + r.status));
+      if (poller) clearInterval(poller);
+      poller = setInterval(checkStatus, 2500);
+    } catch (e) {
+      stEl.style.display = 'none';
+      errBlock.style.display = 'block';
+      errMsg.textContent = e.message || 'Failed to initiate payment';
+    }
+  });
+
+  // Poll status
+  async function checkStatus() {
+    if (!code) return; // nothing to poll
+    try {
+      const r = await fetch(`/api/vouchers/${encodeURIComponent(code)}/status`, { cache: 'no-store' });
+      const j = await r.json();
+      if (!r.ok || j.ok !== true) return;
+
+      const v = j.voucher || {};
+      const st = (v.status || '').toLowerCase();
+
+      if (st === 'processing') {
+        stEl.style.display = 'inline-block';
+        stEl.textContent = 'Processing…';
+      }
+      if (st === 'credited' || st === 'paid' || st === 'paying' || (v.used && v.receipt_url)) {
+        clearInterval(poller);
+        stEl.style.display = 'none';
+        okBlock.style.display = 'block';
+        if (v.receipt_url) {
+          linkBox.innerHTML = `<a href="${v.receipt_url}" target="_blank" rel="noopener">View receipt</a>`;
+        }
+      }
+      if (st === 'failed') {
+        clearInterval(poller);
+        stEl.style.display = 'none';
+        errBlock.style.display = 'block';
+        errMsg.textContent = 'Payment failed or voucher expired.';
+      }
+    } catch (_) {
+      // silently ignore transient errors while polling
+    }
+  }
+
+  // Initial status check (handles already-expired/settled vouchers)
+  checkStatus();
+})();
+</script>
+
+</body>
+</html>
