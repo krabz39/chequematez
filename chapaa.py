@@ -1220,6 +1220,39 @@ def _init_receipt_constraints():
 
 _init_receipt_constraints()
 # ---------- Routes ----------
+@app.route("/api/transactions")
+def api_transactions():
+    if not require_login():
+        return jsonify({"ok": False, "error": "Unauthorized"}), 401
+
+    u = current_user()
+    role = u.get("role")
+    username = u.get("username")
+
+    limit = int(request.args.get("limit", "200") or 200)
+
+    items = _fetch_transactions_for_user(
+        username=username,
+        role=role,
+        limit=limit
+    )
+
+    return jsonify({
+        "ok": True,
+        "count": len(items),
+        "items": items
+    })
+
+@app.route("/api/my-transactions")
+def api_my_transactions():
+    return api_transactions()
+
+
+@app.route("/api/admin/transactions")
+def api_admin_transactions():
+    if not require_admin():
+        return jsonify({"ok": False, "error": "Unauthorized"}), 401
+    return api_transactions()
 
 @app.route("/")
 def public_calculator():
@@ -1235,6 +1268,41 @@ def show_kyc_bundle():
 # ------------------------------------------------------------
 # DB: PROFILES TABLE (SAFE, NON-DESTRUCTIVE)
 # ------------------------------------------------------------
+def _fetch_transactions_for_user(username=None, role=None, limit=500):
+    """
+    DB-first transaction fetch.
+    Falls back to in-memory TRANSACTIONS if DB fails.
+    """
+    try:
+        with db_cursor() as cur:
+            if role == "admin":
+                cur.execute("""
+                    SELECT * FROM transactions
+                    ORDER BY timestamp DESC
+                    LIMIT %s
+                """, (limit,))
+            else:
+                cur.execute("""
+                    SELECT * FROM transactions
+                    WHERE username=%s
+                    ORDER BY timestamp DESC
+                    LIMIT %s
+                """, (username, limit))
+            rows = cur.fetchall() or []
+            for r in rows:
+                if isinstance(r.get("meta"), str):
+                    try:
+                        r["meta"] = json.loads(r["meta"])
+                    except Exception:
+                        r["meta"] = {}
+            return rows
+    except Exception:
+        # Fallback: in-memory
+        data = TRANSACTIONS[:]
+        if role != "admin" and username:
+            data = [t for t in data if t.get("username") == username]
+        data.sort(key=lambda x: x.get("timestamp",""), reverse=True)
+        return data[:limit]
 
 def _init_profiles_table():
     with db_cursor(commit=True) as cur:
