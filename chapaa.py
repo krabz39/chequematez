@@ -742,6 +742,7 @@ def _normalize_phone(phone: str) -> str:
         return "254" + digits[1:]
     return ""
 # ---------- Helpers ----------
+
 def current_user():
     return session.get("user")
 
@@ -750,6 +751,7 @@ def is_logged_in():
 
 def require_login():
     return is_logged_in()
+
 
 def is_admin():
     u = current_user()
@@ -1095,13 +1097,43 @@ def bank_transfer(*a, **k):
 def v_log_tx(**kwargs):
     """
     Mirrors voucher tx into main transaction system.
-    Required for reconciliation & reports.
+    SAFE: fills required fields so /api/transactions never breaks.
     """
+    global NEXT_ID
+
     entry = dict(kwargs)
+
+    # ---------- REQUIRED NORMALIZATION ----------
+    entry.setdefault("id", NEXT_ID)
+    entry.setdefault("username", entry.get("actor_username", "system"))
+    entry.setdefault("currency", "KES")
+    entry.setdefault("tx_type", "")
+    entry.setdefault("method", "")
+    entry.setdefault("status", "successful")
+    entry.setdefault("amount_kwd", 0.0)
+    entry.setdefault("charges_kwd", 0.0)
+    entry.setdefault("profit_kwd", 0.0)
+    entry.setdefault("service_charge_mode", "")
+    entry.setdefault("client_pays_total_kwd", 0.0)
+    entry.setdefault("client_pays_total_kes", 0.0)
+    entry.setdefault("client_receives_kwd", 0.0)
+    entry.setdefault("client_receives_kes", 0.0)
+    entry.setdefault("meta", {})
+
     entry["timestamp"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
-    V_TRANSACTIONS.append(entry)
-    _persist_transaction(entry) if "amount_kes" in entry else None
+
+    # ---------- MEMORY ----------
+    TRANSACTIONS.append(entry)
+    NEXT_ID += 1
+
+    # ---------- DB ----------
+    try:
+        _persist_transaction(entry)
+    except Exception as e:
+        print("[voucher-tx] persist failed:", e)
+
     _touch()
+
 
 def _pdf_view_page(title, pdf_url):
     return redirect(pdf_url)
@@ -1225,11 +1257,11 @@ def api_transactions():
     if not require_login():
         return jsonify({"ok": False, "error": "Unauthorized"}), 401
 
-    u = current_user()
+    u = current_user() or {}
     role = u.get("role")
     username = u.get("username")
 
-    limit = int(request.args.get("limit", "200") or 200)
+    limit = int(request.args.get("limit", 200))
 
     items = _fetch_transactions_for_user(
         username=username,
@@ -1242,6 +1274,7 @@ def api_transactions():
         "count": len(items),
         "items": items
     })
+
 
 @app.route("/api/my-transactions")
 def api_my_transactions():
@@ -1269,10 +1302,6 @@ def show_kyc_bundle():
 # DB: PROFILES TABLE (SAFE, NON-DESTRUCTIVE)
 # ------------------------------------------------------------
 def _fetch_transactions_for_user(username=None, role=None, limit=500):
-    """
-    DB-first transaction fetch.
-    Falls back to in-memory TRANSACTIONS if DB fails.
-    """
     try:
         with db_cursor() as cur:
             if role == "admin":
@@ -1288,21 +1317,29 @@ def _fetch_transactions_for_user(username=None, role=None, limit=500):
                     ORDER BY timestamp DESC
                     LIMIT %s
                 """, (username, limit))
+
             rows = cur.fetchall() or []
+
             for r in rows:
                 if isinstance(r.get("meta"), str):
                     try:
                         r["meta"] = json.loads(r["meta"])
                     except Exception:
                         r["meta"] = {}
+
             return rows
-    except Exception:
-        # Fallback: in-memory
-        data = TRANSACTIONS[:]
+
+    except Exception as e:
+        print("[transactions] DB fetch failed:", e)
+
+        data = list(TRANSACTIONS or [])
         if role != "admin" and username:
             data = [t for t in data if t.get("username") == username]
-        data.sort(key=lambda x: x.get("timestamp",""), reverse=True)
+
+        data.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
         return data[:limit]
+
+
 
 def _init_profiles_table():
     with db_cursor(commit=True) as cur:
@@ -2164,7 +2201,7 @@ def _init_transactions_table():
     with db_cursor(commit=True) as cur:
         cur.execute("""
             CREATE TABLE IF NOT EXISTS transactions (
-                id INTEGER PRIMARY KEY,
+                id BIGINT PRIMARY KEY,
                 username TEXT NOT NULL,
                 kind TEXT,
                 method TEXT,
@@ -2232,6 +2269,16 @@ def _persist_transaction(entry: dict):
 # ------------------------------------------------------------
 # STANDARD TRANSACTION BUILDER (UNCHANGED API)
 # ------------------------------------------------------------
+def _sync_next_id_from_db():
+    global NEXT_ID
+    try:
+        with db_cursor() as cur:
+            cur.execute("SELECT COALESCE(MAX(id),0)+1 AS next FROM transactions")
+            NEXT_ID = int(cur.fetchone()["next"])
+    except Exception:
+        pass
+
+_sync_next_id_from_db()
 
 def _create_transaction_for(username: str, form, *, override_phone=None):
     global NEXT_ID
@@ -2957,7 +3004,7 @@ def admin_recompute_profits():
 
 @app.route("/dev-login")
 def dev_login():
-    session["user"] = {"username": "admin", "role": "admin"}
+    session["user"] = {"username": list(USERS.keys())[0], "role": "admin"}
     _issue_csrf()
     _ensure_profile("admin")
     _touch()
@@ -3126,30 +3173,6 @@ def _voucher_gc_worker():
         time.sleep(30)
 
 threading.Thread(target=_voucher_gc_worker, daemon=True).start()
-# ==========================================================
-# DEV / FALLBACK STUBS (REMOVE IN PRODUCTION)
-# ==========================================================
-
-def service_fee_kes_voucher(amount): 
-    return amount * 0.02
-
-def stk_push(**kwargs): 
-    return {"CheckoutRequestID": uuid.uuid4().hex}
-
-def b2c_send(*a, **k): 
-    return {"ConversationID": uuid.uuid4().hex}
-
-def b2b_till(*a, **k): 
-    return {"ConversationID": uuid.uuid4().hex}
-
-def bank_transfer(*a, **k): 
-    return {"ref": uuid.uuid4().hex}
-
-def v_log_tx(**kwargs): 
-    pass
-
-def _pdf_view_page(title, pdf_url):
-    return redirect(pdf_url)
 
 # ======================================================================================
 #                   VOUCHER PAYOUT WORKER (SAFE, RETRYABLE)
