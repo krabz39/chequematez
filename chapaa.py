@@ -891,7 +891,8 @@ def _audit(tx_id: int, actor: str, old_status: str, new_status: str, reason: str
         "old_status": old_status,
         "new_status": new_status,
         "reason": reason,
-        "timestamp": datetime.utcnow().isoformat(timespec="seconds") + "Z"
+        "timestamp": datetime.utcnow()
+
     }
     if extra:
         rec.update(extra)
