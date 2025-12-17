@@ -1375,7 +1375,15 @@ async function loadTransactions(){
     const ok = await ensureAuthOrRedirect(); if(!ok) return;
     const res = await fetch('/api/transactions', {cache:'no-store', credentials:'same-origin'});
     if(!res.ok){ if(res.status === 401){ window.location.href='/?login=1'; return; } throw new Error('Failed to load transactions'); }
-    const rows = await res.json();
+    const data = await res.json();
+const rows = Array.isArray(data)
+  ? data
+  : Array.isArray(data.items)
+    ? data.items
+    : Array.isArray(data.rows)
+      ? data.rows
+      : [];
+
 
     /* Table */
     const tbody = document.querySelector('#logTable tbody');
