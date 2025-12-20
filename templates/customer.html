@@ -794,7 +794,15 @@ async function loadTransactions(){
   try{
     const res = await fetch('/api/my-transactions', {cache:'no-store', credentials:'same-origin'});
     if(!res.ok) throw new Error('Failed to load transactions');
-    const rows = await res.json();
+    const data = await res.json();
+const rows = Array.isArray(data)
+  ? data
+  : Array.isArray(data.items)
+    ? data.items
+    : Array.isArray(data.rows)
+      ? data.rows
+      : [];
+
 
     /* table */
     const tbody = document.querySelector('#logTable tbody');

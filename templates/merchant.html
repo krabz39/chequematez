@@ -112,28 +112,136 @@ tbody tr:hover{background:#fcfcfd}
 @media(max-width:1000px){
   .row{grid-template-columns:1fr}
   .col-3,.col-4,.col-5,.col-7,.col-6,.col-12{grid-column:span 12;}
+  @media (max-width: 899px){
+  .mobile-nav{
+    display:none;
+  }
 }
+@media (min-width: 900px){
+  .hamburger{
+    display:none;
+  }
+  .mobile-nav{
+    display:flex !important;
+    flex-direction:row;
+    gap:8px;
+    padding:10px 18px;
+  }
+}
+
+ 
+}
+/* ======================================================
+   TOPBAR / HAMBURGER (GLOBAL – SINGLE SOURCE OF TRUTH)
+====================================================== */
+.topbar{
+  background:var(--brand-teal-1);
+  border-bottom:4px solid var(--brand-gold);
+  color:#fff;
+  position:sticky;
+  top:0;
+  z-index:1200;
+}
+
+.topbar-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 18px;
+}
+
+.topbar-left{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.hamburger{
+  font-size:1.5rem;
+  background:none;
+  border:none;
+  color:#fff;
+  cursor:pointer;
+}
+
+.logout-btn{
+  color:#fff;
+  text-decoration:none;
+  font-weight:700;
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.35);
+}
+.logout-btn:hover{
+  background:rgba(255,255,255,.15);
+}
+
+.mobile-nav{
+  display:none;
+  flex-direction:column;
+  gap:6px;
+  padding:12px;
+  background:var(--brand-teal-2);
+  border-top:1px solid rgba(255,255,255,.15);
+}
+
+.mobile-nav a,
+.mobile-nav button{
+  color:#fff;
+  text-decoration:none;
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.2);
+  background:transparent;
+  font-weight:600;
+  cursor:pointer;
+  text-align:left;
+}
+
+.mobile-nav a.active{
+  background:rgba(255,255,255,.15);
+}
+
+.mobile-nav.open{
+  display:flex;
+}
+
 </style>
 </head>
 <body>
-<header>
-  <div class="header-row">
-    <div class="brand">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M3 3h18v4H3zM3 10h18v4H3zM3 17h18v4H3z"/></svg>
-      <h1>chequematez</h1>
-      <span class="role">Merchant</span>
+<header class="topbar">
+  <div class="topbar-inner">
+
+    <!-- LEFT: Brand + Hamburger -->
+    <div class="topbar-left">
+      <button class="hamburger" id="navToggle" aria-label="Open menu">
+        ☰
+      </button>
+
+      <div class="brand">
+        <h1>chequematez</h1>
+        <span class="role">Merchant</span>
+      </div>
     </div>
-    <nav>
-      <a class="active" href="/merchant">Dashboard</a>
-      <button id="uid_scan" type="button" style="margin-top:8px">Scan QR</button>
-      <a href="{{ url_for('kyc_bundle') }}" class="btn">KYC Queue</a>
-      <a id="nav_myid" href="#">My ID</a>
-      <a href="#client-payments">Client Payments</a>
-      <a href="#transactions">Transactions</a>
-      <a href="/logout">Logout</a>
-    </nav>
+
+    <!-- RIGHT: Logout (always visible) -->
+    <div class="topbar-right">
+      <a href="/logout" class="logout-btn">Logout</a>
+    </div>
+
   </div>
+
+  <!-- SLIDE MENU -->
+  <nav class="mobile-nav" id="mobileNav">
+    <a class="active" href="/merchant">Dashboard</a>
+    <button id="uid_scan" type="button" class="nav-btn">Scan QR</button>
+    <a href="{{ url_for('kyc_bundle') }}">KYC Queue</a>
+    <a id="nav_myid" href="#">My ID</a>
+    <a href="#client-payments">Client Payments</a>
+    <a href="#transactions">Transactions</a>
+  </nav>
 </header>
+
 
 <!-- Camera modal -->
 <div id="qrModal" style="position:fixed; inset:0; display:none; place-items:center; background:rgba(0,0,0,.5); z-index:9999;">
@@ -1736,5 +1844,21 @@ window.addEventListener('load', async ()=>{
   window.addEventListener('beforeunload', stopCamera);
 })();
 </script>
+<script>
+  const navToggle = document.getElementById('navToggle');
+  const mobileNav = document.getElementById('mobileNav');
+
+  navToggle.addEventListener('click', () => {
+    mobileNav.classList.toggle('open');
+  });
+
+  // Auto-close menu on link click (mobile UX)
+  mobileNav.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('click', () => {
+      mobileNav.classList.remove('open');
+    });
+  });
+</script>
+
 </body>
 </html>
