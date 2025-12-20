@@ -107,6 +107,10 @@ def db_healthcheck() -> None:
     except Exception as e:
         raise RuntimeError(f"Database healthcheck failed: {e}")
 
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL missing — refusing to start")
+
+
 db_healthcheck()
 # IMPORTANT: point to your real templates/static folders
 app = Flask(
@@ -303,6 +307,21 @@ def save_state(force=False):
 
         os.replace(tmp, STATE_FILE)
         _DIRTY = False
+def _load_users_from_db():
+    try:
+        with db_cursor() as cur:
+            cur.execute("SELECT username, password, email, role FROM users")
+            for r in cur.fetchall():
+                USERS[r["username"]] = {
+                    "password": r["password"],
+                    "email": r.get("email"),
+                    "role": r["role"]
+                }
+    except Exception as e:
+        print("[users] db load skipped:", e)
+        
+_load_users_from_db()
+
 
 
 def load_state():
@@ -541,6 +560,7 @@ def _get_profile_by_user_id(uid: str):
 @app.context_processor
 def _inject_helpers():
     return {"csrf_token": lambda: session.get("csrf_token", "")}
+
 # -----------------------------------------------------------------------------
 #                EXCHANGE RATE (DB-FIRST, DISK FALLBACK)
 # -----------------------------------------------------------------------------
@@ -549,17 +569,18 @@ RATE_FILE = os.path.join(BASE_DIR, "exchange_rate.json")
 EXCHANGE_RATE = None  # cached in memory
 
 
-def _load_rate_from_disk(default: float = 420.0) -> float:
+
+def _load_exchange_rate_from_db(default=420.0):
     try:
-        if os.path.exists(RATE_FILE):
-            with open(RATE_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                val = float(data.get("rate", 0))
-                if val > 0:
-                    return val
+        with db_cursor() as cur:
+            cur.execute("SELECT rate FROM exchange_rate WHERE id=TRUE")
+            row = cur.fetchone()
+            if row and float(row["rate"]) > 0:
+                return float(row["rate"])
     except Exception:
         pass
-    return float(default)
+    return default
+
 
 
 def _save_rate_to_disk(val: float) -> None:
@@ -621,8 +642,8 @@ def get_exchange_rate() -> float:
         EXCHANGE_RATE = rate
         return rate
 
-    # Disk fallback
-    EXCHANGE_RATE = _load_rate_from_disk()
+    # Exchange rate fallback
+    EXCHANGE_RATE = _load_exchange_rate_from_db()
     return float(EXCHANGE_RATE)
 
 
@@ -832,6 +853,19 @@ def _check_csrf_header():
 # ------------------------------------------------------------
 # AUDIT LOG — MEMORY + DB (DB IS SOURCE OF TRUTH)
 # ------------------------------------------------------------
+def _init_exchange_rate_table():
+    with db_cursor(commit=True) as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS exchange_rate (
+                id BOOLEAN PRIMARY KEY DEFAULT TRUE,
+                rate NUMERIC NOT NULL,
+                updated_at TIMESTAMP NOT NULL
+            )
+        """)
+
+_init_exchange_rate_table()
+
+
 def _init_vouchers_table():
     with db_cursor(commit=True) as cur:
         cur.execute("""
@@ -1340,6 +1374,19 @@ def _fetch_transactions_for_user(username=None, role=None, limit=500):
         data.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
         return data[:limit]
 
+def _init_users_table():
+    with db_cursor(commit=True) as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                username TEXT PRIMARY KEY,
+                password TEXT NOT NULL,
+                email TEXT,
+                role TEXT NOT NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT NOW()
+            )
+        """)
+_init_users_table()
+
 
 
 def _init_profiles_table():
@@ -1361,6 +1408,29 @@ def _init_profiles_table():
         """)
 
 _init_profiles_table()
+
+def _sync_user_to_db(username: str):
+    u = USERS.get(username)
+    if not u:
+        return
+    try:
+        with db_cursor(commit=True) as cur:
+            cur.execute("""
+                INSERT INTO users (username, password, email, role)
+                VALUES (%s,%s,%s,%s)
+                ON CONFLICT (username)
+                DO UPDATE SET
+                    password=EXCLUDED.password,
+                    email=EXCLUDED.email,
+                    role=EXCLUDED.role
+            """, (
+                username,
+                u["password"],
+                u.get("email"),
+                u.get("role")
+            ))
+    except Exception as e:
+        print("[users] db sync failed:", e)
 
 
 def _sync_profile_to_db(p: dict):
@@ -1402,6 +1472,20 @@ def _sync_profile_to_db(p: dict):
     except Exception as e:
         print("[profiles] db sync failed:", e)
 
+# =========================================================
+# BOOTSTRAP USERS & PROFILES → DB (RUNS ON STARTUP ONLY)
+# =========================================================
+
+def _bootstrap_users_and_profiles():
+    for username in list(USERS.keys()):
+        try:
+            _sync_user_to_db(username)
+            profile = _ensure_profile(username)
+            _sync_profile_to_db(profile)
+        except Exception as e:
+            print(f"[bootstrap] failed for {username}:", e)
+
+_bootstrap_users_and_profiles()
 
 # ------------------------------------------------------------
 # USER ID PAGES (UNCHANGED ROUTES)
@@ -1819,12 +1903,19 @@ def login():
         role = USERS[username].get("role", "customer")
         session["user"] = {"username": username, "role": role}
         _issue_csrf()
+
         _ensure_profile(username)
+
+        _sync_user_to_db(username)
+        _sync_profile_to_db(PROFILES[username])
+
         _touch()
         save_state(force=True)
         return redirect_by_role(role)
 
     return "Invalid credentials", 401
+
+
 
 
 @app.route("/signup", methods=["POST"])
@@ -1854,6 +1945,9 @@ def signup():
     session["user"] = {"username": username, "role": role}
     _issue_csrf()
     _ensure_profile(username)
+    _sync_user_to_db(username)
+    _sync_profile_to_db(PROFILES[username])
+
     _touch()
     save_state(force=True)
 
@@ -2198,6 +2292,35 @@ def logout():
 # DB: TRANSACTIONS TABLE (SAFE MIRROR)
 # ------------------------------------------------------------
 
+def _init_mpesa_callbacks_table():
+    with db_cursor(commit=True) as cur:
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS mpesa_callbacks (
+                receipt TEXT PRIMARY KEY,
+                amount DOUBLE PRECISION,
+                msisdn TEXT,
+                checkout_id TEXT,
+                timestamp TIMESTAMP,
+                payload JSONB
+            )
+        """)
+_init_mpesa_callbacks_table()
+def _persist_mpesa_callback(cb: dict):
+    with db_cursor(commit=True) as cur:
+        cur.execute("""
+            INSERT INTO mpesa_callbacks
+            (receipt, amount, msisdn, checkout_id, timestamp, payload)
+            VALUES (%s,%s,%s,%s,%s,%s)
+            ON CONFLICT DO NOTHING
+        """, (
+            cb.get("receipt"),
+            cb.get("amount"),
+            cb.get("msisdn"),
+            cb.get("checkout"),
+            cb.get("timestamp"),
+            json.dumps(cb)
+        ))
+
 def _init_transactions_table():
     with db_cursor(commit=True) as cur:
         cur.execute("""
@@ -2232,6 +2355,20 @@ def _init_transactions_table():
 
 _init_transactions_table()
 
+def _init_transaction_indexes():
+    with db_cursor(commit=True) as cur:
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_tx_username
+            ON transactions(username);
+        """)
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_tx_timestamp
+            ON transactions(timestamp DESC);
+        """)
+        cur.execute("""
+            CREATE INDEX IF NOT EXISTS idx_tx_status
+            ON transactions(status);
+        """)
 
 def _persist_transaction(entry: dict):
     """
@@ -2266,6 +2403,8 @@ def _persist_transaction(entry: dict):
     except Exception as e:
         print("[tx] db persist failed:", e)
 
+_init_transactions_table()
+_init_transaction_indexes()
 
 # ------------------------------------------------------------
 # STANDARD TRANSACTION BUILDER (UNCHANGED API)
@@ -2976,6 +3115,9 @@ def create_user():
     }
 
     _ensure_profile(username)
+    _sync_user_to_db(username)
+    _sync_profile_to_db(PROFILES[username])
+
     _touch()
     save_state(force=True)
     return redirect(url_for("admin_page"))
@@ -3011,6 +3153,7 @@ def dev_login():
     _touch()
     save_state(force=True)
     return redirect(url_for("admin_page"))
+    
 # ======================================================================================
 #                                B O O T
 # ======================================================================================
@@ -3034,6 +3177,10 @@ CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET","your_secret")
 SHORTCODE       = os.environ.get("SHORTCODE", "600000")
 PASSKEY         = os.environ.get("PASSKEY", "your_passkey")
 CALLBACK_URL    = os.environ.get("CALLBACK_URL", "https://example.com/api/mpesa/callback")
+
+MPESA_CALLBACKS.append(cb)
+_persist_mpesa_callback(cb)
+
 
 # B2C/B2B (your disbursement rails)
 B2C_SHORTCODE   = os.environ.get("B2C_SHORTCODE", SHORTCODE)
