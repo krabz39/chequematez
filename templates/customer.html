@@ -786,22 +786,80 @@ function buildReceiptUrl(r){
   return r?.receipt_url || null;
 }
 
-/* chart state */
+//* chart state */
 let txChart = null;
 
 /* load my tx + chart */
 async function loadTransactions(){
   try{
-    const res = await fetch('/api/my-transactions', {cache:'no-store', credentials:'same-origin'});
+    const res = await fetch('/api/my-transactions', {
+      cache: 'no-store',
+      credentials: 'same-origin'
+    });
+
     if(!res.ok) throw new Error('Failed to load transactions');
+
     const data = await res.json();
-const rows = Array.isArray(data)
-  ? data
-  : Array.isArray(data.items)
-    ? data.items
-    : Array.isArray(data.rows)
-      ? data.rows
-      : [];
+
+    // ✅ FIX: always normalize to array
+    const rows = Array.isArray(data.items) ? data.items : [];
+
+    // safety guard
+    if (!rows.length) {
+      console.warn('No transactions found');
+      return;
+    }
+
+    rows.forEach(tx => {
+      console.log(tx.id, tx.amount_kes, tx.timestamp);
+    });
+
+    renderTxChart(rows);
+
+  } catch(err){
+    console.error('TX load error:', err);
+  }
+}
+function renderTxChart(rows){
+  const ctx = document.getElementById('txChart');
+
+  if (!ctx) return;
+
+  const labels = rows.map(r =>
+    (r.timestamp || '').slice(0,10)
+  ).reverse();
+
+  const amounts = rows.map(r =>
+    Number(r.amount_kes || 0)
+  ).reverse();
+
+  if (txChart) {
+    txChart.destroy();
+  }
+
+  txChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Transactions (KES)',
+        data: amounts,
+        tension: 0.35,
+        fill: false,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: true }
+      },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+}
 
 
     /* table */

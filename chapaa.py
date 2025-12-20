@@ -183,6 +183,69 @@ def commit_state():
     """
     if not USE_DB_STATE:
         return
+    # =========================================================
+# AUTH — HASHED USERS ONLY (NO PLAINTEXT)
+# =========================================================
+
+import os
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+# ---------------------------------------------------------
+# Password hashing helper
+# ---------------------------------------------------------
+def _hash(p: str) -> str:
+    """
+    Generate a secure password hash.
+    Used ONLY as a development fallback.
+    """
+    return generate_password_hash(
+        p,
+        method="pbkdf2:sha256",
+        salt_length=16
+    )
+
+
+# ---------------------------------------------------------
+# USERS (ADMIN FIRST — PRECEDENCE GUARANTEED)
+# ---------------------------------------------------------
+# In production, ALWAYS provide *_PASSWORD_HASH env vars.
+# Fallback hashes exist ONLY to prevent lockout in dev.
+# ---------------------------------------------------------
+
+USERS = {
+    # ================= ADMIN =================
+    "Eugene": {
+        "password": (
+            os.getenv("ADMIN_PASSWORD_HASH")
+            or _hash("Eugene3980")   # ⚠️ DEV ONLY fallback
+        ),
+        "email": os.getenv("ADMIN_EMAIL", "eugenekirubi@gmail.com"),
+        "role": "admin",
+    },
+
+    # ================= CUSTOMER =================
+    "Krabz": {
+        "password": (
+            os.getenv("CUSTOMER_PASSWORD_HASH")
+            or _hash("Kraabzpass123")  # ⚠️ DEV ONLY fallback
+        ),
+        "email": os.getenv("CUSTOMER_EMAIL", "eugenecrabs321@gmail.com"),
+        "role": "customer",
+    },
+
+    # ================= MERCHANT =================
+    "Merchant1": {
+        "password": (
+            os.getenv("MERCHANT_PASSWORD_HASH")
+            or _hash("merchantpass123")  # ⚠️ DEV ONLY fallback
+        ),
+        "email": os.getenv("MERCHANT_EMAIL", "merchant@gmail.com"),
+        "role": "merchant",
+    },
+}
+
+
 # =========================================================
 # STATE SAVE / LOAD — DB-FIRST WITH JSON FALLBACK
 # =========================================================
@@ -407,68 +470,6 @@ def _wamd_settings():
         "beneficiary": ADMIN_SETTINGS.get("wamd_beneficiary", "").strip()
     }
 
-
-# =========================================================
-# AUTH — HASHED USERS ONLY (NO PLAINTEXT)
-# =========================================================
-
-import os
-from werkzeug.security import generate_password_hash, check_password_hash
-
-
-# ---------------------------------------------------------
-# Password hashing helper
-# ---------------------------------------------------------
-def _hash(p: str) -> str:
-    """
-    Generate a secure password hash.
-    Used ONLY as a development fallback.
-    """
-    return generate_password_hash(
-        p,
-        method="pbkdf2:sha256",
-        salt_length=16
-    )
-
-
-# ---------------------------------------------------------
-# USERS (ADMIN FIRST — PRECEDENCE GUARANTEED)
-# ---------------------------------------------------------
-# In production, ALWAYS provide *_PASSWORD_HASH env vars.
-# Fallback hashes exist ONLY to prevent lockout in dev.
-# ---------------------------------------------------------
-
-USERS = {
-    # ================= ADMIN =================
-    "Eugene": {
-        "password": (
-            os.getenv("ADMIN_PASSWORD_HASH")
-            or _hash("Eugene3980")   # ⚠️ DEV ONLY fallback
-        ),
-        "email": os.getenv("ADMIN_EMAIL", "eugenekirubi@gmail.com"),
-        "role": "admin",
-    },
-
-    # ================= CUSTOMER =================
-    "Krabz": {
-        "password": (
-            os.getenv("CUSTOMER_PASSWORD_HASH")
-            or _hash("Kraabzpass123")  # ⚠️ DEV ONLY fallback
-        ),
-        "email": os.getenv("CUSTOMER_EMAIL", "eugenecrabs321@gmail.com"),
-        "role": "customer",
-    },
-
-    # ================= MERCHANT =================
-    "Merchant1": {
-        "password": (
-            os.getenv("MERCHANT_PASSWORD_HASH")
-            or _hash("merchantpass123")  # ⚠️ DEV ONLY fallback
-        ),
-        "email": os.getenv("MERCHANT_EMAIL", "merchant@gmail.com"),
-        "role": "merchant",
-    },
-}
 
 
 # ---------------------------------------------------------
@@ -3178,8 +3179,6 @@ SHORTCODE       = os.environ.get("SHORTCODE", "600000")
 PASSKEY         = os.environ.get("PASSKEY", "your_passkey")
 CALLBACK_URL    = os.environ.get("CALLBACK_URL", "https://example.com/api/mpesa/callback")
 
-MPESA_CALLBACKS.append(cb)
-_persist_mpesa_callback(cb)
 
 
 # B2C/B2B (your disbursement rails)
@@ -3206,6 +3205,9 @@ V_NEXT_ID = 1
 
 # Bare callback log (persisted)
 MPESA_CALLBACKS = []       # {receipt, amount, msisdn, timestamp, checkout}
+MPESA_CALLBACKS.append(cb)
+_persist_mpesa_callback(cb)
+
 
 # ======================================================================================
 #                               VOUCHER HELPERS
