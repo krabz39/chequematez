@@ -3205,8 +3205,6 @@ V_NEXT_ID = 1
 
 # Bare callback log (persisted)
 MPESA_CALLBACKS = []       # {receipt, amount, msisdn, timestamp, checkout}
-MPESA_CALLBACKS.append(cb)
-_persist_mpesa_callback(cb)
 
 
 # ======================================================================================
