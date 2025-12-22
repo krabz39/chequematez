@@ -370,6 +370,53 @@ def save_state(force=False):
 
         os.replace(tmp, STATE_FILE)
         _DIRTY = False
+def _load_profiles_from_db():
+    try:
+        with db_cursor() as cur:
+            cur.execute("SELECT * FROM profiles")
+            for r in cur.fetchall():
+                PROFILES[r["username"]] = dict(r)
+    except Exception as e:
+        print("[profiles] db load skipped:", e)
+
+def _ensure_admin_meta_exists():
+    for username in USERS.keys():
+        try:
+            with db_cursor() as cur:
+                cur.execute(
+                    "SELECT 1 FROM admin_user_meta WHERE username=%s",
+                    (username,)
+                )
+                if cur.fetchone():
+                    continue
+
+            # default conservative policy
+            _sync_admin_user_meta(username, {
+                "status": "active",
+                "is_verified": False,
+                "limits_daily_kwd": None,
+                "limits_month_kwd": None
+            })
+        except Exception as e:
+            print("[admin-meta] ensure failed:", e)
+
+_ensure_admin_meta_exists()
+
+def _load_admin_user_meta_from_db():
+    try:
+        with db_cursor() as cur:
+            cur.execute("SELECT * FROM admin_user_meta")
+            for r in cur.fetchall():
+                u = PROFILES.get(r["username"])
+                if not u:
+                    continue
+                u["status"] = r.get("status", "active")
+                u["is_verified"] = bool(r.get("is_verified"))
+                u["limits_daily_kwd"] = r.get("limits_daily_kwd")
+                u["limits_month_kwd"] = r.get("limits_month_kwd")
+    except Exception as e:
+        print("[admin-meta] db load skipped:", e)
+
 def _load_users_from_db():
     try:
         with db_cursor() as cur:
@@ -384,7 +431,8 @@ def _load_users_from_db():
         print("[users] db load skipped:", e)
         
 _load_users_from_db()
-
+_load_profiles_from_db()
+_load_admin_user_meta_from_db()
 
 
 def load_state():
@@ -2191,6 +2239,7 @@ def admin_users_update(user_id):
 
     _sync_admin_user_meta(username, prof)
     _sync_profile_to_db(prof)
+    _sync_user_to_db(username)
 
     _audit(
         tx_id=0,
@@ -2476,7 +2525,28 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
     if not ok:
         return None, err
 
+    # --------------------------------------------------
+    # NORMALIZE AMOUNT
+    # --------------------------------------------------
     amount_kwd = _normalize_amount_kwd(amount, currency)
+
+    # --------------------------------------------------
+    # 🔐 ENFORCE ACCOUNT RULES (RIGHT PLACE)
+    # --------------------------------------------------
+    ok, err = _enforce_account_rules(username, amount_kwd)
+    if not ok:
+     _audit(
+        tx_id=0,
+        actor=username,
+        old_status="attempt",
+        new_status="blocked",
+        reason=err
+    )
+    return None, err
+
+    # --------------------------------------------------
+    # FEES & TOTALS
+    # --------------------------------------------------
     calc = calculate_fees(amount_kwd)
 
     totals = _client_totals_for(
@@ -2527,6 +2597,77 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
 
     return entry, None
 
+
+def _enforce_account_rules(username: str, amount_kwd: float):
+    """
+    DB-AUTHORITATIVE enforcement.
+    Blocks transaction if:
+      - account disabled / suspended
+      - not verified
+      - exceeds daily / monthly limits
+    """
+
+    try:
+        with db_cursor() as cur:
+            cur.execute("""
+                SELECT status, is_verified,
+                       limits_daily_kwd, limits_month_kwd
+                FROM admin_user_meta
+                WHERE username = %s
+            """, (username,))
+            row = cur.fetchone()
+
+        # No admin meta → deny by default
+        if not row:
+            return False, "Account not authorized for transactions"
+
+        # ---- STATUS CHECK ----
+        status = (row.get("status") or "active").lower()
+        if status != "active":
+            return False, f"Account is {status}"
+
+        # ---- KYC CHECK ----
+        if not row.get("is_verified"):
+            return False, "Account not verified (KYC required)"
+
+        # ---- LIMIT CHECKS ----
+        daily_limit = float(row.get("limits_daily_kwd") or 0)
+        monthly_limit = float(row.get("limits_month_kwd") or 0)
+
+        now = datetime.utcnow()
+
+        with db_cursor() as cur:
+            # Daily sum
+            cur.execute("""
+                SELECT COALESCE(SUM(amount_kwd),0) AS total
+                FROM transactions
+                WHERE username=%s
+                  AND status='successful'
+                  AND timestamp >= date_trunc('day', %s)
+            """, (username, now))
+            daily_used = float(cur.fetchone()["total"])
+
+            # Monthly sum
+            cur.execute("""
+                SELECT COALESCE(SUM(amount_kwd),0) AS total
+                FROM transactions
+                WHERE username=%s
+                  AND status='successful'
+                  AND timestamp >= date_trunc('month', %s)
+            """, (username, now))
+            monthly_used = float(cur.fetchone()["total"])
+
+        if daily_limit > 0 and (daily_used + amount_kwd) > daily_limit:
+            return False, "Daily transaction limit exceeded"
+
+        if monthly_limit > 0 and (monthly_used + amount_kwd) > monthly_limit:
+            return False, "Monthly transaction limit exceeded"
+
+        return True, None
+
+    except Exception as e:
+        print("[enforce] failed:", e)
+        return False, "Account validation failed"
 
 # ------------------------------------------------------------
 # WAMD TRANSACTION BUILDER (UNCHANGED API)
@@ -4148,4 +4289,3 @@ if __name__ == "__main__":
         V_WORKER_READY.wait(timeout=2)
 
     app.run(host="127.0.0.1", port=5000, debug=True)
-
