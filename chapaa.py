@@ -1797,17 +1797,40 @@ def admin_kyc_approve_case(case_id):
     if not c:
         return "Not found", 404
 
+    # ---- KYC CASE ----
     c["status"] = "approved"
     c["updated_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
 
+    # ---- PROFILE ----
     p = _ensure_profile(c["username"])
     p["id_status"] = "approved"
+    p["locked"] = False
+    p["is_verified"] = True
+    p["updated_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
 
+    # ---- DB PERSISTENCE (THIS WAS MISSING) ----
     _sync_kyc_to_db(c)
+    _sync_profile_to_db(p)
+    _sync_admin_user_meta(c["username"], {
+        "status": "active",
+        "is_verified": True
+    })
+
+    # ---- AUDIT ----
+    _audit(
+        tx_id=0,
+        actor=current_user()["username"],
+        old_status="pending",
+        new_status="approved",
+        reason="kyc-approved",
+        target_user=c["username"]
+    )
+
     _touch()
     save_state(force=True)
 
     return redirect(url_for("admin_kyc_queue"))
+
 
 
 @app.route("/admin/kyc/<int:case_id>/reject", methods=["POST"], endpoint="admin_kyc_reject_case")
@@ -2167,6 +2190,7 @@ def admin_users_update(user_id):
         USERS[username]["email"] = email
 
     _sync_admin_user_meta(username, prof)
+    _sync_profile_to_db(prof)
 
     _audit(
         tx_id=0,
@@ -3727,7 +3751,7 @@ def mpesa_callback():
     meta = {}
     if cb.get("CallbackMetadata") and isinstance(cb["CallbackMetadata"], dict):
         try:
-            meta = {i["Name"]: i["Value"] for i in cb["CallbackMetadata"].get("Item", [])}
+            meta = {i.get("Name"): i.get("Value") for i in cb["CallbackMetadata"].get("Item", [])}
         except Exception:
             meta = {}
 
@@ -3736,34 +3760,46 @@ def mpesa_callback():
     if not v:
         return jsonify({"ok": True})
 
-    if v["used"] and v["status"] in ("paid","failed_payout","paying"):
+    # If already settled, ignore duplicates
+    if v.get("used") and v.get("status") in ("paid", "failed_payout", "paying", "credited"):
+        try:
+            V_CHECKOUT_TO_CODE.pop(checkout, None)
+        except Exception:
+            pass
         return jsonify({"ok": True})
 
+    # ---- Always record callback safely (memory + DB mirror + state) ----
     try:
-        MPESA_CALLBACKS.append({
-            "receipt": meta.get("MpesaReceiptNumber",""),
+        _record_mpesa_callback({
+            "receipt": str(meta.get("MpesaReceiptNumber", "") or ""),
             "amount": float(meta.get("Amount", 0) or 0.0),
-            "msisdn": str(meta.get("PhoneNumber","")),
-            "timestamp": datetime.utcnow().isoformat(timespec="seconds")+"Z",
+            "msisdn": str(meta.get("PhoneNumber", "") or ""),
+            "timestamp": datetime.utcnow().isoformat(timespec="seconds") + "Z",
             "checkout": checkout
         })
-        _touch()
     except Exception:
         pass
 
-    if result_code == 0:
-        paid_amount = float(meta.get("Amount", 0))
-        paid_phone  = str(meta.get("PhoneNumber",""))
-        receipt     = meta.get("MpesaReceiptNumber","")
+    # ---- Business logic ----
+    if int(result_code or -1) == 0:
+        paid_amount = float(meta.get("Amount", 0) or 0.0)
+        paid_phone  = str(meta.get("PhoneNumber", "") or "")
+        receipt     = str(meta.get("MpesaReceiptNumber", "") or "")
 
         expected_total = float(v.get("stk_total") or 0.0)
         if expected_total <= 0:
-            expected_total = float(v.get("amount", 0.0)) + float(v.get("fee", 0.0))
+            expected_total = float(v.get("amount", 0.0) or 0.0) + float(v.get("fee", 0.0) or 0.0)
 
         if abs(paid_amount - expected_total) > 0.001:
-            v["status"] = "failed"; _touch()
-        elif v.get("payer_phone") and not paid_phone.endswith(v["payer_phone"][-9:]):
-            v["status"] = "failed"; _touch()
+            v["status"] = "failed"
+            v["updated_at"] = v_now_iso()
+            _touch()
+
+        elif v.get("payer_phone") and paid_phone and not paid_phone.endswith(v["payer_phone"][-9:]):
+            v["status"] = "failed"
+            v["updated_at"] = v_now_iso()
+            _touch()
+
         else:
             v["receipt_no"] = receipt
             v["status"] = "credited"
@@ -3773,19 +3809,28 @@ def mpesa_callback():
             _touch()
 
             quote_amount = float(v.get("quote_amount") or v.get("amount") or 0.0)
-            fee_kes = float(v.get("fee", 0.0))
+            fee_kes = float(v.get("fee", 0.0) or 0.0)
 
             m = V_MERCHANTS.setdefault(v["merchant_id"], {"id": v["merchant_id"], "balance": 0.0})
             m["balance"] += max(quote_amount, 0.0)
-            V_LEDGER.append({"ts": v_now_iso(), "type":"credited", "code": v["code"],
-                             "merchant_id": v["merchant_id"], "net": quote_amount, "receipt": receipt,
-                             "payout": v.get("payout",{})})
+
+            V_LEDGER.append({
+                "ts": v_now_iso(),
+                "type": "credited",
+                "code": v["code"],
+                "merchant_id": v["merchant_id"],
+                "net": quote_amount,
+                "receipt": receipt,
+                "payout": v.get("payout", {})
+            })
             _touch()
 
-            actor = v.get("user_id") or v["payer_phone"]
+            actor = v.get("user_id") or v.get("payer_phone")
             parts = [v["merchant_id"]]
-            if v.get("user_id"): parts.append(v["user_id"])
-            if v.get("payer_phone"): parts.append(v["payer_phone"])
+            if v.get("user_id"):
+                parts.append(v["user_id"])
+            if v.get("payer_phone"):
+                parts.append(v["payer_phone"])
 
             v_log_tx(
                 actor_username=actor,
@@ -3797,33 +3842,41 @@ def mpesa_callback():
                 exchange_rate=EXCHANGE_RATE,
                 charges_kes=fee_kes,
                 safaricom_fee_kes=0.0,
-                phone=v["payer_phone"],
+                phone=v.get("payer_phone", ""),
                 bank_account="",
                 paybill="",
                 status="successful",
                 participants=list(set(parts)),
-                meta={"voucher_id": code, "mpesa_receipt": receipt,
-                      "service_charge_on": bool(v.get("service_charge_on", True))}
+                meta={
+                    "voucher_id": code,
+                    "mpesa_receipt": receipt,
+                    "service_charge_on": bool(v.get("service_charge_on", True))
+                }
             )
 
             try:
                 txt = _compose_voucher_receipt_text(v, paid_amount=paid_amount, fee_kes=fee_kes, receipt=receipt)
-                send_sms(v["payer_phone"], txt)
+                send_sms(v.get("payer_phone", ""), txt)
                 if PROFILES.get(actor, {}).get("notify_whatsapp"):
-                    send_whatsapp(v["payer_phone"], txt)
+                    send_whatsapp(v.get("payer_phone", ""), txt)
             except Exception:
                 pass
 
             v_enqueue_payout(code)
+
     else:
         v["status"] = "failed"
         v["updated_at"] = v_now_iso()
         _touch()
 
-    try: V_CHECKOUT_TO_CODE.pop(checkout, None)
-    except: pass
+    # cleanup
+    try:
+        V_CHECKOUT_TO_CODE.pop(checkout, None)
+    except Exception:
+        pass
 
     return jsonify({"ok": True})
+
 # ======================================================================================
 #                        R E C O N C I L I A T I O N  +  R E P O R T S
 # ======================================================================================
