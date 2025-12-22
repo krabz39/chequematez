@@ -1564,6 +1564,16 @@ async function openWamdConfirmAT(){
     if(!rname || !rphone) throw new Error('Recipient name and phone are required');
 
     // Force currency KWD for calculation
+    fetch("/api/scan-to-transact", {
+  method: "POST",
+  credentials: "same-origin",   // 🔑 REQUIRED
+  headers: {
+    "Content-Type": "application/json",
+    "X-CSRF-Token": window.CSRF_TOKEN
+  },
+  body: JSON.stringify(payload)
+})
+
     const calcFd = new FormData();
     calcFd.append('amount', amount);
     calcFd.append('currency', 'KWD');

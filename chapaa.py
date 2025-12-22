@@ -1653,7 +1653,10 @@ def resolve_userid():
 
 @app.route("/scan")
 def scan_page():
+    if not require_login() or not is_merchant():
+        return redirect("/?login=1")
     return render_template("scan.html")
+
 # =========================== K Y C   F L O W ===========================
 
 def _save_upload(file_storage, suffix):

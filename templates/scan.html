@@ -209,10 +209,15 @@ start.addEventListener('click', startCamera);
 // Optional: Web NFC read (Android Chrome)
 nfcBtn.addEventListener('click', async () => {
   errBox.textContent = '';
-  if (!('NDEFReader' in window)) {
-    nfcStatus.textContent = 'Web NFC not supported on this device/browser.';
-    return;
-  }
+if (!('NDEFReader' in window)) {
+  nfcStatus.innerHTML = `
+    <b>NFC not available</b><br>
+    Use Android Chrome with NFC enabled.<br>
+    QR scanning works on all devices.
+  `;
+  return;
+}
+
   try {
     const reader = new NDEFReader();
     await reader.scan();
