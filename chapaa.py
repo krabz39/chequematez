@@ -434,6 +434,27 @@ _load_users_from_db()
 _load_profiles_from_db()
 _load_admin_user_meta_from_db()
 
+def _rehydrate_profile_verification_from_admin_meta():
+    try:
+        with db_cursor() as cur:
+            cur.execute("""
+                SELECT username, status, is_verified,
+                       limits_daily_kwd, limits_month_kwd
+                FROM admin_user_meta
+            """)
+            for r in cur.fetchall():
+                p = PROFILES.get(r["username"])
+                if not p:
+                    continue
+
+                p["status"] = r.get("status", "active")
+                p["is_verified"] = bool(r.get("is_verified"))
+                p["limits_daily_kwd"] = r.get("limits_daily_kwd")
+                p["limits_month_kwd"] = r.get("limits_month_kwd")
+    except Exception as e:
+        print("[rehydrate] admin meta failed:", e)
+
+_rehydrate_profile_verification_from_admin_meta()
 
 def load_state():
     """
@@ -559,20 +580,60 @@ def _prefix_for_username(username: str) -> str:
 
 def _ensure_profile(username: str) -> dict:
     """
-    Create (or migrate) a profile with a stable, role-prefixed user_id.
+    Ensure a user profile exists, is migrated if needed,
+    and is ALWAYS persisted to the DB.
     """
-    p = PROFILES.get(username)
-    if p:
-        uid = p.get("user_id", "")
-        if uid.startswith("CM-KW-"):
-            parts = uid.split("-")
-            if len(parts) == 4:
-                _, country_old, year_old, token = parts
-                prefix = _prefix_for_username(username)
-                p["user_id"] = f"{prefix}-{country_old}-{year_old}-{token}"
-                _touch()
-        p.setdefault("id_status", "pending")
-        return p
+
+    # 1. Load from DB first (authoritative source)
+    p = None
+    try:
+        with db_cursor() as cur:
+            cur.execute("SELECT * FROM profiles WHERE username=%s", (username,))
+            row = cur.fetchone()
+            if row:
+                p = dict(row)
+                PROFILES[username] = p
+    except Exception:
+        pass
+
+    # 2. If still not found, create new profile
+    if not p:
+        prefix = _prefix_for_username(username)
+        year = datetime.utcnow().year
+        token = secrets.token_hex(3).upper()
+        p = {
+            "username": username,
+            "user_id": f"{prefix}-KW-{year}-{token}",
+            "full_name": "",
+            "phone": "",
+            "dob": "",
+            "nationality": "",
+            "country": "KW",
+            "locked": False,
+            "id_status": "pending",   # default ONLY on creation
+            "notify_whatsapp": False,
+        }
+        PROFILES[username] = p
+
+    # 3. Migrate legacy user_id format safely
+    uid = p.get("user_id", "")
+    if uid.startswith("CM-KW-"):
+        parts = uid.split("-")
+        if len(parts) == 4:
+            _, country_old, year_old, token = parts
+            prefix = _prefix_for_username(username)
+            p["user_id"] = f"{prefix}-{country_old}-{year_old}-{token}"
+
+    # 4. NEVER downgrade verification
+    if p.get("id_status") not in ("approved", "rejected"):
+        p["id_status"] = p.get("id_status") or "pending"
+
+    # 5. Persist to DB EVERY TIME
+    _sync_profile_to_db(p)
+    _touch()
+
+    return p
+
 
     prefix = _prefix_for_username(username)
     country = "KW"
@@ -1841,31 +1902,40 @@ def admin_kyc_file(case_id):
 
 @app.route("/admin/kyc/<int:case_id>/approve", methods=["POST"], endpoint="admin_kyc_approve_case")
 def admin_kyc_approve_case(case_id):
-    if not (require_admin() or is_merchant()):
+    if not require_admin():
         return "Unauthorized", 401
 
     c = next((x for x in KYC_CASES if x["id"] == case_id), None)
     if not c:
         return "Not found", 404
 
+    now = datetime.utcnow().isoformat(timespec="seconds")+"Z"
+
     # ---- KYC CASE ----
     c["status"] = "approved"
-    c["updated_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+    c["updated_at"] = now
 
     # ---- PROFILE ----
     p = _ensure_profile(c["username"])
-    p["id_status"] = "approved"
-    p["locked"] = False
-    p["is_verified"] = True
-    p["updated_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+    p.update({
+        "id_status": "approved",
+        "locked": False,
+        "is_verified": True,
+        "updated_at": now
+    })
 
-    # ---- DB PERSISTENCE (THIS WAS MISSING) ----
+    # ---- AUTHORITATIVE DB WRITES (CRITICAL) ----
     _sync_kyc_to_db(c)
     _sync_profile_to_db(p)
-    _sync_admin_user_meta(c["username"], {
-        "status": "active",
-        "is_verified": True
-    })
+    _sync_admin_user_meta(
+        c["username"],
+        {
+            "status": "active",
+            "is_verified": True,
+            "limits_daily_kwd": p.get("limits_daily_kwd", 0),
+            "limits_month_kwd": p.get("limits_month_kwd", 0)
+        }
+    )
 
     # ---- AUDIT ----
     _audit(
@@ -1881,6 +1951,7 @@ def admin_kyc_approve_case(case_id):
     save_state(force=True)
 
     return redirect(url_for("admin_kyc_queue"))
+
 
 
 
@@ -2532,6 +2603,13 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
     # NORMALIZE AMOUNT
     # --------------------------------------------------
     amount_kwd = _normalize_amount_kwd(amount, currency)
+
+    ok, err = _enforce_account_rules(username, amount_kwd)
+    if not ok:
+     return None, err
+
+    calc = calculate_fees(amount_kwd)
+
 
     # --------------------------------------------------
     # 🔐 ENFORCE ACCOUNT RULES (RIGHT PLACE)

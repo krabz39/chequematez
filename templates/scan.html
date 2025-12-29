@@ -254,7 +254,12 @@ txForm.addEventListener('submit', async (e) => {
   const fd = new FormData(txForm);
   fd.set('user_id', foundProfile.user_id); // required by your /api/merchant/tx/by-userid
 
-  const r = await fetch('/api/merchant/tx/by-userid', { method: 'POST', body: fd });
+  const r = await fetch('/api/merchant/tx/by-userid', {
+  method: 'POST',
+  body: fd,
+  credentials: 'same-origin'
+})
+;
   const j = await r.json();
   if (j.ok) {
     txMsg.innerHTML = '<span class="ok">Transaction created. ID: '+ j.entry.id +'</span>';
