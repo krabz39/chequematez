@@ -380,27 +380,33 @@ def _load_profiles_from_db():
         print("[profiles] db load skipped:", e)
 
 def _ensure_admin_meta_exists():
-    for username in USERS.keys():
+    """
+    Guarantees every known user has an admin_user_meta row.
+    SAFE: idempotent, DB-authoritative.
+    """
+    for username, u in USERS.items():
         try:
             with db_cursor() as cur:
                 cur.execute(
                     "SELECT 1 FROM admin_user_meta WHERE username=%s",
                     (username,)
                 )
-                if cur.fetchone():
-                    continue
+                exists = cur.fetchone()
 
-            # default conservative policy
+            if exists:
+                continue
+
             _sync_admin_user_meta(username, {
                 "status": "active",
-                "is_verified": False,
+                "is_verified": bool(u.get("role") == "admin"),
                 "limits_daily_kwd": None,
-                "limits_month_kwd": None
+                "limits_month_kwd": None,
             })
-        except Exception as e:
-            print("[admin-meta] ensure failed:", e)
 
+        except Exception as e:
+            print("[admin-meta] ensure failed for", username, e)
 _ensure_admin_meta_exists()
+
 
 def _load_admin_user_meta_from_db():
     try:
@@ -2849,6 +2855,23 @@ def _update_tx_status_db(tx_id: int, status: str):
     except Exception as e:
         print("[tx] status db update failed:", e)
 
+def _fetch_transaction_by_id(tx_id: int):
+    try:
+        with db_cursor() as cur:
+            cur.execute(
+                "SELECT * FROM transactions WHERE id=%s",
+                (tx_id,)
+            )
+            row = cur.fetchone()
+            if row and isinstance(row.get("meta"), str):
+                try:
+                    row["meta"] = json.loads(row["meta"])
+                except Exception:
+                    row["meta"] = {}
+            return row
+    except Exception as e:
+        print("[tx fetch] failed:", e)
+        return None
 
 @app.route("/api/add-transaction", methods=["POST"])
 def add_transaction():
@@ -3090,15 +3113,44 @@ def update_my_transaction_status(tx_id: int):
     u = current_user()
     new_status = _clean_status(request.form.get("status"))
 
-    for t in TRANSACTIONS:
-        if t.get("id") == tx_id and t.get("username") == u["username"]:
-            t["status"] = new_status
-            _update_tx_status_db(tx_id, new_status)
-            _touch()
-            save_state(force=True)
-            return jsonify({"ok": True, "entry": t})
+    # --- DB FIRST ---
+    try:
+        with db_cursor(commit=True) as cur:
+            cur.execute("""
+                UPDATE transactions
+                SET status=%s
+                WHERE id=%s AND username=%s
+                RETURNING *
+            """, (new_status, tx_id, u["username"]))
 
-    return jsonify({"ok": False, "error": "Transaction not found"}), 404
+            row = cur.fetchone()
+            if not row:
+                return jsonify({
+                    "ok": False,
+                    "error": "Transaction not found"
+                }), 404
+
+    except Exception as e:
+        print("[tx-status] db update failed:", e)
+        return jsonify({
+            "ok": False,
+            "error": "Failed to update transaction"
+        }), 500
+
+    # --- OPTIONAL: mirror to memory if present ---
+    for t in TRANSACTIONS:
+        if t.get("id") == tx_id:
+            t["status"] = new_status
+            break
+
+    _touch()
+    save_state(force=True)
+
+    return jsonify({
+        "ok": True,
+        "entry": row
+    })
+
 
 
 @app.route("/api/tx/<int:tx_id>/status", methods=["POST"])
@@ -3109,17 +3161,44 @@ def set_status(tx_id):
     status = _clean_status(request.form.get("status"))
     reason = (request.form.get("reason") or "").strip()
 
-    for t in TRANSACTIONS:
-        if t.get("id") == tx_id:
-            old = t.get("status", "in progress")
-            t["status"] = status
-            _update_tx_status_db(tx_id, status)
-            _audit(tx_id, current_user()["username"], old, status, reason or "admin-update")
-            _touch()
-            save_state(force=True)
-            return jsonify({"ok": True, "entry": t})
+    try:
+        with db_cursor(commit=True) as cur:
+            # Fetch old status
+            cur.execute(
+                "SELECT status FROM transactions WHERE id=%s",
+                (tx_id,)
+            )
+            prev = cur.fetchone()
+            if not prev:
+                return jsonify({"ok": False, "error": "Not found"}), 404
 
-    return jsonify({"ok": False, "error": "Not found"}), 404
+            old_status = prev["status"]
+
+            # Update
+            cur.execute("""
+                UPDATE transactions
+                SET status=%s
+                WHERE id=%s
+                RETURNING *
+            """, (status, tx_id))
+
+            row = cur.fetchone()
+
+        # Audit with correct transition
+        _audit(
+            tx_id,
+            current_user()["username"],
+            old_status,
+            status,
+            reason or "admin-update"
+        )
+
+        return jsonify({"ok": True, "entry": row})
+
+    except Exception as e:
+        print("[tx-status-admin]", e)
+        return jsonify({"ok": False, "error": "Update failed"}), 500
+
 
 
 @app.route("/api/merchant/tx/<int:tx_id>/status", methods=["POST"])
@@ -3132,26 +3211,33 @@ def merchant_override_status(tx_id: int):
     u = current_user()
     new_status = _clean_status(request.form.get("status"))
     reason = (request.form.get("reason") or "").strip()
+
     if len(reason) < 3:
-        return jsonify({"ok": False, "error": "Reason is required (3+ chars)"}), 400
+        return jsonify({"ok": False, "error": "Reason is required"}), 400
 
-    for t in TRANSACTIONS:
-        if t.get("id") == tx_id:
-            if t.get("username") != u["username"]:
-                return jsonify({"ok": False, "error": "Forbidden: not your transaction"}), 403
-            old_status = t.get("status", "in progress")
-            if old_status != "in progress":
-                return jsonify({"ok": False, "error": "Cannot change a settled transaction"}), 400
-            if new_status not in {"in progress", "successful", "failed"}:
-                return jsonify({"ok": False, "error": "Invalid status"}), 400
-            t["status"] = new_status
-            _update_tx_status_db(tx_id, new_status)
-            _audit(tx_id, u["username"], old_status, new_status, reason)
-            _touch()
-            save_state(force=True)
-            return jsonify({"ok": True, "entry": t})
+    t = _fetch_transaction_by_id(tx_id)
+    if not t:
+        return jsonify({"ok": False, "error": "Transaction not found"}), 404
 
-    return jsonify({"ok": False, "error": "Transaction not found"}), 404
+    if t["username"] != u["username"]:
+        return jsonify({"ok": False, "error": "Forbidden"}), 403
+
+    if t["status"] != "in progress":
+        return jsonify({"ok": False, "error": "Transaction already settled"}), 400
+
+    _update_tx_status_db(tx_id, new_status)
+    _audit(tx_id, u["username"], t["status"], new_status, reason)
+
+    for m in TRANSACTIONS:
+        if m.get("id") == tx_id:
+            m["status"] = new_status
+
+    _touch()
+    save_state(force=True)
+
+    t["status"] = new_status
+    return jsonify({"ok": True, "entry": t})
+
 # ----------- RECEIPT VIEWS (use flattened tx) -----------
 
 def _get_tx_by_receipt_id(receipt_id: str):
@@ -3175,6 +3261,25 @@ def _get_tx_by_receipt_id(receipt_id: str):
                 except Exception:
                     d["meta"] = {}
             return d
+    except Exception:
+        return None
+def _get_tx_by_id(tx_id: int):
+    # 1️⃣ Memory first (fast path)
+    for t in TRANSACTIONS:
+        if t.get("id") == tx_id:
+            return t
+
+    # 2️⃣ DB fallback (restart safe)
+    try:
+        with db_cursor() as cur:
+            cur.execute("SELECT * FROM transactions WHERE id=%s", (tx_id,))
+            row = cur.fetchone()
+            if not row:
+                return None
+            tx = dict(row)
+            if isinstance(tx.get("meta"), str):
+                tx["meta"] = json.loads(tx["meta"] or "{}")
+            return tx
     except Exception:
         return None
 
