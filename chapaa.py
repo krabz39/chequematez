@@ -2616,13 +2616,13 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
     ok, err = _enforce_account_rules(username, amount_kwd)
     if not ok:
         _audit(
-        tx_id=0,
-        actor=username,
-        old_status="attempt",
-        new_status="blocked",
-        reason=err
-    )
-    return None, err
+            tx_id=0,
+            actor=username,
+            old_status="attempt",
+            new_status="blocked",
+            reason=err
+        )
+        return None, err
 
 # --------------------------------------------------
 # FEES & TOTALS
@@ -3158,12 +3158,16 @@ def set_status(tx_id):
     if not require_admin():
         return jsonify({"ok": False, "error": "Unauthorized"}), 401
 
-    status = _clean_status(request.form.get("status"))
-    reason = (request.form.get("reason") or "").strip()
+    u = current_user()
+    if not u or "username" not in u:
+        return jsonify({"ok": False, "error": "Session expired"}), 401
+
+    new_status = _clean_status(request.form.get("status"))
+    reason = (request.form.get("reason") or "").strip() or "admin-update"
 
     try:
         with db_cursor(commit=True) as cur:
-            # Fetch old status
+            # 🔒 STEP 1: get OLD status first
             cur.execute(
                 "SELECT status FROM transactions WHERE id=%s",
                 (tx_id,)
@@ -3172,32 +3176,40 @@ def set_status(tx_id):
             if not prev:
                 return jsonify({"ok": False, "error": "Not found"}), 404
 
-            old_status = prev["status"]
+            old_status = prev.get("status", "unknown")
 
-            # Update
-            cur.execute("""
+            # 🔒 STEP 2: update status
+            cur.execute(
+                """
                 UPDATE transactions
                 SET status=%s
                 WHERE id=%s
                 RETURNING *
-            """, (status, tx_id))
-
+                """,
+                (new_status, tx_id)
+            )
             row = cur.fetchone()
 
-        # Audit with correct transition
+        # 🔒 STEP 3: audit with CORRECT old/new values
         _audit(
-            tx_id,
-            current_user()["username"],
-            old_status,
-            status,
-            reason or "admin-update"
+            tx_id=tx_id,
+            actor=u["username"],
+            old_status=old_status,
+            new_status=new_status,
+            reason=reason
         )
 
         return jsonify({"ok": True, "entry": row})
 
     except Exception as e:
-        print("[tx-status-admin]", e)
+        print("[tx-status-admin ERROR]", e)
         return jsonify({"ok": False, "error": "Update failed"}), 500
+
+@app.errorhandler(500)
+def internal_error(e):
+    print("[500]", e)
+    return jsonify({"ok": False, "error": "Internal server error"}), 500
+
 
 
 
