@@ -2599,24 +2599,17 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
     if not ok:
         return None, err
 
-    # --------------------------------------------------
-    # NORMALIZE AMOUNT
-    # --------------------------------------------------
+# --------------------------------------------------
+# NORMALIZE AMOUNT
+# --------------------------------------------------
     amount_kwd = _normalize_amount_kwd(amount, currency)
 
+# --------------------------------------------------
+# 🔐 ENFORCE ACCOUNT RULES (ONLY ONCE, HERE)
+# --------------------------------------------------
     ok, err = _enforce_account_rules(username, amount_kwd)
     if not ok:
-     return None, err
-
-    calc = calculate_fees(amount_kwd)
-
-
-    # --------------------------------------------------
-    # 🔐 ENFORCE ACCOUNT RULES (RIGHT PLACE)
-    # --------------------------------------------------
-    ok, err = _enforce_account_rules(username, amount_kwd)
-    if not ok:
-     _audit(
+        _audit(
         tx_id=0,
         actor=username,
         old_status="attempt",
@@ -2625,10 +2618,12 @@ def _create_transaction_for(username: str, form, *, override_phone=None):
     )
     return None, err
 
-    # --------------------------------------------------
-    # FEES & TOTALS
-    # --------------------------------------------------
+# --------------------------------------------------
+# FEES & TOTALS
+# --------------------------------------------------
     calc = calculate_fees(amount_kwd)
+
+
 
     totals = _client_totals_for(
         amount_kwd=calc["amount_kwd"],
