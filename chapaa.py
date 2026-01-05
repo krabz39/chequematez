@@ -530,6 +530,22 @@ def _install_signal_handlers():
         print("[state] signal handlers not installed:", e)
 
 
+
+# =========================================================
+# ADMIN SETTINGS — ENV-FIRST (DB READY LATER)
+# =========================================================
+
+ADMIN_SETTINGS = {
+    "wamd_pay_to_phone": os.getenv("WAMD_PAY_TO_PHONE", ""),
+    "wamd_beneficiary": os.getenv("WAMD_BENEFICIARY", ""),
+}
+
+def _wamd_settings():
+    return {
+        "pay_to_phone": ADMIN_SETTINGS.get("wamd_pay_to_phone", "").strip(),
+        "beneficiary": ADMIN_SETTINGS.get("wamd_beneficiary", "").strip()
+    }
+
 def admin_settings_load_into_cache():
     """DB → memory cache (ADMIN_SETTINGS)."""
     try:
@@ -604,22 +620,6 @@ def admin_settings_page():
         "admin_settings.html",
         settings=ADMIN_SETTINGS
     )
-
-# =========================================================
-# ADMIN SETTINGS — ENV-FIRST (DB READY LATER)
-# =========================================================
-
-ADMIN_SETTINGS = {
-    "wamd_pay_to_phone": os.getenv("WAMD_PAY_TO_PHONE", ""),
-    "wamd_beneficiary": os.getenv("WAMD_BENEFICIARY", ""),
-}
-
-def _wamd_settings():
-    return {
-        "pay_to_phone": ADMIN_SETTINGS.get("wamd_pay_to_phone", "").strip(),
-        "beneficiary": ADMIN_SETTINGS.get("wamd_beneficiary", "").strip()
-    }
-
 
 
 # ---------------------------------------------------------
