@@ -530,13 +530,88 @@ def _install_signal_handlers():
         print("[state] signal handlers not installed:", e)
 
 
+def admin_settings_load_into_cache():
+    """DB → memory cache (ADMIN_SETTINGS)."""
+    try:
+        with db_cursor() as cur:
+            cur.execute("SELECT key, value FROM admin_settings")
+            rows = cur.fetchall()
+        for r in rows:
+            ADMIN_SETTINGS[r["key"]] = r["value"]
+    except Exception as e:
+        print("[admin_settings] load failed:", e)
+
+
+def admin_setting_set(key: str, value: str):
+    """Write through: memory + DB."""
+    value = (value or "").strip()
+    ADMIN_SETTINGS[key] = value
+
+    with db_cursor(commit=True) as cur:
+        cur.execute(
+            """
+            INSERT INTO admin_settings (key, value, updated_at)
+            VALUES (%s, %s, NOW())
+            ON CONFLICT (key)
+            DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+            """,
+            (key, value),
+        )
+
+
+def admin_settings_seed_defaults_once():
+    """Ensure DB has at least the default keys (env defaults)."""
+    with db_cursor(commit=True) as cur:
+        for k, v in ADMIN_SETTINGS.items():
+            cur.execute(
+                """
+                INSERT INTO admin_settings (key, value, updated_at)
+                VALUES (%s, %s, NOW())
+                ON CONFLICT (key) DO NOTHING
+                """,
+                (k, (v or "").strip()),
+            )
+admin_settings_seed_defaults_once()   # env → DB only if missing
+admin_settings_load_into_cache()      # DB → memory (authoritative)
+
+def _wamd_settings():
+    return {
+        "pay_to_phone": ADMIN_SETTINGS.get("wamd_pay_to_phone", "").strip(),
+        "beneficiary": ADMIN_SETTINGS.get("wamd_beneficiary", "").strip()
+    }
+@app.post("/admin/settings/wamd")
+def admin_save_wamd():
+    if not require_admin():  # replace with your admin guard
+        return jsonify({"ok": False, "error": "unauthorized"}), 401
+
+    phone = (request.form.get("wamd_pay_to_phone") or "").strip()
+    bene  = (request.form.get("wamd_beneficiary") or "").strip()
+
+    if not phone or not bene:
+        return jsonify({"ok": False, "error": "Both fields are required"}), 400
+
+    admin_setting_set("wamd_pay_to_phone", phone)
+    admin_setting_set("wamd_beneficiary", bene)
+
+    return jsonify({"ok": True})
+
+@app.get("/admin/settings")
+def admin_settings_page():
+    if not require_admin():
+        return redirect("/login")
+
+    return render_template(
+        "admin_settings.html",
+        settings=ADMIN_SETTINGS
+    )
+
 # =========================================================
 # ADMIN SETTINGS — ENV-FIRST (DB READY LATER)
 # =========================================================
 
 ADMIN_SETTINGS = {
-    "wamd_pay_to_phone": os.getenv("WAMD_PAY_TO_PHONE", "+965914413"),
-    "wamd_beneficiary": os.getenv("WAMD_BENEFICIARY", "Eugene"),
+    "wamd_pay_to_phone": os.getenv("WAMD_PAY_TO_PHONE", ""),
+    "wamd_beneficiary": os.getenv("WAMD_BENEFICIARY", ""),
 }
 
 def _wamd_settings():
