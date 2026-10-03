@@ -1,792 +1,4559 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Cheque Matez — Flip Card</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#063d3f">
+<meta name="color-scheme" content="light dark">
+
+<title>ChequeMatez — Digital Payment Card</title>
+
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+
 <style>
+/* =========================================================
+   CHEQUEMATEZ — DIGITAL CARD + PAYMENT VOUCHER
+   Premium fintech UI
+   ========================================================= */
+
 :root{
-  --teal1:#063d3f; --teal2:#053c3f; --teal4:#063d40; --gold:#d4a017;
-  --ink:#eaf6f6; --muted:#9bc1c6;
-  --radius:22px; --chip-w:60px; --chip-h:44px;
-  --label:11px; --value:15px;
+  --black:#050708;
+  --black-2:#0a0e10;
 
-  /* light panel below the card */
-  --panel:#ffffff; --line:#e9edf2; --text:#111; --text-d:#475467;
+  --teal-900:#032b2d;
+  --teal-800:#063d3f;
+  --teal-700:#075154;
+  --teal-500:#0b6b6d;
+
+  --gold:#d4a017;
+  --gold-2:#f1d36a;
+  --gold-soft:#fff7df;
+
+  --red:#d71920;
+  --red-soft:#fff0f1;
+
+  --green:#15803d;
+  --green-soft:#eaf8ef;
+
+  --white:#fff;
+  --ink:#101828;
+  --muted:#667085;
+  --muted-2:#98a2b3;
+
+  --line:#e4e7ec;
+  --line-strong:#d0d5dd;
+  --panel:#ffffff;
+  --panel-soft:#f8fafb;
+
+  --radius-sm:10px;
+  --radius-md:16px;
+  --radius-lg:22px;
+
+  --shadow-sm:0 2px 8px rgba(16,24,40,.06);
+  --shadow-md:0 10px 30px rgba(16,24,40,.10);
+  --shadow-lg:0 24px 70px rgba(0,0,0,.30);
+
+  --focus:0 0 0 4px rgba(212,160,23,.22);
+
+  --max-width:1080px;
 }
-*{box-sizing:border-box}
-html,body{height:100%}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
 body{
-  margin:0; color:var(--ink);
-  background:radial-gradient(120% 120% at 10% 10%, #0b1517 0, #0b1517 40%, #071113 100%);
-  font:14px/1.35 ui-sans-serif,system-ui,Segoe UI,Inter,Arial;
+  margin:0;
+  min-height:100%;
+  background:
+    radial-gradient(
+      900px 500px at 50% -180px,
+      rgba(6,61,63,.55),
+      transparent 70%
+    ),
+    linear-gradient(180deg,#070b0d 0%,#0b1113 46%,#f5f7f9 46%,#f5f7f9 100%);
+  color:var(--ink);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size:14px;
+  line-height:1.5;
 }
-.wrap{min-height:100%; display:grid; place-items:center; padding:18px 12px 26px; gap:14px}
 
-/* ===== Flip container ===== */
-.stage{ width:100%; display:grid; gap:10px; justify-items:center }
+button,
+input,
+select{
+  font:inherit;
+}
+
+button,
+a,
+input,
+select{
+  -webkit-tap-highlight-color:transparent;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+.card3d:focus-visible{
+  outline:none;
+  box-shadow:var(--focus);
+}
+
+a{
+  color:var(--teal-800);
+}
+
+button{
+  cursor:pointer;
+}
+
+button:disabled{
+  cursor:not-allowed;
+  opacity:.58;
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+.skip-link{
+  position:absolute;
+  left:12px;
+  top:-100px;
+  z-index:9999;
+  padding:10px 14px;
+  background:#fff;
+  color:#111;
+  border-radius:10px;
+  font-weight:800;
+  text-decoration:none;
+}
+
+.skip-link:focus{
+  top:12px;
+}
+
+/* =========================================================
+   PAGE SHELL
+   ========================================================= */
+
+.page{
+  width:min(var(--max-width),100%);
+  margin:0 auto;
+  padding:22px 18px 50px;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:22px;
+  color:#fff;
+}
+
+.brand-lockup{
+  display:flex;
+  align-items:center;
+  gap:11px;
+}
+
+.brand-mark{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:
+    linear-gradient(145deg,var(--gold-2),var(--gold));
+  color:#111;
+  font-size:17px;
+  font-weight:950;
+  letter-spacing:-.06em;
+  box-shadow:0 8px 25px rgba(212,160,23,.20);
+}
+
+.brand-name{
+  font-weight:950;
+  letter-spacing:.12em;
+  font-size:13px;
+}
+
+.brand-sub{
+  margin-top:2px;
+  color:#9bbabc;
+  font-size:11px;
+  letter-spacing:.05em;
+}
+
+.secure-indicator{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  color:#b8d8d8;
+  font-size:11px;
+  font-weight:750;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+}
+
+.secure-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#38b879;
+  box-shadow:0 0 0 4px rgba(56,184,121,.10);
+}
+
+/* =========================================================
+   CARD AREA
+   ========================================================= */
+
+.card-section{
+  display:grid;
+  justify-items:center;
+  gap:18px;
+}
+
+.card-stage{
+  width:100%;
+  display:grid;
+  justify-items:center;
+}
+
 .flip{
-  width:clamp(300px, 94vw, 920px);
+  width:min(920px,100%);
   aspect-ratio:85.6/54;
-  perspective:1400px;
+  perspective:1600px;
 }
+
 .card3d{
-  position:relative; width:100%; height:100%;
-  transform-style:preserve-3d; transition:transform .7s cubic-bezier(.2,.8,.2,1);
-  cursor:pointer; outline:none;
+  position:relative;
+  width:100%;
+  height:100%;
+  transform-style:preserve-3d;
+  transition:
+    transform .72s cubic-bezier(.2,.8,.2,1);
+  cursor:pointer;
+  border-radius:var(--radius-lg);
 }
-.card3d.is-flipped{ transform:rotateY(180deg) }
+
+.card3d.is-flipped{
+  transform:rotateY(180deg);
+}
 
 .face{
-  position:absolute; inset:0; border-radius:var(--radius);
-  overflow:hidden; backface-visibility:hidden;
-  border:1px solid rgba(255,255,255,.06);
-  box-shadow:0 30px 70px rgba(0,0,0,.40), 0 8px 24px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.08);
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  border-radius:var(--radius-lg);
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+
+  border:1px solid rgba(255,255,255,.11);
+
+  box-shadow:
+    0 32px 75px rgba(0,0,0,.38),
+    0 10px 28px rgba(0,0,0,.28),
+    inset 0 0 0 1px rgba(255,255,255,.07);
+
   background:
-    radial-gradient(120% 100% at 100% 0%, rgba(212,160,23,.20) 0%, rgba(212,160,23,0) 50%),
-    linear-gradient(135deg, var(--teal1) 0%, var(--teal4) 52%, var(--teal2) 100%);
+    radial-gradient(
+      100% 130% at 100% 0%,
+      rgba(212,160,23,.23),
+      transparent 45%
+    ),
+    radial-gradient(
+      90% 100% at 0% 100%,
+      rgba(9,105,107,.32),
+      transparent 58%
+    ),
+    linear-gradient(
+      135deg,
+      #063d3f 0%,
+      #053337 50%,
+      #021e20 100%
+    );
 }
+
 .face::before{
-  content:""; position:absolute; inset:-30%;
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+
   background:
-    repeating-linear-gradient(115deg, rgba(255,255,255,.06) 0 2px, rgba(255,255,255,0) 2px 6px),
-    radial-gradient(180% 60% at 0% 120%, rgba(5,60,63,.35), rgba(5,60,63,0) 70%);
-  mix-blend-mode:overlay; filter:blur(.6px); opacity:.35; pointer-events:none;
+    repeating-linear-gradient(
+      115deg,
+      rgba(255,255,255,.035) 0 1px,
+      transparent 1px 7px
+    );
+
+  opacity:.55;
 }
 
-/* Header */
-.front .header,.back .header{
-  display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding: clamp(8px,1.8vw,18px) clamp(10px,2.2vw,22px) 0;
+.face::after{
+  content:"";
+  position:absolute;
+  width:42%;
+  aspect-ratio:1;
+  right:-13%;
+  bottom:-48%;
+
+  border:1px solid rgba(212,160,23,.28);
+  border-radius:50%;
+
+  box-shadow:
+    0 0 0 25px rgba(212,160,23,.035),
+    0 0 0 50px rgba(212,160,23,.025);
 }
-.brand{
-  border-left:8px solid var(--gold); padding-left:10px;
-  font-weight:900; letter-spacing:.10em; text-shadow:0 1px 0 rgba(0,0,0,.35);
-  font-size: clamp(12px,2.4vw,18px); line-height:1.1; color:#fff;
+
+/* =========================================================
+   CARD HEADER
+   ========================================================= */
+
+.card-header{
+  position:relative;
+  z-index:2;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+
+  padding:
+    clamp(13px,2.2vw,22px)
+    clamp(14px,2.7vw,28px)
+    0;
 }
+
+.card-brand{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.card-brand-icon{
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+
+  background:rgba(212,160,23,.95);
+  color:#111;
+
+  font-weight:950;
+  font-size:11px;
+}
+
+.card-brand-name{
+  color:#fff;
+  font-weight:950;
+  letter-spacing:.12em;
+  font-size:clamp(11px,1.8vw,16px);
+}
+
 .status{
-  border:2px solid rgba(255,255,255,.28); background:rgba(255,255,255,.10);
-  border-radius:999px; padding:6px 10px; font-weight:900;
-  text-transform:uppercase; letter-spacing:.10em; color:#e8fff6;
-  backdrop-filter:blur(2px);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 2px 8px rgba(0,0,0,.25);
-  font-size: clamp(9px,1.6vw,11px);
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:52%;
-}
-.status.pending{ background:rgba(255,224,102,.92); border-color:#b38700; color:#4a3a00 }
-.status.approved{ background:rgba(140,239,185,.92); border-color:#198754; color:#0b3b27 }
-.status.declined{ background:rgba(255,148,148,.95); border-color:#b00020; color:#4a0000 }
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:29px;
 
-/* Front layout */
-.inner{
-  display:grid; grid-template-columns: 1fr minmax(150px, 240px); gap: clamp(10px,2.2vw,22px);
-  padding:8px clamp(10px, 2.2vw, 22px) clamp(10px, 2vw, 18px);
-  align-items:start;
+  padding:5px 10px;
+  border-radius:999px;
+
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);
+  color:#efffff;
+
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.11em;
+  text-transform:uppercase;
+  white-space:nowrap;
 }
-.left{
-  display:grid; grid-template-columns:minmax(108px, 170px) 1fr;
-  gap: clamp(8px,2vw,24px); align-items:start;
-  padding: clamp(4px,1.6vw,18px) 0 0 clamp(2px,.6vw,6px);
+
+.status.pending{
+  background:#fff1b8;
+  border-color:#d1a500;
+  color:#5c4600;
+}
+
+.status.approved{
+  background:#b9f2d1;
+  border-color:#23864d;
+  color:#073a22;
+}
+
+.status.declined{
+  background:#ffc4c8;
+  border-color:#b51e2b;
+  color:#58000a;
+}
+
+/* =========================================================
+   CARD FRONT
+   ========================================================= */
+
+.card-content{
+  position:relative;
+  z-index:2;
+
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(125px,28%);
+  gap:clamp(14px,3vw,32px);
+
+  padding:
+    clamp(14px,2.3vw,22px)
+    clamp(14px,2.7vw,28px)
+    10px;
+}
+
+.card-left{
+  display:grid;
+  grid-template-columns:74px minmax(0,1fr);
+  gap:clamp(12px,2.2vw,24px);
+  align-items:start;
   min-width:0;
 }
-.photo{
-  width:var(--chip-w); height:var(--chip-h); border-radius:6px; margin-top:6px;
+
+.chip{
+  width:68px;
+  height:48px;
+  margin-top:8px;
+
+  border-radius:8px;
+
   background:
-    linear-gradient(180deg,#d6c7a0,#baa774),
-    repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 2px, rgba(0,0,0,0) 2px 4px);
-  border:1.6px solid #8e7a4d; box-shadow: inset 0 0 0 1px rgba(255,255,255,.35), 0 6px 18px rgba(0,0,0,.35);
-}
-.fields{ display:grid; gap: clamp(5px,1.2vw,10px); min-width:0 }
-.kv{ display:grid; grid-template-columns:118px 1fr; gap:8px; align-items:center; min-width:0 }
-.kv .k{ font-weight:800; color:#bfe0e0; letter-spacing:.14em; font-size: clamp(9px,1.4vw,var(--label)); text-shadow:0 1px 0 rgba(0,0,0,.35) }
-.kv .v{ font-weight:900; color:#fff; letter-spacing:.06em; font-size: clamp(12px,1.9vw,var(--value)); text-shadow:0 1px 0 rgba(0,0,0,.60), 0 0 10px rgba(0,0,0,.20); overflow-wrap:anywhere }
+    linear-gradient(135deg,#e1d09c,#b8a568);
 
-/* QR */
-.qrbox{ display:flex; align-items:flex-end; justify-content:flex-end; padding:0 6px 6px 0 }
+  border:1px solid #8e7b4e;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.6),
+    inset 0 0 0 1px rgba(0,0,0,.10),
+    0 8px 20px rgba(0,0,0,.30);
+
+  position:relative;
+}
+
+.chip::before,
+.chip::after{
+  content:"";
+  position:absolute;
+  background:rgba(70,56,24,.32);
+}
+
+.chip::before{
+  width:1px;
+  top:0;
+  bottom:0;
+  left:50%;
+}
+
+.chip::after{
+  height:1px;
+  left:0;
+  right:0;
+  top:50%;
+}
+
+.fields{
+  display:grid;
+  gap:clamp(7px,1.25vw,12px);
+  min-width:0;
+}
+
+.kv{
+  display:grid;
+  grid-template-columns:100px minmax(0,1fr);
+  gap:10px;
+  align-items:baseline;
+  min-width:0;
+}
+
+.k{
+  color:#9ec7c8;
+  font-size:9px;
+  font-weight:850;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+
+.v{
+  color:#fff;
+  font-size:clamp(12px,1.8vw,15px);
+  font-weight:900;
+  letter-spacing:.045em;
+  overflow-wrap:anywhere;
+  min-width:0;
+}
+
+.qr-area{
+  display:grid;
+  place-items:center;
+  align-content:end;
+  min-width:0;
+}
+
 .qr{
-  width: clamp(96px, 32%, 170px);
-  height: auto; aspect-ratio: 1/1;
-  background:#fff; border:1px solid rgba(0,0,0,.06); border-radius:12px;
-  display:grid; place-items:center;
-  box-shadow: 0 8px 22px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.45);
+  width:clamp(90px,100%,165px);
+  aspect-ratio:1;
+  padding:7px;
+
+  display:grid;
+  place-items:center;
+
+  background:#fff;
+  border-radius:12px;
+
+  box-shadow:
+    0 12px 28px rgba(0,0,0,.28),
+    inset 0 0 0 1px rgba(0,0,0,.06);
+
+  overflow:hidden;
 }
 
-.footer{ padding:0 clamp(10px,2.2vw,22px) clamp(10px,2vw,18px); color:#e0f3f3; font-weight:800; letter-spacing:.20em; font-size: clamp(9px,1.4vw,11px); border-top:1px dashed rgba(255,255,255,.18); text-transform:uppercase }
-.small{ color:#bfe0e0; font-size: clamp(8px,1.3vw,10px); letter-spacing:.14em; margin-top:6px }
-.serial{ font-weight:900; color:#f7fbfb; letter-spacing:.12em; overflow-wrap:anywhere }
+.qr canvas,
+.qr img{
+  max-width:100%;
+  height:auto;
+}
 
-/* Back face specifics */
+.card-footer{
+  position:absolute;
+  z-index:2;
+  left:0;
+  right:0;
+  bottom:0;
+
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:15px;
+
+  padding:
+    0
+    clamp(14px,2.7vw,28px)
+    clamp(14px,2.3vw,22px);
+
+  border-top:1px dashed rgba(255,255,255,.16);
+}
+
+.serial-block{
+  min-width:0;
+}
+
+.serial{
+  color:#fff;
+  font-size:clamp(10px,1.5vw,12px);
+  font-weight:950;
+  letter-spacing:.13em;
+  overflow-wrap:anywhere;
+}
+
+.serial-label{
+  margin-top:3px;
+  color:#8eb5b6;
+  font-size:8px;
+  font-weight:750;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.token-note{
+  color:#9dc4c5;
+  font-size:8px;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-align:right;
+}
+
+/* =========================================================
+   CARD BACK
+   ========================================================= */
+
 .back{
   transform:rotateY(180deg);
+
   background:
-    radial-gradient(120% 100% at 100% 0%, rgba(212,160,23,.18) 0%, rgba(212,160,23,0) 50%),
-    linear-gradient(135deg, #033033 0%, #083e41 52%, #042c2e 100%);
+    radial-gradient(
+      100% 120% at 100% 0%,
+      rgba(212,160,23,.18),
+      transparent 46%
+    ),
+    linear-gradient(
+      135deg,
+      #033234,
+      #063e40 48%,
+      #021e20
+    );
 }
-.mstripe{ position:absolute; left:0; right:0; top:17%; height:16%; background:#101418; box-shadow: inset 0 0 20px rgba(255,255,255,.05) }
-.sigrow{
-  position:absolute; left:clamp(10px,2.2vw,22px); right:clamp(10px,2.2vw,22px);
-  top:42%; display:grid; grid-template-columns:1fr 110px; gap:10px; align-items:center;
-}
-.sig{
-  height:40px; background:repeating-linear-gradient(0deg,#fff 0 2px,#f3f3f3 2px 6px);
-  border-radius:6px; border:1px solid rgba(0,0,0,.25); box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
-}
-.cvvbox{
-  height:40px; display:flex; align-items:center; justify-content:center;
-  background:#fff; color:#111; font-weight:900; letter-spacing:.14em;
-  border-radius:6px; border:1px solid rgba(0,0,0,.25); box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
-}
-.cvvlabel{
-  position:absolute; top: calc(42% - 18px); right: clamp(10px,2.2vw,22px);
-  font-size:12px; letter-spacing:.14em; color:#dbe9e9; text-transform:uppercase; font-weight:800;
-}
-.backqr{ position:absolute; left:0; right:0; bottom: clamp(10px,2vw,16px); display:grid; place-items:center; padding-bottom:8px }
-.backqr .qr{ width: clamp(96px, 34%, 170px); height:auto; aspect-ratio:1/1 }
 
-/* Flip button + scanner link */
-.actions{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-.scanbtn, .kycbtn{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:10px 16px; border:none; border-radius:999px;
-  background:linear-gradient(135deg, var(--gold), #f2d46b);
-  color:#111; font-weight:900; letter-spacing:.06em; cursor:pointer;
-  box-shadow:0 6px 16px rgba(212,160,23,.35); text-decoration:none;
-}
-.scanbtn:focus,.kycbtn:focus{ outline:3px solid rgba(212,160,23,.6); outline-offset:2px }
+.magnetic-stripe{
+  position:absolute;
+  z-index:2;
+  left:0;
+  right:0;
+  top:22%;
+  height:17%;
 
-/* Admin/Merchant editor (disabled on this page; approvals happen in /admin/kyc) */
-.owner{ display:none; }
+  background:#080c0e;
 
-/* Responsive tweaks for card */
-@media (max-width:720px){
-  .inner{ grid-template-columns: 1fr; }
-  .qrbox{ justify-content:center; padding: 6px 0 10px 0; }
-  .status{ max-width:100% }
+  box-shadow:
+    inset 0 2px 10px rgba(255,255,255,.035),
+    inset 0 -2px 10px rgba(0,0,0,.45);
 }
-@media (max-width:540px){
-  :root{ --chip-w:46px; --chip-h:32px; --label:10px; --value:14px; }
-  .left{ grid-template-columns:1fr; padding-left:0 }
-  .kv{ grid-template-columns:1fr; gap:6px }
-  .front .header,.back .header{ padding:8px 10px 0 }
-  .footer{ padding:0 10px 10px }
-}
-@media (max-width:380px){
-  .brand{ border-left-width:6px }
-}
-.fields,.kv .v,.serial{ min-width:0; overflow-wrap:anywhere }
 
-/* ========= Voucher + Receipt panels (light) ========= */
-.section{
-  width:min(980px, 98vw);
-  display:grid; gap:10px; justify-items:stretch;
+.signature-row{
+  position:absolute;
+  z-index:3;
+
+  left:clamp(14px,2.7vw,28px);
+  right:clamp(14px,2.7vw,28px);
+  top:48%;
+
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 105px;
+  gap:12px;
 }
+
+.signature-strip{
+  height:42px;
+  border-radius:6px;
+
+  background:
+    repeating-linear-gradient(
+      0deg,
+      #fff 0 2px,
+      #f0f1f2 2px 5px
+    );
+
+  border:1px solid rgba(0,0,0,.22);
+}
+
+.cvv-label{
+  position:absolute;
+  z-index:4;
+
+  top:calc(48% - 20px);
+  right:clamp(14px,2.7vw,28px);
+
+  color:#d5e5e5;
+  font-size:8px;
+  font-weight:850;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+
+.cvv-box{
+  height:42px;
+
+  display:grid;
+  place-items:center;
+
+  background:#fff;
+  color:#111;
+
+  border-radius:6px;
+  border:1px solid rgba(0,0,0,.20);
+
+  font-size:13px;
+  font-weight:950;
+  letter-spacing:.15em;
+}
+
+.back-qr{
+  position:absolute;
+  z-index:3;
+
+  left:0;
+  right:0;
+  bottom:clamp(10px,2.3vw,20px);
+
+  display:grid;
+  place-items:center;
+}
+
+.back-qr .qr{
+  width:clamp(80px,22%,130px);
+}
+
+/* =========================================================
+   CARD ACTIONS
+   ========================================================= */
+
+.card-actions{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:9px;
+  flex-wrap:wrap;
+}
+
+.action{
+  min-height:42px;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
+  padding:10px 17px;
+
+  border-radius:999px;
+
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.03em;
+
+  text-decoration:none;
+  border:1px solid transparent;
+
+  transition:
+    transform .18s ease,
+    box-shadow .18s ease,
+    background .18s ease;
+}
+
+.action:hover{
+  transform:translateY(-1px);
+}
+
+.action-primary{
+  background:linear-gradient(135deg,var(--gold-2),var(--gold));
+  color:#111;
+
+  box-shadow:
+    0 8px 20px rgba(212,160,23,.22);
+}
+
+.action-secondary{
+  background:rgba(255,255,255,.07);
+  border-color:rgba(255,255,255,.17);
+  color:#e7f6f6;
+}
+
+.action-secondary:hover{
+  background:rgba(255,255,255,.12);
+}
+
+/* =========================================================
+   TRUST STRIP
+   ========================================================= */
+
+.trust-strip{
+  width:min(920px,100%);
+
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+
+  background:rgba(255,255,255,.035);
+
+  overflow:hidden;
+}
+
+.trust-item{
+  padding:11px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+
+  color:#a9c6c7;
+  font-size:10px;
+  font-weight:800;
+  text-align:center;
+}
+
+.trust-item + .trust-item{
+  border-left:1px solid rgba(255,255,255,.08);
+}
+
+.trust-icon{
+  color:var(--gold-2);
+}
+
+/* =========================================================
+   LIGHT APPLICATION AREA
+   ========================================================= */
+
+.workspace{
+  width:100%;
+  margin-top:4px;
+}
+
+.workspace-header{
+  width:min(980px,100%);
+  margin:0 auto 14px;
+
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.eyebrow{
+  color:var(--gold);
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+
+.workspace-title{
+  margin:3px 0 0;
+  color:#fff;
+  font-size:clamp(20px,3vw,27px);
+  line-height:1.15;
+  letter-spacing:-.03em;
+}
+
+.workspace-subtitle{
+  margin:5px 0 0;
+  color:#9db4b5;
+  font-size:12px;
+}
+
+/* =========================================================
+   PANELS
+   ========================================================= */
+
 .panel{
-  background:var(--panel); color:var(--text);
-  border:1px solid var(--line); border-radius:14px; padding:16px;
-  box-shadow:0 8px 24px rgba(16,24,40,.20);
-}
-.h2{margin:0 0 10px; color:var(--teal1); font-weight:900; letter-spacing:.02em; font-size:1.1rem}
-.row{display:grid; grid-template-columns:repeat(12,1fr); gap:12px}
-.col-6{grid-column:span 6} .col-12{grid-column:span 12}
-label{font-weight:800; color:#0f2f30}
-input,select{
-  width:100%; padding:10px 12px; margin-top:6px;
-  border:1px solid #d0d5dd; border-radius:10px; font-size:15px; background:#fff; color:#111;
-}
-input[readonly]{
-  background:#f6f7fb;
-  color:#666;
-}
-button.btn{
-  padding:10px 14px; border:none; border-radius:999px; background:var(--gold); color:#111; font-weight:900; cursor:pointer
-}
-.badge-pill{display:inline-block; padding:4px 10px; border-radius:999px; font-weight:800; font-size:.86rem}
-.progress{background:#fff7e0; color:#8a6d00}
-.ok{background:#e8ffe8; color:#2f7d32}
-.fail{background:#ffe8e8; color:#b00020}
-.small{color:var(--text-d); font-size:.94rem}
-.hr{height:1px; background:#eff2f6; margin:12px 0}
+  width:min(980px,100%);
+  margin:0 auto 14px;
 
-/* mini chart container */
-#calc_chart_wrap{ margin-top:8px }
-.hidden{ display:none }
+  background:var(--panel);
+  color:var(--ink);
+
+  border:1px solid var(--line);
+  border-radius:18px;
+
+  box-shadow:var(--shadow-md);
+
+  overflow:hidden;
+}
+
+.panel-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:15px;
+
+  padding:20px 20px 16px;
+
+  border-bottom:1px solid var(--line);
+}
+
+.panel-title{
+  margin:0;
+
+  color:var(--teal-800);
+  font-size:17px;
+  font-weight:950;
+  letter-spacing:-.02em;
+}
+
+.panel-description{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.panel-body{
+  padding:20px;
+}
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:15px;
+}
+
+.field{
+  grid-column:span 6;
+  min-width:0;
+}
+
+.field.full{
+  grid-column:span 12;
+}
+
+.field-label{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+
+  color:#344054;
+  font-size:12px;
+  font-weight:850;
+}
+
+.field-hint{
+  color:var(--muted-2);
+  font-size:10px;
+  font-weight:650;
+}
+
+input,
+select{
+  width:100%;
+  min-height:44px;
+
+  margin-top:7px;
+  padding:10px 12px;
+
+  border:1px solid var(--line-strong);
+  border-radius:11px;
+
+  background:#fff;
+  color:#101828;
+
+  font-size:14px;
+
+  transition:
+    border-color .15s ease,
+    box-shadow .15s ease;
+}
+
+input:hover,
+select:hover{
+  border-color:#98a2b3;
+}
+
+input:focus,
+select:focus{
+  border-color:var(--gold);
+  box-shadow:var(--focus);
+  outline:none;
+}
+
+input[readonly],
+input:disabled{
+  background:#f4f6f8;
+  color:#667085;
+  cursor:not-allowed;
+}
+
+.field-note{
+  margin-top:5px;
+  color:var(--muted-2);
+  font-size:10px;
+}
+
+/* =========================================================
+   RATE / CALCULATOR
+   ========================================================= */
+
+.rate-bar{
+  margin-top:18px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+
+  padding:12px 14px;
+
+  border:1px solid #dce8e8;
+  border-radius:12px;
+
+  background:#f3f9f9;
+}
+
+.rate-label{
+  color:var(--teal-800);
+  font-size:11px;
+  font-weight:850;
+}
+
+.rate-value{
+  color:var(--teal-900);
+  font-size:14px;
+  font-weight:950;
+}
+
+.rate-state{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+
+  color:#667085;
+  font-size:10px;
+}
+
+.rate-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#12b76a;
+}
+
+.calculator-preview{
+  margin-top:14px;
+}
+
+.preview-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.preview-card{
+  padding:13px;
+
+  border:1px solid var(--line);
+  border-radius:12px;
+
+  background:#fafbfc;
+}
+
+.preview-label{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.preview-value{
+  margin-top:4px;
+  color:#101828;
+  font-size:15px;
+  font-weight:950;
+}
+
+.preview-alt{
+  margin-top:2px;
+  color:var(--muted);
+  font-size:10px;
+}
+
+#calc_chart_wrap{
+  margin-top:14px;
+
+  padding:12px;
+
+  border:1px solid var(--line);
+  border-radius:13px;
+
+  background:#fff;
+}
+
+#calcMiniChart{
+  width:100%;
+  max-height:180px;
+}
+
+/* =========================================================
+   PANEL ACTION BAR
+   ========================================================= */
+
+.action-bar{
+  margin-top:18px;
+  padding-top:17px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+
+  border-top:1px solid var(--line);
+}
+
+.primary-btn{
+  min-height:44px;
+
+  padding:10px 18px;
+
+  border:0;
+  border-radius:11px;
+
+  background:
+    linear-gradient(135deg,var(--teal-800),var(--teal-700));
+
+  color:#fff;
+
+  font-weight:900;
+  letter-spacing:.01em;
+
+  box-shadow:0 7px 18px rgba(6,61,63,.20);
+}
+
+.primary-btn:hover{
+  filter:brightness(1.05);
+}
+
+.action-message{
+  min-height:22px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.action-message a{
+  font-weight:800;
+  overflow-wrap:anywhere;
+}
+
+/* =========================================================
+   VOUCHER PANEL
+   ========================================================= */
+
+.voucher-panel{
+  border-top:1px solid var(--line);
+  margin-top:20px;
+  padding-top:20px;
+}
+
+.voucher-heading{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+
+.voucher-title{
+  color:var(--teal-800);
+  font-size:15px;
+  font-weight:950;
+}
+
+.merchant-label{
+  display:inline-flex;
+  align-items:center;
+
+  padding:5px 9px;
+
+  border-radius:999px;
+
+  background:#eef7f7;
+  color:var(--teal-800);
+
+  font-size:10px;
+  font-weight:850;
+}
+
+.voucher-qr{
+  width:78px;
+  height:78px;
+
+  margin-left:auto;
+
+  border:1px solid var(--line);
+  border-radius:10px;
+
+  background:#fff;
+
+  object-fit:contain;
+}
+
+.badge-pill{
+  display:inline-flex;
+  align-items:center;
+  min-height:25px;
+
+  padding:4px 9px;
+
+  border-radius:999px;
+
+  font-size:10px;
+  font-weight:900;
+}
+
+.badge-progress{
+  background:var(--gold-soft);
+  color:#705600;
+}
+
+.badge-ok{
+  background:var(--green-soft);
+  color:#146c37;
+}
+
+.badge-fail{
+  background:var(--red-soft);
+  color:#b42318;
+}
+
+.voucher-status-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  flex-wrap:wrap;
+  margin-top:14px;
+}
+
+/* =========================================================
+   SUCCESS / ERROR
+   ========================================================= */
+
+.result-box{
+  margin-top:15px;
+  padding:14px;
+
+  border-radius:12px;
+  border:1px solid;
+}
+
+.result-box.success{
+  border-color:#b7dfc5;
+  background:#f1fbf4;
+}
+
+.result-box.error{
+  border-color:#f0b8bd;
+  background:#fff5f5;
+}
+
+.result-title{
+  font-weight:950;
+}
+
+.result-text{
+  margin-top:3px;
+  color:#667085;
+  font-size:11px;
+}
+
+.receipt-link{
+  margin-top:8px;
+}
+
+.receipt-link a{
+  font-weight:900;
+}
+
+/* =========================================================
+   RECEIPT
+   ========================================================= */
+
+.receipt-body{
+  padding:20px;
+}
+
+.receipt-frame{
+  width:100%;
+  min-height:460px;
+
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+}
+
+/* =========================================================
+   EMPTY / INFO
+   ========================================================= */
+
+.info-strip{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+
+  padding:12px 14px;
+
+  border:1px solid #dce8e8;
+  border-radius:12px;
+
+  background:#f5fafb;
+
+  color:#475467;
+  font-size:11px;
+}
+
+.info-icon{
+  color:var(--teal-700);
+  font-weight:950;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.footer{
+  width:min(980px,100%);
+  margin:22px auto 0;
+
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+
+  color:#667085;
+  font-size:10px;
+}
+
+.footer a{
+  color:#475467;
+  font-weight:750;
+  text-decoration:none;
+}
+
+.footer a:hover{
+  text-decoration:underline;
+}
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+
+.hidden{
+  display:none !important;
+}
+
+.muted{
+  color:var(--muted);
+}
+
+.visually-hidden{
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  padding:0 !important;
+  margin:-1px !important;
+  overflow:hidden !important;
+  clip:rect(0,0,0,0) !important;
+  white-space:nowrap !important;
+  border:0 !important;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width:760px){
+
+  body{
+    background:
+      radial-gradient(
+        600px 350px at 50% -130px,
+        rgba(6,61,63,.55),
+        transparent 70%
+      ),
+      linear-gradient(
+        180deg,
+        #070b0d 0,
+        #0b1113 400px,
+        #f5f7f9 400px,
+        #f5f7f9 100%
+      );
+  }
+
+  .page{
+    padding:16px 12px 40px;
+  }
+
+  .secure-indicator{
+    display:none;
+  }
+
+  .card-content{
+    grid-template-columns:1fr;
+  }
+
+  .qr-area{
+    display:none;
+  }
+
+  .card-left{
+    grid-template-columns:62px minmax(0,1fr);
+  }
+
+  .chip{
+    width:58px;
+    height:41px;
+  }
+
+  .kv{
+    grid-template-columns:82px minmax(0,1fr);
+  }
+
+  .trust-strip{
+    grid-template-columns:1fr;
+  }
+
+  .trust-item + .trust-item{
+    border-left:0;
+    border-top:1px solid rgba(255,255,255,.08);
+  }
+
+  .workspace-header{
+    align-items:flex-start;
+  }
+
+  .field{
+    grid-column:span 12;
+  }
+
+  .preview-grid{
+    grid-template-columns:1fr;
+  }
+
+  .panel-head,
+  .panel-body,
+  .receipt-body{
+    padding:16px;
+  }
+}
+
+@media (max-width:540px){
+
+  .topbar{
+    margin-bottom:16px;
+  }
+
+  .brand-mark{
+    width:38px;
+    height:38px;
+  }
+
+  .brand-name{
+    font-size:11px;
+  }
+
+  .flip{
+    width:100%;
+  }
+
+  .card-header{
+    padding:
+      11px
+      12px
+      0;
+  }
+
+  .card-brand-icon{
+    width:23px;
+    height:23px;
+  }
+
+  .card-brand-name{
+    font-size:9px;
+  }
+
+  .status{
+    min-height:24px;
+    padding:4px 7px;
+    font-size:7px;
+  }
+
+  .card-content{
+    padding:
+      10px
+      12px
+      5px;
+  }
+
+  .card-left{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+
+  .chip{
+    margin-top:0;
+    width:46px;
+    height:32px;
+  }
+
+  .fields{
+    gap:5px;
+  }
+
+  .kv{
+    grid-template-columns:70px minmax(0,1fr);
+    gap:7px;
+  }
+
+  .k{
+    font-size:7px;
+  }
+
+  .v{
+    font-size:10px;
+  }
+
+  .card-footer{
+    padding:
+      0
+      12px
+      10px;
+  }
+
+  .serial{
+    font-size:8px;
+  }
+
+  .serial-label,
+  .token-note{
+    font-size:6px;
+  }
+
+  .card-actions{
+    width:100%;
+  }
+
+  .action{
+    flex:1 1 150px;
+    min-height:40px;
+    padding:9px 12px;
+    font-size:10px;
+  }
+
+  .workspace-title{
+    font-size:21px;
+  }
+
+  .panel-title{
+    font-size:15px;
+  }
+
+  .form-grid{
+    gap:12px;
+  }
+
+  input,
+  select{
+    min-height:46px;
+  }
+
+  .action-bar{
+    align-items:stretch;
+  }
+
+  .primary-btn{
+    width:100%;
+  }
+
+  .action-message{
+    width:100%;
+  }
+
+  .voucher-qr{
+    margin-left:0;
+  }
+}
+
+@media (max-width:390px){
+
+  .page{
+    padding-left:9px;
+    padding-right:9px;
+  }
+
+  .card-content{
+    padding-top:7px;
+  }
+
+  .kv{
+    grid-template-columns:62px minmax(0,1fr);
+  }
+
+  .v{
+    font-size:9px;
+  }
+
+  .card-footer{
+    padding-bottom:7px;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion:reduce){
+
+  html{
+    scroll-behavior:auto;
+  }
+
+  *,
+  *::before,
+  *::after{
+    transition-duration:.01ms !important;
+    animation-duration:.01ms !important;
+  }
+}
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print{
+
+  @page{
+    size:A4;
+    margin:12mm;
+  }
+
+  body{
+    background:#fff !important;
+    color:#111 !important;
+  }
+
+  .page{
+    width:100%;
+    padding:0;
+  }
+
+  .topbar,
+  .card-actions,
+  .trust-strip,
+  .workspace-header,
+  .action-bar,
+  .footer,
+  .rate-state{
+    display:none !important;
+  }
+
+  .card-section{
+    display:block;
+  }
+
+  .flip{
+    width:100%;
+    max-width:180mm;
+    margin:0 auto;
+  }
+
+  .face{
+    position:relative;
+    box-shadow:none;
+    print-color-adjust:exact;
+    -webkit-print-color-adjust:exact;
+  }
+
+  .card3d{
+    transform:none !important;
+  }
+
+  .back{
+    display:none;
+  }
+
+  .panel{
+    width:100%;
+    margin-top:12mm;
+    box-shadow:none;
+    break-inside:avoid;
+  }
+
+  .panel-head,
+  .panel-body{
+    padding:12px;
+  }
+
+  #calc_chart_wrap{
+    display:none !important;
+  }
+
+  input,
+  select{
+    border:1px solid #aaa;
+  }
+}
 </style>
 </head>
+
 <body>
-<div class="wrap">
 
-  <!-- ========= CARD ========= -->
-  <div class="stage">
-    <div class="flip" aria-label="Cheque Matez card. Tap or press Enter to flip.">
-      <div class="card3d" id="card3d" tabindex="0" role="button" aria-pressed="false">
+<a class="skip-link" href="#main-content">
+  Skip to payment workspace
+</a>
 
-        <!-- FRONT -->
-        <section class="face front" aria-label="Front side">
-          <div class="header">
-            <div class="brand">CHEQUEMATEZ</div>
-            <div class="status {{ (status or 'PENDING')|lower }}" id="status_badge">{{ (status or 'PENDING')|upper }}</div>
-          </div>
+<div class="page">
 
-          <div class="inner">
-            <div class="left">
-              <div class="photo" aria-label="EMV chip"></div>
-              <div class="fields">
-                <div class="kv"><div class="k">USER ID</div>    <div class="v" id="f_userid">—</div></div>
-                <div class="kv"><div class="k">CARDHOLDER</div> <div class="v" id="f_name">—</div></div>
-                <div class="kv"><div class="k">COUNTRY</div>    <div class="v" id="f_country">—</div></div>
-                <div class="kv"><div class="k">ISSUED</div>     <div class="v" id="f_issue">—</div></div>
-                <div class="kv"><div class="k">EXPIRES</div>    <div class="v" id="f_exp">—</div></div>
+  <!-- =====================================================
+       TOP BRAND BAR
+       ===================================================== -->
+
+  <header class="topbar" aria-label="ChequeMatez header">
+
+    <div class="brand-lockup">
+
+      <div class="brand-mark" aria-hidden="true">
+        CM
+      </div>
+
+      <div>
+        <div class="brand-name">
+          CHEQUEMATEZ
+        </div>
+
+        <div class="brand-sub">
+          Digital payment identity
+        </div>
+      </div>
+
+    </div>
+
+    <div class="secure-indicator">
+      <span class="secure-dot" aria-hidden="true"></span>
+      Secure session
+    </div>
+
+  </header>
+
+
+  <main id="main-content">
+
+    <!-- ===================================================
+         DIGITAL CARD
+         =================================================== -->
+
+    <section class="card-section" aria-labelledby="card-title">
+
+      <h1 id="card-title" class="visually-hidden">
+        ChequeMatez digital payment card
+      </h1>
+
+      <div class="card-stage">
+
+        <div
+          class="flip"
+          aria-label="ChequeMatez digital card. Press Enter or Space to flip."
+        >
+
+          <div
+            class="card3d"
+            id="card3d"
+            tabindex="0"
+            role="button"
+            aria-pressed="false"
+            aria-label="Flip ChequeMatez card"
+          >
+
+            <!-- =========================================
+                 FRONT
+                 ========================================= -->
+
+            <section
+              class="face front"
+              aria-label="Front of ChequeMatez card"
+            >
+
+              <div class="card-header">
+
+                <div class="card-brand">
+
+                  <div class="card-brand-icon" aria-hidden="true">
+                    CM
+                  </div>
+
+                  <div class="card-brand-name">
+                    CHEQUEMATEZ
+                  </div>
+
+                </div>
+
+                <div
+                  class="status {{ (status or 'PENDING')|lower }}"
+                  id="status_badge"
+                >
+                  {{ (status or 'PENDING')|upper }}
+                </div>
+
               </div>
+
+
+              <div class="card-content">
+
+                <div class="card-left">
+
+                  <div
+                    class="chip"
+                    aria-label="EMV-style identity chip"
+                    role="img"
+                  ></div>
+
+                  <div class="fields">
+
+                    <div class="kv">
+                      <div class="k">User ID</div>
+                      <div class="v" id="f_userid">—</div>
+                    </div>
+
+                    <div class="kv">
+                      <div class="k">Cardholder</div>
+                      <div class="v" id="f_name">—</div>
+                    </div>
+
+                    <div class="kv">
+                      <div class="k">Country</div>
+                      <div class="v" id="f_country">—</div>
+                    </div>
+
+                    <div class="kv">
+                      <div class="k">Issued</div>
+                      <div class="v" id="f_issue">—</div>
+                    </div>
+
+                    <div class="kv">
+                      <div class="k">Expires</div>
+                      <div class="v" id="f_exp">—</div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                <div class="qr-area">
+
+                  <div
+                    class="qr"
+                    id="qr_front"
+                    aria-label="User verification QR code"
+                  ></div>
+
+                </div>
+
+              </div>
+
+
+              <div class="card-footer">
+
+                <div class="serial-block">
+
+                  <div
+                    class="serial"
+                    id="serial"
+                  >
+                    CM-KW-—
+                  </div>
+
+                  <div class="serial-label">
+                    Identity reference
+                  </div>
+
+                </div>
+
+                <div class="token-note">
+                  QR → tokenized profile link
+                </div>
+
+              </div>
+
+            </section>
+
+
+            <!-- =========================================
+                 BACK
+                 ========================================= -->
+
+            <section
+              class="face back"
+              aria-label="Back of ChequeMatez card"
+            >
+
+              <div class="card-header">
+
+                <div class="card-brand">
+
+                  <div class="card-brand-icon" aria-hidden="true">
+                    CM
+                  </div>
+
+                  <div class="card-brand-name">
+                    CHEQUEMATEZ
+                  </div>
+
+                </div>
+
+                <div
+                  class="status {{ (status or 'PENDING')|lower }}"
+                  id="status_badge_b"
+                >
+                  {{ (status or 'PENDING')|upper }}
+                </div>
+
+              </div>
+
+
+              <div
+                class="magnetic-stripe"
+                aria-hidden="true"
+              ></div>
+
+
+              <div class="cvv-label">
+                Verification hash
+              </div>
+
+
+              <div class="signature-row">
+
+                <div
+                  class="signature-strip"
+                  aria-hidden="true"
+                ></div>
+
+                <div class="cvv-box">
+                  <span id="cvv_hash">•••</span>
+                </div>
+
+              </div>
+
+
+              <div class="back-qr">
+
+                <div
+                  class="qr"
+                  id="qr_back"
+                  aria-label="User verification QR code"
+                ></div>
+
+              </div>
+
+            </section>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- CARD ACTIONS -->
+
+      <div class="card-actions">
+
+        <a
+          class="action action-primary"
+          id="kyc_btn"
+          href="/kyc"
+          target="_blank"
+          rel="noopener"
+        >
+          🪪 Complete KYC
+        </a>
+
+        <a
+          class="action action-secondary"
+          id="scan_btn"
+          href="#"
+          target="_blank"
+          rel="noopener"
+          style="display:none"
+        >
+          📷 Open Scanner
+        </a>
+
+      </div>
+
+
+      <!-- TRUST STRIP -->
+
+      <div class="trust-strip" aria-label="Card information">
+
+        <div class="trust-item">
+          <span class="trust-icon">◆</span>
+          Tokenized QR identity
+        </div>
+
+        <div class="trust-item">
+          <span class="trust-icon">◆</span>
+          KYC status linked
+        </div>
+
+        <div class="trust-item">
+          <span class="trust-icon">◆</span>
+          Payment tools below
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         PAYMENT WORKSPACE
+         =================================================== -->
+
+    <section
+      class="workspace"
+      aria-labelledby="workspace-title"
+    >
+
+      <div class="workspace-header">
+
+        <div>
+
+          <div class="eyebrow">
+            Payment workspace
+          </div>
+
+          <h2
+            class="workspace-title"
+            id="workspace-title"
+          >
+            Create a payment voucher
+          </h2>
+
+          <p class="workspace-subtitle">
+            Generate a controlled one-time payment link or QR code.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           CREATE VOUCHER PANEL
+           ================================================= -->
+
+      <section
+        class="panel"
+        aria-labelledby="voucher-create-title"
+      >
+
+        <div class="panel-head">
+
+          <div>
+
+            <h3
+              class="panel-title"
+              id="voucher-create-title"
+            >
+              Payment voucher
+            </h3>
+
+            <p class="panel-description">
+              Set the payer identity, merchant reference and maximum amount.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="panel-body">
+
+          <div class="info-strip">
+
+            <span class="info-icon" aria-hidden="true">
+              i
+            </span>
+
+            <div>
+              Voucher limits are enforced by the payment service.
+              The calculator below is only a live preview; the backend remains
+              authoritative for rates, fees and payment status.
             </div>
-            <div class="qrbox"><div class="qr" id="qr_front"></div></div>
+
           </div>
 
-          <div class="footer">
-            <div class="serial" id="serial">CM-KW-—</div>
-            <div class="small">QR encodes a tokenized link to this card.</div>
+
+          <div class="form-grid" style="margin-top:18px">
+
+            <!-- USER ID -->
+
+            <div class="field">
+
+              <label
+                class="field-label"
+                for="payer_user_id"
+              >
+                <span>User ID</span>
+                <span class="field-hint">System managed</span>
+              </label>
+
+              <input
+                id="payer_user_id"
+                placeholder="Auto-filled…"
+                readonly
+                disabled
+                autocomplete="off"
+                title="Managed by the system"
+              >
+
+            </div>
+
+
+            <!-- PAYER NAME -->
+
+            <div class="field">
+
+              <label
+                class="field-label"
+                for="payer_name"
+              >
+                <span>Your name</span>
+                <span class="field-hint">Payer</span>
+              </label>
+
+              <input
+                id="payer_name"
+                value="{{ (user.full_name or user.username)|e }}"
+                placeholder="Full name"
+                autocomplete="name"
+                maxlength="120"
+              >
+
+            </div>
+
+
+            <!-- PHONE -->
+
+            <div class="field">
+
+              <label
+                class="field-label"
+                for="payer_phone"
+              >
+                <span>Your phone</span>
+                <span class="field-hint">M-Pesa</span>
+              </label>
+
+              <input
+                id="payer_phone"
+                value="{{ user.phone|e }}"
+                placeholder="2547XXXXXXXX"
+                inputmode="tel"
+                autocomplete="tel"
+                maxlength="20"
+              >
+
+            </div>
+
+
+            <!-- MERCHANT -->
+
+            <div class="field">
+
+              <label
+                class="field-label"
+                for="merchant_id"
+              >
+                <span>Merchant / Shop ID</span>
+                <span class="field-hint">Required</span>
+              </label>
+
+              <input
+                id="merchant_id"
+                value=""
+                placeholder="Enter merchant ID"
+                autocomplete="off"
+                maxlength="80"
+              >
+
+            </div>
+
+
+            <!-- CURRENCY -->
+
+            <div class="field">
+
+              <label
+                class="field-label"
+                for="max_currency"
+              >
+                <span>Maximum amount currency</span>
+              </label>
+
+              <select id="max_currency">
+                <option value="KES">KES — Kenyan Shilling</option>
+                <option value="KWD">KWD — Kuwaiti Dinar</option>
+              </select>
+
+            </div>
+
+
+            <!-- MAX AMOUNT -->
+
+            <div class="field">
+
+              <label
+                class="field-label"
+                for="max_amount"
+              >
+                <span>Maximum amount</span>
+                <span class="field-hint">Voucher limit</span>
+              </label>
+
+              <input
+                id="max_amount"
+                type="number"
+                min="1"
+                step="0.01"
+                placeholder="Enter maximum"
+                inputmode="decimal"
+              >
+
+            </div>
+
+
+            <!-- PREVIEW -->
+
+            <div class="field full">
+
+              <label
+                class="field-label"
+                for="preview_amount"
+              >
+                <span>Preview amount</span>
+                <span class="field-hint">Does not charge</span>
+              </label>
+
+              <input
+                id="preview_amount"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Enter an amount to preview conversion and fees"
+                inputmode="decimal"
+              >
+
+            </div>
+
           </div>
-        </section>
 
-        <!-- BACK -->
-        <section class="face back" aria-label="Back side">
-          <div class="header">
-            <div class="brand">CHEQUEMATEZ</div>
-            <div class="status {{ (status or 'PENDING')|lower }}" id="status_badge_b">{{ (status or 'PENDING')|upper }}</div>
+
+          <!-- LIVE RATE -->
+
+          <div class="rate-bar">
+
+            <div>
+
+              <div class="rate-label">
+                Current exchange rate
+              </div>
+
+              <div
+                class="rate-value"
+                id="rate_hint"
+              >
+                Loading live rate…
+              </div>
+
+            </div>
+
+            <div
+              class="rate-state"
+              id="rate_state"
+              aria-live="polite"
+            >
+              <span class="rate-dot"></span>
+              Admin controlled
+            </div>
+
           </div>
 
-          <div class="mstripe" aria-hidden="true"></div>
-          <div class="cvvlabel">CVV (hashed)</div>
-          <div class="sigrow">
-            <div class="sig" title="Signature strip"></div>
-            <div class="cvvbox"><span id="cvv_hash">•••</span></div>
+
+          <!-- CALCULATOR -->
+
+          <div
+            class="calculator-preview"
+            id="calc_preview"
+            aria-live="polite"
+          ></div>
+
+
+          <div
+            id="calc_chart_wrap"
+            class="hidden"
+            aria-label="Payment calculation chart"
+          >
+
+            <canvas
+              id="calcMiniChart"
+              height="110"
+            ></canvas>
+
           </div>
 
-          <div class="backqr"><div class="qr" id="qr_back"></div></div>
-        </section>
 
-      </div>
+          <!-- ACTION -->
+
+          <div class="action-bar">
+
+            <button
+              class="primary-btn"
+              id="btn_create"
+              type="button"
+            >
+              Generate Voucher
+            </button>
+
+            <div
+              id="create_hint"
+              class="action-message"
+              aria-live="polite"
+            ></div>
+
+          </div>
+
+
+          <!-- GENERATED VOUCHER -->
+
+          <div
+            id="voucher_area"
+            class="hidden"
+          ></div>
+
+          <div
+            id="voucher_panel"
+            class="voucher-panel hidden"
+          ></div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           RECEIPT
+           ================================================= -->
+
+      <section
+        class="panel hidden"
+        id="receipt_panel"
+        aria-labelledby="receipt-title"
+      >
+
+        <div class="panel-head">
+
+          <div>
+
+            <h3
+              class="panel-title"
+              id="receipt-title"
+            >
+              Payment receipt
+            </h3>
+
+            <p class="panel-description">
+              Transaction confirmation returned by the payment service.
+            </p>
+
+          </div>
+
+        </div>
+
+        <div
+          class="receipt-body"
+          id="receipt_html"
+        ></div>
+
+      </section>
+
+    </section>
+
+  </main>
+
+
+  <footer class="footer">
+
+    <div>
+      © <span id="current_year"></span> ChequeMatez
     </div>
 
-    <div class="actions">
-      <!-- REPLACED: Flip button -> KYC button -->
-      <a class="kycbtn" id="kyc_btn" href="/kyc" target="_blank">🪪 Complete KYC</a>
-      <a class="scanbtn" id="scan_btn" href="#" target="_blank" style="display:none">📷 Open Scanner View</a>
-    </div>
-  </div>
-
-  <!-- Admin/Merchant editor intentionally hidden (KYC approves in /admin/kyc) -->
-  <div class="owner" id="owner_panel"></div>
-
-  <!-- ========= Voucher + Receipt section ========= -->
-  <div class="section">
-
-    <!-- Create voucher -->
-    <div class="panel" style="margin-top:10px">
-      <div class="h2">Create Payment Voucher (one-time QR / link)</div>
-      <div class="row">
-        <div class="col-6">
-          <label>User ID (locked)</label>
-          <input id="payer_user_id" placeholder="Auto-filled…" readonly disabled title="Managed by system">
-        </div>
-        <div class="col-6">
-          <label>Your name (payer)</label>
-          <input id="payer_name" value="{{ (user.full_name or user.username) }}" placeholder="Name">
-        </div>
-        <div class="col-6">
-          <label>Your phone (Mpesa)</label>
-          <input id="payer_phone" value="{{ user.phone }}" placeholder="2547XXXXXXXX">
-        </div>
-        <div class="col-6">
-          <label>Merchant/Shop ID</label>
-          <input id="merchant_id" value="shop-001" placeholder="e.g. SHOP-123">
-        </div>
-
-        <!-- Currency + max amount + preview amount -->
-        <div class="col-6">
-          <label>Max amount currency</label>
-          <select id="max_currency">
-            <option value="KES">KES</option>
-            <option value="KWD">KWD</option>
-          </select>
-        </div>
-        <div class="col-6">
-          <label>Max amount</label>
-          <input id="max_amount" type="number" min="1" step="1" placeholder="e.g. 5000">
-        </div>
-        <div class="col-6">
-          <label>Preview amount</label>
-          <input id="preview_amount" type="number" min="1" step="1" placeholder="Try a number…">
-        </div>
-      </div>
-
-      <!-- Live rate from admin -->
-      <div class="small" id="rate_hint" style="margin-top:6px">Fetching live rate…</div>
-
-      <!-- Calculator summary + chart -->
-      <div id="calc_preview" class="small" style="margin-top:8px"></div>
-      <div id="calc_chart_wrap" class="hidden">
-        <canvas id="calcMiniChart" height="110"></canvas>
-      </div>
-
-      <div class="hr"></div>
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
-        <button class="btn" id="btn_create">Generate Voucher</button>
-        <span id="create_hint" class="small"></span>
-      </div>
-
-      <!-- area that will display the voucher UI after creation -->
-      <div id="voucher_area" class="hr" style="display:none"></div>
-      <div id="voucher_panel" style="display:none"></div>
+    <div>
+      <a href="/legal/terms">
+        Terms
+      </a>
+      &nbsp;·&nbsp;
+      <a href="/legal/privacy">
+        Privacy
+      </a>
+      &nbsp;·&nbsp;
+      <a href="mailto:support@chequematez.com">
+        Support
+      </a>
     </div>
 
-    <!-- Receipt panel (shown after success) -->
-    <div class="panel" id="receipt_panel" style="display:none">
-      <div class="h2">Receipt</div>
-      <div id="receipt_html"></div>
-    </div>
-  </div>
+  </footer>
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-<!-- Chart.js for the mini chart -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- =======================================================
+     THIRD-PARTY LIBRARIES
+     ======================================================= -->
+
+<script
+  src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"
+></script>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/chart.js"
+></script>
+
+
+<!-- =======================================================
+     CARD JS
+     ======================================================= -->
 
 <script>
-/* ======== CARD JS (status from id_status; CVV hash; scanner link) ======== */
 (async function(){
+
+  "use strict";
+
   const USERNAME = "{{ user.username|e }}";
   const ORIGIN = window.location.origin;
 
-  const $ = (id)=>document.getElementById(id);
-  const setText=(id,val)=>$(id).textContent = (val && String(val).trim()) || "—";
-  const setBadge=(id,state)=>{
-    const b=$(id);
-    b.classList.remove('pending','approved','declined');
-    const cls=(state||'pending').toLowerCase();
-    b.classList.add(cls);
-    b.textContent=(cls==='approved'?'APPROVED':cls==='declined'?'DECLINED':'PENDING');
+  const $ = id => document.getElementById(id);
+
+  const safeText = value => {
+    const s = value == null ? "" : String(value).trim();
+    return s || "—";
   };
 
-  const card3d = $('card3d');
-  function isBack(){ return card3d.classList.contains('is-flipped'); }
+  const setText = (id,value) => {
+    const el = $(id);
+    if (el) el.textContent = safeText(value);
+  };
+
+  const setBadge = (id,state) => {
+
+    const el = $(id);
+
+    if (!el) return;
+
+    el.classList.remove(
+      "pending",
+      "approved",
+      "declined"
+    );
+
+    const normalized =
+      String(state || "pending")
+        .toLowerCase()
+        .trim();
+
+    const cls =
+      normalized === "approved"
+        ? "approved"
+        : normalized === "declined"
+          ? "declined"
+          : "pending";
+
+    el.classList.add(cls);
+
+    el.textContent =
+      cls === "approved"
+        ? "APPROVED"
+        : cls === "declined"
+          ? "DECLINED"
+          : "PENDING";
+  };
+
+
+  /* -----------------------------------------------
+     CARD FLIP
+     ----------------------------------------------- */
+
+  const card3d = $("card3d");
+
+  function isBack(){
+    return card3d.classList.contains("is-flipped");
+  }
+
   function setFlipped(back){
-    card3d.classList.toggle('is-flipped', !!back);
-    const pressed = back ? 'true' : 'false';
-    card3d.setAttribute('aria-pressed', pressed);
-    // no flip button anymore; keep ARIA only on the card
-  }
-  function toggleFlip(){ setFlipped(!isBack()); }
-  card3d.addEventListener('click', toggleFlip);
-  card3d.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleFlip(); }});
 
-  function renderQR(elId){
-    const el = document.getElementById(elId);
-    if(!el) return;
-    const rect = el.getBoundingClientRect();
-    const size = Math.max(90, Math.floor(Math.min(rect.width, rect.height || rect.width)));
-    el.innerHTML = "";
-    new QRCode(el, {
-      text: `${ORIGIN}/u/${encodeURIComponent(USERNAME)}`,
-      width: size,height: size,correctLevel: QRCode.CorrectLevel.M
-    });
-  }
-  const renderBothQR = ()=>{ renderQR('qr_front'); renderQR('qr_back'); };
-  setTimeout(renderBothQR, 0);
-  let t; window.addEventListener('resize', ()=>{ clearTimeout(t); t=setTimeout(renderBothQR,120); });
+    card3d.classList.toggle(
+      "is-flipped",
+      Boolean(back)
+    );
 
-  const todayISO = new Date().toISOString().slice(0,10);
-  setText('f_issue', todayISO);
+    card3d.setAttribute(
+      "aria-pressed",
+      back ? "true" : "false"
+    );
+
+    card3d.setAttribute(
+      "aria-label",
+      back
+        ? "Showing back of ChequeMatez card. Press Enter or Space to flip back."
+        : "Showing front of ChequeMatez card. Press Enter or Space to flip."
+    );
+  }
+
+  function toggleFlip(){
+    setFlipped(!isBack());
+  }
+
+  card3d.addEventListener(
+    "click",
+    toggleFlip
+  );
+
+  card3d.addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key === "Enter" ||
+        event.key === " "
+      ){
+
+        event.preventDefault();
+        toggleFlip();
+
+      }
+
+    }
+  );
+
+
+  /* -----------------------------------------------
+     QR
+     ----------------------------------------------- */
+
+  function renderQR(id){
+
+    const element = $(id);
+
+    if (!element || typeof QRCode === "undefined"){
+      return;
+    }
+
+    const rect = element.getBoundingClientRect();
+
+    const size = Math.max(
+      72,
+      Math.floor(
+        Math.min(
+          rect.width || 110,
+          rect.height || rect.width || 110
+        )
+      )
+    );
+
+    element.innerHTML = "";
+
+    new QRCode(
+      element,
+      {
+        text:
+          `${ORIGIN}/u/${encodeURIComponent(USERNAME)}`,
+
+        width:size,
+        height:size,
+
+        correctLevel:
+          QRCode.CorrectLevel.M
+      }
+    );
+  }
+
+  function renderBothQR(){
+
+    renderQR("qr_front");
+    renderQR("qr_back");
+
+  }
+
+  setTimeout(
+    renderBothQR,
+    80
+  );
+
+  let resizeTimer;
+
+  window.addEventListener(
+    "resize",
+    () => {
+
+      clearTimeout(resizeTimer);
+
+      resizeTimer = setTimeout(
+        renderBothQR,
+        180
+      );
+
+    },
+    {passive:true}
+  );
+
+
+  /* -----------------------------------------------
+     PROFILE
+     ----------------------------------------------- */
+
+  setText(
+    "f_issue",
+    new Date().toISOString().slice(0,10)
+  );
 
   let profile = {};
+
   try{
-    const r = await fetch(`/api/user/${encodeURIComponent(USERNAME)}`, {credentials:'same-origin'});
-    const j = await r.json();
-    if(j && j.ok){ profile = j.profile || {}; }
-  }catch(e){}
 
-  setText('f_userid',  profile.user_id || '');
-  setText('f_name',    profile.full_name || USERNAME.toUpperCase());
-  setText('f_country', profile.country || 'KW');
-  setText('f_exp',     profile.expiry || '');
-  $('serial').textContent = profile.user_id || 'CM-KW-—';
+    const response = await fetch(
+      `/api/user/${encodeURIComponent(USERNAME)}`,
+      {
+        credentials:"same-origin",
+        cache:"no-store",
+        headers:{
+          "Accept":"application/json"
+        }
+      }
+    );
 
-  // Status from id_status
-  const st = (profile.id_status || 'pending').toLowerCase();
-  setBadge('status_badge', st);
-  setBadge('status_badge_b', st);
+    const json = await response.json();
 
-  // CVV hash preview (3 chars from hash for display only)
-  const cvvHash = profile.cvv_hash || profile.cvv3_hash || '';
-  $('cvv_hash').textContent = cvvHash ? cvvHash.slice(0,3) : '•••';
+    if (
+      response.ok &&
+      json &&
+      json.ok
+    ){
 
-  // Scanner button: enable once we know user_id (with simple cache-buster)
-  if (profile.user_id){
-    const scanBtn = document.getElementById('scan_btn');
-    scanBtn.href = `/scan/${encodeURIComponent(profile.user_id)}?t=${Date.now()}`;
-    scanBtn.style.display = 'inline-flex';
-  }
+      profile =
+        json.profile || {};
 
-  // KYC button: replace flip, show/hide/rename by status
-  const kycBtn = document.getElementById('kyc_btn');
-  if (kycBtn){
-    if (st === 'approved'){
-      kycBtn.style.display = 'none';
-    } else if (st === 'declined'){
-      kycBtn.textContent = '🪪 Resubmit KYC';
-      kycBtn.style.display = 'inline-flex';
-    } else {
-      kycBtn.textContent = '🪪 Complete KYC';
-      kycBtn.style.display = 'inline-flex';
     }
+
+  }catch(error){
+
+    console.warn(
+      "Profile request failed",
+      error
+    );
+
   }
 
-  // Expose user_id to voucher panel defaults
-  try{
-    const userIdField = document.getElementById('payer_user_id');
-    if (userIdField){ userIdField.value = profile.user_id || ''; }
-  }catch(e){}
+
+  setText(
+    "f_userid",
+    profile.user_id
+  );
+
+  setText(
+    "f_name",
+    profile.full_name ||
+    USERNAME.toUpperCase()
+  );
+
+  setText(
+    "f_country",
+    profile.country || "KW"
+  );
+
+  setText(
+    "f_exp",
+    profile.expiry
+  );
+
+
+  $("serial").textContent =
+    profile.user_id ||
+    "CM-KW-—";
+
+
+  /* -----------------------------------------------
+     STATUS
+     ----------------------------------------------- */
+
+  const status =
+    String(
+      profile.id_status ||
+      "pending"
+    ).toLowerCase();
+
+  setBadge(
+    "status_badge",
+    status
+  );
+
+  setBadge(
+    "status_badge_b",
+    status
+  );
+
+
+  /* -----------------------------------------------
+     HASH DISPLAY
+     ----------------------------------------------- */
+
+  const cvvHash =
+    profile.cvv_hash ||
+    profile.cvv3_hash ||
+    "";
+
+  $("cvv_hash").textContent =
+    cvvHash
+      ? String(cvvHash).slice(0,3)
+      : "•••";
+
+
+  /* -----------------------------------------------
+     SCANNER
+     ----------------------------------------------- */
+
+  const scanBtn =
+    $("scan_btn");
+
+  if (
+    scanBtn &&
+    profile.user_id
+  ){
+
+    scanBtn.href =
+      `/scan/${encodeURIComponent(profile.user_id)}?t=${Date.now()}`;
+
+    scanBtn.style.display =
+      "inline-flex";
+
+  }
+
+
+  /* -----------------------------------------------
+     KYC BUTTON
+     ----------------------------------------------- */
+
+  const kycBtn =
+    $("kyc_btn");
+
+  if (kycBtn){
+
+    if (status === "approved"){
+
+      kycBtn.style.display =
+        "none";
+
+    }else if (status === "declined"){
+
+      kycBtn.textContent =
+        "🪪 Resubmit KYC";
+
+      kycBtn.style.display =
+        "inline-flex";
+
+    }else{
+
+      kycBtn.textContent =
+        "🪪 Complete KYC";
+
+      kycBtn.style.display =
+        "inline-flex";
+
+    }
+
+  }
+
+
+  /* -----------------------------------------------
+     USER ID FOR VOUCHER
+     ----------------------------------------------- */
+
+  const userIdField =
+    $("payer_user_id");
+
+  if (
+    userIdField &&
+    profile.user_id
+  ){
+
+    userIdField.value =
+      profile.user_id;
+
+  }
+
 })();
 </script>
 
-<!-- ======== Voucher + Receipt JS (kept) ======== -->
+
+<!-- =======================================================
+     VOUCHER + RECEIPT JS
+     ======================================================= -->
+
 <script>
 (function(){
-  const payerUserIdEl= document.getElementById('payer_user_id');
-  const payerNameEl  = document.getElementById('payer_name');
-  const payerPhoneEl = document.getElementById('payer_phone');
-  const merchantEl   = document.getElementById('merchant_id');
-  const maxAmtEl     = document.getElementById('max_amount');
-  const maxCurEl     = document.getElementById('max_currency');
-  const prevAmtEl    = document.getElementById('preview_amount');
-  const btnCreate    = document.getElementById('btn_create');
-  const createHint   = document.getElementById('create_hint');
-  const voucherArea  = document.getElementById('voucher_area');
-  const voucherPanel = document.getElementById('voucher_panel');
-  const receiptPanel = document.getElementById('receipt_panel');
-  const receiptHTML  = document.getElementById('receipt_html');
-  const rateHint     = document.getElementById('rate_hint');
 
-  let CURRENT_RATE = 420; // updated from /api/rate (admin-controlled)
+  "use strict";
+
+  const payerUserIdEl =
+    document.getElementById("payer_user_id");
+
+  const payerNameEl =
+    document.getElementById("payer_name");
+
+  const payerPhoneEl =
+    document.getElementById("payer_phone");
+
+  const merchantEl =
+    document.getElementById("merchant_id");
+
+  const maxAmtEl =
+    document.getElementById("max_amount");
+
+  const maxCurEl =
+    document.getElementById("max_currency");
+
+  const prevAmtEl =
+    document.getElementById("preview_amount");
+
+  const btnCreate =
+    document.getElementById("btn_create");
+
+  const createHint =
+    document.getElementById("create_hint");
+
+  const voucherArea =
+    document.getElementById("voucher_area");
+
+  const voucherPanel =
+    document.getElementById("voucher_panel");
+
+  const receiptPanel =
+    document.getElementById("receipt_panel");
+
+  const receiptHTML =
+    document.getElementById("receipt_html");
+
+  const rateHint =
+    document.getElementById("rate_hint");
+
+  const rateState =
+    document.getElementById("rate_state");
+
+
+  let CURRENT_RATE = 420;
   let miniChart = null;
   let activeCode = null;
   let poller = null;
 
-  const fmt = (v)=> Number(v||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-  // simple preview fee (front-end display only; backend uses table)
-  const feeKes = (amountKes)=> Math.min(200, (Number(amountKes||0)*0.018) + 10);
 
-  /* Get User ID */
-  (async function ensureUserId(){
-    if (payerUserIdEl && !payerUserIdEl.value){
+  /* -----------------------------------------------
+     FORMATTERS
+     ----------------------------------------------- */
+
+  const fmt = value =>
+    Number(value || 0).toLocaleString(
+      undefined,
+      {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+      }
+    );
+
+
+  const feeKes = amountKes =>
+    Math.min(
+      200,
+      Number(amountKes || 0) * 0.018 + 10
+    );
+
+
+  const escapeHTML = value => {
+
+    const div =
+      document.createElement("div");
+
+    div.textContent =
+      value == null
+        ? ""
+        : String(value);
+
+    return div.innerHTML;
+
+  };
+
+
+  /* -----------------------------------------------
+     USER ID
+     ----------------------------------------------- */
+
+  async function ensureUserId(){
+
+    if (
+      payerUserIdEl &&
+      !payerUserIdEl.value
+    ){
+
       try{
-        const USERNAME = "{{ user.username|e }}";
-        const r = await fetch(`/api/user/${encodeURIComponent(USERNAME)}`, {credentials:'same-origin'});
-        const j = await r.json();
-        if (r.ok && j && j.ok && j.profile && j.profile.user_id){
-          payerUserIdEl.value = j.profile.user_id;
-        }
-      }catch(e){}
-    }
-  })();
 
-  /* --------- Get admin rate (GET only) --------- */
-  async function fetchRate(){
-    try{
-      const r = await fetch('/api/rate', {credentials:'same-origin', cache:'no-store'});
-      const j = await r.json();
-      if(r.ok && j && j.ok){ CURRENT_RATE = Number(j.rate)||420; }
-    }catch(e){}
-    rateHint.textContent = `Live rate: 1 KWD = ${fmt(CURRENT_RATE)} KES`;
+        const USERNAME =
+          "{{ user.username|e }}";
+
+        const response =
+          await fetch(
+            `/api/user/${encodeURIComponent(USERNAME)}`,
+            {
+              credentials:"same-origin",
+              cache:"no-store",
+              headers:{
+                "Accept":"application/json"
+              }
+            }
+          );
+
+        const json =
+          await response.json();
+
+        if (
+          response.ok &&
+          json &&
+          json.ok &&
+          json.profile &&
+          json.profile.user_id
+        ){
+
+          payerUserIdEl.value =
+            json.profile.user_id;
+
+        }
+
+      }catch(error){
+
+        console.warn(
+          "Unable to resolve user ID",
+          error
+        );
+
+      }
+
+    }
+
   }
 
-  /* --------- Calculator preview + mini chart --------- */
-  function renderCalc(){
-    const cur = maxCurEl.value;
-    theAmt = parseFloat(prevAmtEl.value||'0')||0;
 
-    const previewBox = document.getElementById('calc_preview');
-    const chartWrap  = document.getElementById('calc_chart_wrap');
+  ensureUserId();
 
-    if (theAmt <= 0){
-      previewBox.innerHTML = '';
-      chartWrap.classList.add('hidden');
-      if (miniChart){ miniChart.destroy(); miniChart=null; }
-      return;
+
+  /* -----------------------------------------------
+     LIVE RATE
+     ----------------------------------------------- */
+
+  async function fetchRate(){
+
+    rateState.innerHTML =
+      '<span class="rate-dot"></span> Updating…';
+
+    try{
+
+      const response =
+        await fetch(
+          "/api/rate",
+          {
+            credentials:"same-origin",
+            cache:"no-store",
+            headers:{
+              "Accept":"application/json"
+            }
+          }
+        );
+
+      const json =
+        await response.json();
+
+      if (
+        response.ok &&
+        json &&
+        json.ok
+      ){
+
+        const parsed =
+          Number(json.rate);
+
+        if (
+          Number.isFinite(parsed) &&
+          parsed > 0
+        ){
+
+          CURRENT_RATE =
+            parsed;
+
+        }
+
+      }
+
+      rateState.innerHTML =
+        '<span class="rate-dot"></span> Admin controlled';
+
+    }catch(error){
+
+      rateState.innerHTML =
+        '<span class="rate-dot" style="background:#d92d20"></span> Rate unavailable';
+
     }
 
-    const amtKES = (cur==='KWD') ? theAmt*CURRENT_RATE : theAmt;
-    const feeKESv = feeKes(amtKES);
-    const totKES = amtKES + feeKESv;
+    rateHint.textContent =
+      `1 KWD = ${fmt(CURRENT_RATE)} KES`;
 
-    const amtKWD = amtKES / CURRENT_RATE;
-    const feeKWD = feeKESv / CURRENT_RATE;
-    const totKWD = totKES / CURRENT_RATE;
+  }
 
-    const isKWD = (cur==='KWD');
-    const unit = isKWD ? 'KWD' : 'KES';
-    const unitAlt = isKWD ? 'KES' : 'KWD';
 
-    const amountPrimary = isKWD ? amtKWD : amtKES;
-    const feePrimary    = isKWD ? feeKWD : feeKESv;
-    const totalPrimary  = isKWD ? totKWD : totKES;
+  /* -----------------------------------------------
+     CALCULATOR
+     ----------------------------------------------- */
 
-    const amountAlt = isKWD ? amtKES : amtKWD;
-    const feeAlt    = isKWD ? feeKESv : feeKWD;
-    const totalAlt  = isKWD ? totKES : totKWD;
+  function renderCalc(){
+
+    const currency =
+      maxCurEl.value;
+
+    const amount =
+      Math.max(
+        0,
+        parseFloat(
+          prevAmtEl.value || "0"
+        ) || 0
+      );
+
+    const previewBox =
+      document.getElementById(
+        "calc_preview"
+      );
+
+    const chartWrap =
+      document.getElementById(
+        "calc_chart_wrap"
+      );
+
+    if (amount <= 0){
+
+      previewBox.innerHTML = "";
+
+      chartWrap.classList.add(
+        "hidden"
+      );
+
+      if (miniChart){
+
+        miniChart.destroy();
+        miniChart = null;
+
+      }
+
+      return;
+
+    }
+
+
+    const amountKES =
+      currency === "KWD"
+        ? amount * CURRENT_RATE
+        : amount;
+
+    const feeKESValue =
+      feeKes(amountKES);
+
+    const totalKES =
+      amountKES + feeKESValue;
+
+    const amountKWD =
+      amountKES / CURRENT_RATE;
+
+    const feeKWD =
+      feeKESValue / CURRENT_RATE;
+
+    const totalKWD =
+      totalKES / CURRENT_RATE;
+
+
+    const isKWD =
+      currency === "KWD";
+
+    const primaryUnit =
+      isKWD ? "KWD" : "KES";
+
+    const alternateUnit =
+      isKWD ? "KES" : "KWD";
+
+
+    const primaryAmount =
+      isKWD ? amountKWD : amountKES;
+
+    const primaryFee =
+      isKWD ? feeKWD : feeKESValue;
+
+    const primaryTotal =
+      isKWD ? totalKWD : totalKES;
+
+
+    const alternateAmount =
+      isKWD ? amountKES : amountKWD;
+
+    const alternateFee =
+      isKWD ? feeKESValue : feeKWD;
+
+    const alternateTotal =
+      isKWD ? totalKES : totalKWD;
+
 
     previewBox.innerHTML = `
-      <div><strong>Preview</strong> • Fees computed in KES then converted.</div>
-      <div>Amount: <strong>${fmt(amountPrimary)} ${unit}</strong>
-        <span class="badge-pill" style="background:#e8f7ff;color:#055">≈ ${fmt(amountAlt)} ${unitAlt}</span></div>
-      <div>Service fee: <strong>${fmt(feePrimary)} ${unit}</strong>
-        <span class="badge-pill" style="background:#e8f7ff;color:#055">≈ ${fmt(feeAlt)} ${unitAlt}</span></div>
-      <div>Total to charge: <strong>${fmt(totalPrimary)} ${unit}</strong>
-        <span class="badge-pill" style="background:#e8f7ff;color:#055">≈ ${fmt(totalAlt)} ${unitAlt}</span></div>
-    `;
 
-    // Simple, readable line chart
-    const values = [amountPrimary, feePrimary, totalPrimary];
-    const labels = [`Amount (${unit})`, `Fee (${unit})`, `Total (${unit})`];
-    chartWrap.classList.remove('hidden');
-    if (miniChart){ miniChart.destroy(); miniChart=null; }
-    const ctx = document.getElementById('calcMiniChart').getContext('2d');
-    miniChart = new Chart(ctx, {
-      type:'line',
-      data:{ labels, datasets:[{ label:`Quick View (${unit})`, data:values, borderWidth:2, tension:.25, pointRadius:3 }]},
-      options:{ responsive:true, plugins:{legend:{display:false}},
-        scales:{ y:{ ticks:{ callback:(v)=>fmt(v)}}, x:{ ticks:{ autoSkip:false }} }
-      }
-    });
-  }
+      <div class="preview-grid">
 
-  // Helper: when cashier inputs KES in voucher panel, mirror into calculator preview
-  function setPreviewFromKes(kesAmount){
-    const cur = maxCurEl.value;
-    const inUnitVal = (cur==='KWD') ? (Number(kesAmount||0)/CURRENT_RATE) : Number(kesAmount||0);
-    prevAmtEl.value = Number.isFinite(inUnitVal) ? String(Math.max(0, Math.floor(inUnitVal*100)/100)) : '';
-    renderCalc();
-  }
+        <div class="preview-card">
 
-  /* --------- Create voucher --------- */
-  btnCreate.addEventListener('click', async ()=>{
-    try{
-      btnCreate.disabled = true; createHint.textContent='Creating…';
-      const fd = new FormData();
-      fd.append('user_id', (payerUserIdEl && payerUserIdEl.value) ? payerUserIdEl.value : ''); // bind to user account
-      fd.append('payer_name', (payerNameEl.value||'').trim());
-      fd.append('payer_phone', (payerPhoneEl.value||'').trim());
-      fd.append('merchant_id', (merchantEl.value||'shop-001').trim());
-
-      // Convert max to KES for backend (rate from admin)
-      const cur = maxCurEl.value;
-      const maxRaw = parseFloat(maxAmtEl.value||'0')||0;
-      const maxKES = cur==='KWD' ? Math.round(maxRaw*CURRENT_RATE) : Math.round(maxRaw);
-      if (maxKES>0) fd.append('max_amount', String(maxKES));
-
-      const r = await fetch('/api/vouchers/create', {method:'POST', body:fd});
-      const j = await r.json();
-      if(!r.ok || j.ok!==true) throw new Error(j.error || ('HTTP '+r.status));
-
-      activeCode = j.code;
-      createHint.innerHTML = `Voucher ready: <a href="${j.url}" target="_blank">${j.url}</a>`;
-      voucherArea.style.display = 'block';
-      renderVoucherPanel(j.code, merchantEl.value||'shop-001');
-    }catch(e){
-      alert(e.message || 'Failed to create voucher');
-    }finally{
-      btnCreate.disabled = false;
-    }
-  });
-
-  /* --------- Voucher panel (with live sync to calculator) --------- */
-  function renderVoucherPanel(code, merchant_id){
-    voucherPanel.style.display='block';
-    voucherPanel.innerHTML = `
-      <div class="h2" style="margin:6px 0 2px">Pay at: <strong>${merchant_id}</strong></div>
-      <div class="row">
-        <div class="col-6">
-          <label>Amount (KES)</label>
-          <input id="v_amount" type="number" min="1" step="1" placeholder="Enter amount">
-        </div>
-        <div class="col-6">
-          <label>Payout method</label>
-          <select id="v_payout_method">
-            <option value="">Select…</option>
-            <option value="phone">Mpesa (phone)</option>
-            <option value="till">Buy Goods/Till</option>
-            <option value="bank">Bank transfer</option>
-          </select>
-        </div>
-        <div class="col-12" id="v_pm_phone" style="display:none">
-          <label>Phone (2547… / 2541…)</label>
-          <input id="v_target_phone" placeholder="2547XXXXXXXX">
-        </div>
-        <div class="col-12" id="v_pm_till" style="display:none">
-          <label>Till / BuyGoods number</label>
-          <input id="v_target_till" placeholder="e.g. 123456">
-        </div>
-        <div class="col-12" id="v_pm_bank" style="display:none">
-          <label>Bank account</label>
-          <input id="v_target_bank" placeholder="e.g. 010123456789">
-          <div class="row" style="margin-top:8px">
-            <div class="col-6">
-              <label>Bank name (optional)</label>
-              <input id="v_bank_name" placeholder="e.g. KCB">
-            </div>
-            <div class="col-6">
-              <label>Branch (optional)</label>
-              <input id="v_bank_branch" placeholder="e.g. Westlands">
-            </div>
+          <div class="preview-label">
+            Amount
           </div>
+
+          <div class="preview-value">
+            ${fmt(primaryAmount)}
+            ${primaryUnit}
+          </div>
+
+          <div class="preview-alt">
+            ≈ ${fmt(alternateAmount)}
+            ${alternateUnit}
+          </div>
+
         </div>
-      </div>
 
-      <!-- fee now shows KES + KWD -->
-      <div id="v_fee" class="small" style="margin-top:6px"></div>
 
-      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px">
-        <button class="btn" id="v_pay">Request STK</button>
-        <span id="v_status" class="badge-pill progress" style="display:none">Processing…</span>
-        <img alt="Voucher QR" src="/v/${code}/qr.png" style="margin-left:auto;width:82px;height:82px;border:1px solid #e4e8ee;border-radius:8px;background:#fff">
-      </div>
+        <div class="preview-card">
 
-      <div id="v_success" style="display:none; margin-top:10px">
-        <span class="badge-pill ok">Success</span>
-        <div class="small" style="margin-top:6px">Payment received. You can proceed to deliver the goods.</div>
-        <div id="v_receipt_link" style="margin-top:6px"></div>
-      </div>
+          <div class="preview-label">
+            Service fee
+          </div>
 
-      <div id="v_error" class="small" style="display:none; margin-top:10px">
-        <span class="badge-pill fail">Failed</span>
-        <div id="v_errmsg" style="margin-top:6px"></div>
+          <div class="preview-value">
+            ${fmt(primaryFee)}
+            ${primaryUnit}
+          </div>
+
+          <div class="preview-alt">
+            ≈ ${fmt(alternateFee)}
+            ${alternateUnit}
+          </div>
+
+        </div>
+
+
+        <div class="preview-card">
+
+          <div class="preview-label">
+            Estimated total
+          </div>
+
+          <div class="preview-value">
+            ${fmt(primaryTotal)}
+            ${primaryUnit}
+          </div>
+
+          <div class="preview-alt">
+            ≈ ${fmt(alternateTotal)}
+            ${alternateUnit}
+          </div>
+
+        </div>
+
       </div>
     `;
 
-    const amountEl = document.getElementById('v_amount');
-    const methodEl = document.getElementById('v_payout_method');
-    const feeEl    = document.getElementById('v_fee');
-    const statusEl = document.getElementById('v_status');
-    const okBox    = document.getElementById('v_success');
-    const okLink   = document.getElementById('v_receipt_link');
-    const errBox   = document.getElementById('v_error');
-    const errMsg   = document.getElementById('v_errmsg');
 
-    const pmPhone  = document.getElementById('v_pm_phone');
-    const pmTill   = document.getElementById('v_pm_till');
-    const pmBank   = document.getElementById('v_pm_bank');
+    /* ---------------------------------------------
+       CHART
+       --------------------------------------------- */
 
-    const showPM=(w)=>{
-      pmPhone.style.display='none'; pmTill.style.display='none'; pmBank.style.display='none';
-      if(w==='phone') pmPhone.style.display='block';
-      if(w==='till')  pmTill.style.display='block';
-      if(w==='bank')  pmBank.style.display='block';
-    };
+    if (
+      typeof Chart === "undefined"
+    ){
 
-    methodEl.addEventListener('change', e=> showPM(e.target.value));
+      chartWrap.classList.add(
+        "hidden"
+      );
 
-    // LIVE mirror: typing KES here updates calculator preview & fee shows in KES+KWD
-    amountEl.addEventListener('input', e=>{
-      const kes = parseFloat(e.target.value||'0')||0;
-      const fKES = feeKes(kes);
-      const fKWD = fKES / CURRENT_RATE;
-      const tKES = kes + fKES;
-      const tKWD = tKES / CURRENT_RATE;
-      feeEl.innerHTML = kes>0
-        ? `Fee: <strong>${fmt(fKES)} KES</strong> (≈ ${fmt(fKWD)} KWD) • Total: <strong>${fmt(tKES)} KES</strong> (≈ ${fmt(tKWD)} KWD)`
-        : '';
-      setPreviewFromKes(kes);
-    });
+      return;
 
-    document.getElementById('v_pay').addEventListener('click', async ()=>{
+    }
+
+
+    chartWrap.classList.remove(
+      "hidden"
+    );
+
+
+    if (miniChart){
+
+      miniChart.destroy();
+      miniChart = null;
+
+    }
+
+
+    const canvas =
+      document.getElementById(
+        "calcMiniChart"
+      );
+
+    if (!canvas) return;
+
+
+    const context =
+      canvas.getContext("2d");
+
+    miniChart =
+      new Chart(
+        context,
+        {
+          type:"line",
+
+          data:{
+            labels:[
+              `Amount (${primaryUnit})`,
+              `Fee (${primaryUnit})`,
+              `Total (${primaryUnit})`
+            ],
+
+            datasets:[
+              {
+                label:
+                  `Payment preview (${primaryUnit})`,
+
+                data:[
+                  primaryAmount,
+                  primaryFee,
+                  primaryTotal
+                ],
+
+                borderWidth:2,
+                tension:.25,
+                pointRadius:4
+              }
+            ]
+          },
+
+          options:{
+            responsive:true,
+
+            plugins:{
+              legend:{
+                display:false
+              }
+            },
+
+            scales:{
+              y:{
+                ticks:{
+                  callback:value =>
+                    fmt(value)
+                }
+              },
+
+              x:{
+                ticks:{
+                  autoSkip:false
+                }
+              }
+            }
+          }
+        }
+      );
+
+  }
+
+
+  function setPreviewFromKes(
+    kesAmount
+  ){
+
+    const currency =
+      maxCurEl.value;
+
+    const numeric =
+      Number(kesAmount || 0);
+
+    const preview =
+      currency === "KWD"
+        ? numeric / CURRENT_RATE
+        : numeric;
+
+    prevAmtEl.value =
+      Number.isFinite(preview)
+        ? String(
+            Math.max(
+              0,
+              Math.floor(
+                preview * 100
+              ) / 100
+            )
+          )
+        : "";
+
+    renderCalc();
+
+  }
+
+
+  /* -----------------------------------------------
+     CREATE VOUCHER
+     ----------------------------------------------- */
+
+  btnCreate.addEventListener(
+    "click",
+    async () => {
+
       try{
-        errBox.style.display='none'; okBox.style.display='none';
-        statusEl.style.display='inline-block'; statusEl.textContent='Processing…';
 
-        const fd = new FormData();
-        fd.append('amount', amountEl.value || '');
-        fd.append('payout_method', methodEl.value || '');
+        createHint.textContent =
+          "Validating…";
 
-        if (methodEl.value === 'phone')
-          fd.append('payout_target', document.getElementById('v_target_phone').value || '');
-        if (methodEl.value === 'till')
-          fd.append('payout_target', document.getElementById('v_target_till').value || '');
-        if (methodEl.value === 'bank'){
-          fd.append('payout_target', document.getElementById('v_target_bank').value || '');
-          fd.append('payout_bank_name', document.getElementById('v_bank_name').value || '');
-          fd.append('payout_bank_branch', document.getElementById('v_bank_branch').value || '');
+        btnCreate.disabled =
+          true;
+
+
+        const userId =
+          payerUserIdEl.value.trim();
+
+        const payerName =
+          payerNameEl.value.trim();
+
+        const payerPhone =
+          payerPhoneEl.value.trim();
+
+        const merchantId =
+          merchantEl.value.trim();
+
+        const currency =
+          maxCurEl.value;
+
+        const maxRaw =
+          parseFloat(
+            maxAmtEl.value || "0"
+          ) || 0;
+
+
+        if (!userId){
+
+          throw new Error(
+            "Your User ID is not available yet. Please refresh and try again."
+          );
+
         }
 
-        const r = await fetch(`/api/vouchers/${code}/pay`, {method:'POST', body:fd});
-        const j = await r.json();
-        if(!r.ok || j.ok!==true) throw new Error(j.error || ('HTTP '+r.status));
+        if (!payerName){
 
-        if (poller) clearInterval(poller);
-        poller = setInterval(async ()=>{
-          try{
-            const rs = await fetch(`/api/vouchers/${code}/status`);
-            const js = await rs.json();
-            if(!rs.ok || js.ok!==true) return;
+          throw new Error(
+            "Enter the payer name."
+          );
 
-            const v = js.voucher || {};
-            const st = (v.status||'').toLowerCase();
+        }
 
-            if (st==='processing'){ statusEl.style.display='inline-block'; statusEl.textContent='Processing…'; }
-            if (st==='credited' || (v.used && v.receipt_url)){
-              clearInterval(poller);
-              statusEl.style.display='none';
-              okBox.style.display='block';
-              okLink.innerHTML = `<a href="${v.receipt_url}" target="_blank">View receipt</a>`;
-              renderReceipt(v.receipt_url);
+        if (!payerPhone){
+
+          throw new Error(
+            "Enter the payer M-Pesa phone number."
+          );
+
+        }
+
+        if (!merchantId){
+
+          throw new Error(
+            "Enter the merchant or shop ID."
+          );
+
+        }
+
+        if (
+          !Number.isFinite(maxRaw) ||
+          maxRaw <= 0
+        ){
+
+          throw new Error(
+            "Enter a valid maximum voucher amount."
+          );
+
+        }
+
+
+        const maxKES =
+          currency === "KWD"
+            ? Math.round(
+                maxRaw *
+                CURRENT_RATE
+              )
+            : Math.round(maxRaw);
+
+
+        if (
+          !Number.isFinite(maxKES) ||
+          maxKES <= 0
+        ){
+
+          throw new Error(
+            "The calculated voucher limit is invalid."
+          );
+
+        }
+
+
+        createHint.textContent =
+          "Creating secure voucher…";
+
+
+        const formData =
+          new FormData();
+
+        formData.append(
+          "user_id",
+          userId
+        );
+
+        formData.append(
+          "payer_name",
+          payerName
+        );
+
+        formData.append(
+          "payer_phone",
+          payerPhone
+        );
+
+        formData.append(
+          "merchant_id",
+          merchantId
+        );
+
+        formData.append(
+          "max_amount",
+          String(maxKES)
+        );
+
+
+        const response =
+          await fetch(
+            "/api/vouchers/create",
+            {
+              method:"POST",
+              body:formData,
+              credentials:"same-origin",
+              headers:{
+                "Accept":"application/json"
+              }
             }
-            if (st==='failed'){
-              clearInterval(poller);
-              statusEl.style.display='none';
-              errBox.style.display='block';
-              errMsg.textContent = 'Payment failed or voucher expired.';
-            }
-          }catch(_){}
-        }, 2500);
-      }catch(e){
-        statusEl.style.display='none';
-        errBox.style.display='block';
-        errMsg.textContent = e.message || 'Failed to initiate payment';
-      }
-    });
-  }
+          );
 
-  /* --------- Receipt embed (isolation to avoid style clash) --------- */
-  async function renderReceipt(url){
-    try{
-      const r = await fetch(url, {cache:'no-store'});
-      if (!r.ok){
-        receiptPanel.style.display='block';
-        receiptHTML.innerHTML = `<div class="small" style="color:#b00020">Could not load receipt (HTTP ${r.status})</div>`;
-        return;
+
+        const json =
+          await response.json();
+
+
+        if (
+          !response.ok ||
+          !json ||
+          json.ok !== true
+        ){
+
+          throw new Error(
+            json &&
+            json.error
+              ? json.error
+              : `Unable to create voucher (HTTP ${response.status})`
+          );
+
+        }
+
+
+        activeCode =
+          json.code;
+
+
+        if (!activeCode){
+
+          throw new Error(
+            "Voucher was created without a valid code."
+          );
+
+        }
+
+
+        createHint.innerHTML =
+          `Voucher ready: <a href="${escapeHTML(json.url || "#")}" target="_blank" rel="noopener">${escapeHTML(json.url || "Open voucher")}</a>`;
+
+
+        voucherArea.classList.remove(
+          "hidden"
+        );
+
+
+        renderVoucherPanel(
+          activeCode,
+          merchantId
+        );
+
+
+        voucherPanel.scrollIntoView({
+          behavior:
+            window.matchMedia(
+              "(prefers-reduced-motion: reduce)"
+            ).matches
+              ? "auto"
+              : "smooth",
+          block:"start"
+        });
+
+
+      }catch(error){
+
+        createHint.textContent =
+          error.message ||
+          "Unable to create voucher.";
+
+      }finally{
+
+        btnCreate.disabled =
+          false;
+
       }
-      const html = await r.text();
-      receiptPanel.style.display='block';
-      receiptHTML.innerHTML = '';
-      const iframe = document.createElement('iframe');
-      iframe.style.width = '100%';
-      iframe.style.border = '1px solid var(--line)';
-      iframe.style.borderRadius = '12px';
-      iframe.onload = ()=>{ try{ iframe.style.height = Math.max(420, iframe.contentDocument.body.scrollHeight+20)+'px'; }catch{} };
-      receiptHTML.appendChild(iframe);
-      iframe.contentDocument.open(); iframe.contentDocument.write(html); iframe.contentDocument.close();
-    }catch(e){
-      receiptPanel.style.display='block';
-      receiptHTML.innerHTML = `<div class="small" style="color:#b00020">${e.message || 'Failed to load receipt'}</div>`;
+
     }
+  );
+
+
+  /* -----------------------------------------------
+     VOUCHER PANEL
+     ----------------------------------------------- */
+
+  function renderVoucherPanel(
+    code,
+    merchantId
+  ){
+
+    voucherPanel.classList.remove(
+      "hidden"
+    );
+
+
+    voucherPanel.innerHTML = `
+
+      <div class="voucher-heading">
+
+        <div>
+
+          <div class="voucher-title">
+            Payment request
+          </div>
+
+          <div class="muted" style="font-size:11px;margin-top:3px">
+            Voucher code:
+            <strong>${escapeHTML(code)}</strong>
+          </div>
+
+        </div>
+
+        <div class="merchant-label">
+          Merchant:
+          ${escapeHTML(merchantId)}
+        </div>
+
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="field">
+
+          <label
+            class="field-label"
+            for="v_amount"
+          >
+            <span>Amount</span>
+            <span class="field-hint">KES</span>
+          </label>
+
+          <input
+            id="v_amount"
+            type="number"
+            min="1"
+            step="1"
+            placeholder="Enter amount"
+            inputmode="numeric"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label
+            class="field-label"
+            for="v_payout_method"
+          >
+            <span>Payout method</span>
+            <span class="field-hint">Required</span>
+          </label>
+
+          <select id="v_payout_method">
+
+            <option value="">
+              Select payout method…
+            </option>
+
+            <option value="phone">
+              M-Pesa phone
+            </option>
+
+            <option value="till">
+              Buy Goods / Till
+            </option>
+
+            <option value="bank">
+              Bank transfer
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div
+          class="field full hidden"
+          id="v_pm_phone"
+        >
+
+          <label
+            class="field-label"
+            for="v_target_phone"
+          >
+            <span>M-Pesa phone</span>
+          </label>
+
+          <input
+            id="v_target_phone"
+            placeholder="2547XXXXXXXX"
+            inputmode="tel"
+            maxlength="20"
+          >
+
+        </div>
+
+
+        <div
+          class="field full hidden"
+          id="v_pm_till"
+        >
+
+          <label
+            class="field-label"
+            for="v_target_till"
+          >
+            <span>Till / Buy Goods number</span>
+          </label>
+
+          <input
+            id="v_target_till"
+            placeholder="Enter till number"
+            inputmode="numeric"
+            maxlength="30"
+          >
+
+        </div>
+
+
+        <div
+          class="field full hidden"
+          id="v_pm_bank"
+        >
+
+          <label
+            class="field-label"
+            for="v_target_bank"
+          >
+            <span>Bank account</span>
+          </label>
+
+          <input
+            id="v_target_bank"
+            placeholder="Enter bank account"
+            inputmode="numeric"
+            maxlength="40"
+          >
+
+
+          <div
+            class="form-grid"
+            style="margin-top:12px"
+          >
+
+            <div class="field">
+
+              <label
+                class="field-label"
+                for="v_bank_name"
+              >
+                <span>Bank name</span>
+                <span class="field-hint">Optional</span>
+              </label>
+
+              <input
+                id="v_bank_name"
+                placeholder="e.g. KCB"
+                maxlength="100"
+              >
+
+            </div>
+
+
+            <div class="field">
+
+              <label
+                class="field-label"
+                for="v_bank_branch"
+              >
+                <span>Branch</span>
+                <span class="field-hint">Optional</span>
+              </label>
+
+              <input
+                id="v_bank_branch"
+                placeholder="e.g. Westlands"
+                maxlength="100"
+              >
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div
+        id="v_fee"
+        class="info-strip"
+        style="margin-top:15px"
+        aria-live="polite"
+      >
+        Enter an amount to calculate the estimated fee.
+      </div>
+
+
+      <div class="voucher-status-row">
+
+        <button
+          class="primary-btn"
+          id="v_pay"
+          type="button"
+        >
+          Request STK
+        </button>
+
+        <span
+          id="v_status"
+          class="badge-pill badge-progress hidden"
+          aria-live="polite"
+        >
+          Processing…
+        </span>
+
+        <img
+          class="voucher-qr"
+          src="/v/${encodeURIComponent(code)}/qr.png"
+          alt="QR code for payment voucher"
+          loading="lazy"
+        >
+
+      </div>
+
+
+      <div
+        id="v_success"
+        class="result-box success hidden"
+        role="status"
+      >
+
+        <div class="result-title">
+          Payment received
+        </div>
+
+        <div class="result-text">
+          The voucher payment has been credited successfully.
+        </div>
+
+        <div
+          id="v_receipt_link"
+          class="receipt-link"
+        ></div>
+
+      </div>
+
+
+      <div
+        id="v_error"
+        class="result-box error hidden"
+        role="alert"
+      >
+
+        <div class="result-title">
+          Payment unsuccessful
+        </div>
+
+        <div
+          id="v_errmsg"
+          class="result-text"
+        ></div>
+
+      </div>
+
+    `;
+
+
+    const amountEl =
+      document.getElementById(
+        "v_amount"
+      );
+
+    const methodEl =
+      document.getElementById(
+        "v_payout_method"
+      );
+
+    const feeEl =
+      document.getElementById(
+        "v_fee"
+      );
+
+    const statusEl =
+      document.getElementById(
+        "v_status"
+      );
+
+    const payBtn =
+      document.getElementById(
+        "v_pay"
+      );
+
+    const okBox =
+      document.getElementById(
+        "v_success"
+      );
+
+    const okLink =
+      document.getElementById(
+        "v_receipt_link"
+      );
+
+    const errorBox =
+      document.getElementById(
+        "v_error"
+      );
+
+    const errorMessage =
+      document.getElementById(
+        "v_errmsg"
+      );
+
+    const pmPhone =
+      document.getElementById(
+        "v_pm_phone"
+      );
+
+    const pmTill =
+      document.getElementById(
+        "v_pm_till"
+      );
+
+    const pmBank =
+      document.getElementById(
+        "v_pm_bank"
+      );
+
+
+    function showPM(method){
+
+      pmPhone.classList.add(
+        "hidden"
+      );
+
+      pmTill.classList.add(
+        "hidden"
+      );
+
+      pmBank.classList.add(
+        "hidden"
+      );
+
+
+      if (method === "phone"){
+        pmPhone.classList.remove(
+          "hidden"
+        );
+      }
+
+      if (method === "till"){
+        pmTill.classList.remove(
+          "hidden"
+        );
+      }
+
+      if (method === "bank"){
+        pmBank.classList.remove(
+          "hidden"
+        );
+      }
+
+    }
+
+
+    methodEl.addEventListener(
+      "change",
+      event => {
+        showPM(
+          event.target.value
+        );
+      }
+    );
+
+
+    /* ---------------------------------------------
+       AMOUNT PREVIEW
+       --------------------------------------------- */
+
+    amountEl.addEventListener(
+      "input",
+      event => {
+
+        const kes =
+          Math.max(
+            0,
+            parseFloat(
+              event.target.value || "0"
+            ) || 0
+          );
+
+        if (kes <= 0){
+
+          feeEl.innerHTML =
+            "Enter an amount to calculate the estimated fee.";
+
+          setPreviewFromKes(0);
+
+          return;
+
+        }
+
+
+        const fee =
+          feeKes(kes);
+
+        const feeKWD =
+          fee / CURRENT_RATE;
+
+        const totalKES =
+          kes + fee;
+
+        const totalKWD =
+          totalKES / CURRENT_RATE;
+
+
+        feeEl.innerHTML = `
+          <div>
+            <strong>Estimated fee:</strong>
+            ${fmt(fee)} KES
+            ≈ ${fmt(feeKWD)} KWD
+          </div>
+
+          <div style="margin-top:3px">
+            Estimated total:
+            <strong>${fmt(totalKES)} KES</strong>
+            ≈ ${fmt(totalKWD)} KWD
+          </div>
+        `;
+
+
+        setPreviewFromKes(
+          kes
+        );
+
+      }
+    );
+
+
+    /* ---------------------------------------------
+       PAY
+       --------------------------------------------- */
+
+    payBtn.addEventListener(
+      "click",
+      async () => {
+
+        try{
+
+          errorBox.classList.add(
+            "hidden"
+          );
+
+          okBox.classList.add(
+            "hidden"
+          );
+
+
+          const amount =
+            Math.max(
+              0,
+              parseFloat(
+                amountEl.value || "0"
+              ) || 0
+            );
+
+          const method =
+            methodEl.value;
+
+
+          if (
+            !Number.isFinite(amount) ||
+            amount <= 0
+          ){
+
+            throw new Error(
+              "Enter a valid payment amount."
+            );
+
+          }
+
+
+          if (!method){
+
+            throw new Error(
+              "Select a payout method."
+            );
+
+          }
+
+
+          let payoutTarget = "";
+
+
+          if (method === "phone"){
+
+            payoutTarget =
+              document
+                .getElementById(
+                  "v_target_phone"
+                )
+                .value
+                .trim();
+
+          }
+
+
+          if (method === "till"){
+
+            payoutTarget =
+              document
+                .getElementById(
+                  "v_target_till"
+                )
+                .value
+                .trim();
+
+          }
+
+
+          if (method === "bank"){
+
+            payoutTarget =
+              document
+                .getElementById(
+                  "v_target_bank"
+                )
+                .value
+                .trim();
+
+          }
+
+
+          if (!payoutTarget){
+
+            throw new Error(
+              "Enter the payout destination."
+            );
+
+          }
+
+
+          payBtn.disabled =
+            true;
+
+          statusEl.classList.remove(
+            "hidden"
+          );
+
+          statusEl.textContent =
+            "Processing…";
+
+
+          const formData =
+            new FormData();
+
+          formData.append(
+            "amount",
+            String(amount)
+          );
+
+          formData.append(
+            "payout_method",
+            method
+          );
+
+          formData.append(
+            "payout_target",
+            payoutTarget
+          );
+
+
+          if (method === "bank"){
+
+            formData.append(
+              "payout_bank_name",
+              document
+                .getElementById(
+                  "v_bank_name"
+                )
+                .value
+                .trim()
+            );
+
+            formData.append(
+              "payout_bank_branch",
+              document
+                .getElementById(
+                  "v_bank_branch"
+                )
+                .value
+                .trim()
+            );
+
+          }
+
+
+          const response =
+            await fetch(
+              `/api/vouchers/${encodeURIComponent(code)}/pay`,
+              {
+                method:"POST",
+                body:formData,
+                credentials:"same-origin",
+                headers:{
+                  "Accept":"application/json"
+                }
+              }
+            );
+
+
+          const json =
+            await response.json();
+
+
+          if (
+            !response.ok ||
+            !json ||
+            json.ok !== true
+          ){
+
+            throw new Error(
+              json &&
+              json.error
+                ? json.error
+                : `Payment request failed (HTTP ${response.status})`
+            );
+
+          }
+
+
+          if (poller){
+
+            clearInterval(
+              poller
+            );
+
+          }
+
+
+          poller =
+            setInterval(
+              async () => {
+
+                try{
+
+                  const response =
+                    await fetch(
+                      `/api/vouchers/${encodeURIComponent(code)}/status`,
+                      {
+                        credentials:"same-origin",
+                        cache:"no-store",
+                        headers:{
+                          "Accept":"application/json"
+                        }
+                      }
+                    );
+
+
+                  const json =
+                    await response.json();
+
+
+                  if (
+                    !response.ok ||
+                    !json ||
+                    json.ok !== true
+                  ){
+
+                    return;
+
+                  }
+
+
+                  const voucher =
+                    json.voucher || {};
+
+                  const state =
+                    String(
+                      voucher.status || ""
+                    ).toLowerCase();
+
+
+                  if (
+                    state === "processing"
+                  ){
+
+                    statusEl.classList.remove(
+                      "hidden"
+                    );
+
+                    statusEl.textContent =
+                      "Processing…";
+
+                  }
+
+
+                  if (
+                    state === "credited" ||
+                    (
+                      voucher.used &&
+                      voucher.receipt_url
+                    )
+                  ){
+
+                    clearInterval(
+                      poller
+                    );
+
+                    poller =
+                      null;
+
+                    statusEl.classList.add(
+                      "hidden"
+                    );
+
+                    okBox.classList.remove(
+                      "hidden"
+                    );
+
+
+                    okLink.innerHTML = "";
+
+                    if (
+                      voucher.receipt_url
+                    ){
+
+                      const link =
+                        document.createElement(
+                          "a"
+                        );
+
+                      link.href =
+                        voucher.receipt_url;
+
+                      link.target =
+                        "_blank";
+
+                      link.rel =
+                        "noopener";
+
+                      link.textContent =
+                        "View payment receipt →";
+
+                      okLink.appendChild(
+                        link
+                      );
+
+                      renderReceipt(
+                        voucher.receipt_url
+                      );
+
+                    }
+
+                    payBtn.disabled =
+                      true;
+
+                  }
+
+
+                  if (
+                    state === "failed"
+                  ){
+
+                    clearInterval(
+                      poller
+                    );
+
+                    poller =
+                      null;
+
+                    statusEl.classList.add(
+                      "hidden"
+                    );
+
+                    errorBox.classList.remove(
+                      "hidden"
+                    );
+
+                    errorMessage.textContent =
+                      "Payment failed or the voucher expired.";
+
+                    payBtn.disabled =
+                      false;
+
+                  }
+
+
+                }catch(error){
+
+                  console.warn(
+                    "Voucher polling failed",
+                    error
+                  );
+
+                }
+
+              },
+              2500
+            );
+
+
+        }catch(error){
+
+          statusEl.classList.add(
+            "hidden"
+          );
+
+          errorBox.classList.remove(
+            "hidden"
+          );
+
+          errorMessage.textContent =
+            error.message ||
+            "Failed to initiate payment.";
+
+          payBtn.disabled =
+            false;
+
+        }
+
+      }
+    );
+
   }
 
-  /* --------- Init --------- */
-  maxCurEl.addEventListener('change', renderCalc);
-  prevAmtEl.addEventListener('input', renderCalc);
 
-  fetchRate().then(renderCalc);
+  /* -----------------------------------------------
+     RECEIPT
+     ----------------------------------------------- */
+
+  async function renderReceipt(
+    url
+  ){
+
+    if (!url) return;
+
+
+    receiptPanel.classList.remove(
+      "hidden"
+    );
+
+    receiptHTML.innerHTML =
+      '<div class="muted">Loading receipt…</div>';
+
+
+    try{
+
+      const response =
+        await fetch(
+          url,
+          {
+            cache:"no-store",
+            credentials:"same-origin"
+          }
+        );
+
+
+      if (!response.ok){
+
+        receiptHTML.innerHTML =
+          `<div class="result-box error">
+            Unable to load receipt (HTTP ${response.status}).
+          </div>`;
+
+        return;
+
+      }
+
+
+      const html =
+        await response.text();
+
+
+      receiptHTML.innerHTML = "";
+
+
+      const iframe =
+        document.createElement(
+          "iframe"
+        );
+
+
+      iframe.className =
+        "receipt-frame";
+
+      iframe.title =
+        "Payment receipt";
+
+
+      iframe.onload =
+        () => {
+
+          try{
+
+            const body =
+              iframe.contentDocument &&
+              iframe.contentDocument.body;
+
+            if (body){
+
+              iframe.style.height =
+                Math.max(
+                  460,
+                  body.scrollHeight + 30
+                ) + "px";
+
+            }
+
+          }catch(error){
+
+            console.warn(
+              "Receipt sizing unavailable",
+              error
+            );
+
+          }
+
+        };
+
+
+      receiptHTML.appendChild(
+        iframe
+      );
+
+
+      iframe.contentDocument.open();
+
+      iframe.contentDocument.write(
+        html
+      );
+
+      iframe.contentDocument.close();
+
+
+    }catch(error){
+
+      receiptHTML.innerHTML =
+        `<div class="result-box error">
+          ${escapeHTML(
+            error.message ||
+            "Failed to load receipt."
+          )}
+        </div>`;
+
+    }
+
+  }
+
+
+  /* -----------------------------------------------
+     INITIALISE
+     ----------------------------------------------- */
+
+  maxCurEl.addEventListener(
+    "change",
+    renderCalc
+  );
+
+  prevAmtEl.addEventListener(
+    "input",
+    renderCalc
+  );
+
+
+  fetchRate()
+    .then(renderCalc);
+
+
+  /* -----------------------------------------------
+     CLEANUP POLLER
+     ----------------------------------------------- */
+
+  window.addEventListener(
+    "pagehide",
+    () => {
+
+      if (poller){
+
+        clearInterval(
+          poller
+        );
+
+        poller =
+          null;
+
+      }
+
+    }
+  );
+
+
+  /* -----------------------------------------------
+     YEAR
+     ----------------------------------------------- */
+
+  const year =
+    document.getElementById(
+      "current_year"
+    );
+
+  if (year){
+
+    year.textContent =
+      new Date().getFullYear();
+
+  }
+
 })();
 </script>
+
 </body>
 </html>

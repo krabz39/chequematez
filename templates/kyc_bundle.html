@@ -1,294 +1,2658 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Cheque Matez — KYC</title>
-<style>
-  :root{
-    /* ==== Brand palette (from your logo) ==== */
-    --brand-black:#000000;
-    --brand-red:#ff0000;
-    --brand-teal:#063d3f;     /* main brand text */
-    --brand-teal-900:#053c3f; /* very dark teal */
-    --brand-teal-800:#053d3f; /* near-dark teal */
-    --brand-teal-700:#063d40; /* slightly lighter teal */
-    --brand-teal-950:#063c3f; /* deep teal variation */
-    --brand-gold:#d4a017;     /* warm gold/orange */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#063d3f">
+  <meta name="description" content="Cheque Matez identity verification and KYC management">
 
-    /* ==== UI neutrals ==== */
-    --bg:#f6f8f8;
-    --card-bg:#ffffff;
-    --text:#0e1010;
-    --muted:#6c7a7a;
-    --border:#e5ecec;
+  <title>Cheque Matez — Identity & KYC</title>
 
-    --radius:14px;
-    --shadow:0 8px 24px rgba(6,61,63,.08);
-    --shadow-strong:0 10px 30px rgba(6,61,63,.12);
-  }
+  <style>
+    :root{
+      --black:#000000;
+      --red:#ff0000;
+      --red-dark:#c90000;
 
-  *{box-sizing:border-box}
-  body{
-    background:var(--bg);
-    color:var(--text);
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    margin:0; padding:0;
-    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-  }
-  .wrap{max-width:980px; margin:24px auto; padding:0 16px;}
+      --teal-950:#032c2e;
+      --teal-900:#053c3f;
+      --teal-800:#063d3f;
+      --teal-700:#0a5557;
+      --teal-100:#e8f4f4;
+      --teal-50:#f2f9f9;
 
-  /* ==== Cards ==== */
-  .card{
-    background:var(--card-bg);
-    border:1px solid var(--border);
-    border-radius:var(--radius);
-    padding:18px;
-    margin:16px 0;
-    box-shadow:var(--shadow);
-  }
-  .card h2,.card h3{margin:.1rem 0 1rem; letter-spacing:.01em}
-  .card h2::before{
-    content:"";
-    width:8px; height:24px; border-radius:6px;
-    background:linear-gradient(180deg,var(--brand-teal),var(--brand-gold));
-    display:inline-block; margin-right:.5rem; vertical-align:middle;
-  }
+      --gold:#d4a017;
+      --gold-dark:#9d7607;
+      --gold-100:#fff7df;
 
-  /* ==== Status badges ==== */
-  .badge{
-    display:inline-block;
-    font-size:.85rem; font-weight:700;
-    padding:.35rem .6rem; border-radius:999px;
-    border:1px solid transparent; letter-spacing:.01em;
-  }
-  .badge-approved{color:#0d4d4f; background:#e8f4f4; border-color:rgba(6,61,63,.18)}
-  .badge-declined{color:#7a0410; background:#fdecec; border-color:rgba(255,0,0,.18)}
-  .badge-pending{color:#8a6a09; background:#fff7e6; border-color:rgba(212,160,23,.35)}
+      --green:#087443;
+      --green-100:#e9f7f0;
 
-  /* ==== Form controls ==== */
-  label{display:block; font-weight:600; margin:.6rem 0 .35rem; color:var(--brand-teal-900)}
-  input,select{
-    width:100%;
-    padding:.7rem .8rem;
-    border:1px solid var(--border); border-radius:10px;
-    background:#fff; color:var(--text);
-    transition:border-color .15s ease, box-shadow .15s ease;
-  }
-  input:focus,select:focus{
-    border-color:var(--brand-teal);
-    outline:none;
-    box-shadow:0 0 0 3px rgba(6,61,63,.15);
-  }
+      --orange:#9a5b00;
+      --orange-100:#fff5df;
 
-  /* ==== Buttons ==== */
-  .btn{
-    display:inline-block;
-    padding:.65rem 1rem;
-    border-radius:10px;
-    font-weight:700;
-    border:1.5px solid var(--brand-teal);
-    color:var(--brand-teal);
-    background:#fff;
-    cursor:pointer;
-    text-decoration:none;
-    transition:transform .05s ease, box-shadow .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
-  }
-  .btn:hover{box-shadow:0 6px 18px rgba(6,61,63,.12)}
-  .btn:active{transform:translateY(1px)}
-  .btn:focus{outline:3px solid rgba(6,61,63,.25); outline-offset:2px}
+      --gray-950:#101414;
+      --gray-800:#273030;
+      --gray-700:#465353;
+      --gray-600:#627070;
+      --gray-500:#7b8989;
+      --gray-400:#a9b4b4;
+      --gray-300:#d5dddd;
+      --gray-200:#e5ecec;
+      --gray-100:#f2f5f5;
+      --gray-50:#f7f9f9;
 
-  .btn.primary{
-    background:linear-gradient(180deg,var(--brand-teal-700),var(--brand-teal-900));
-    color:#fff; border-color:transparent;
-  }
-  .btn.primary:hover{
-    background:linear-gradient(180deg,var(--brand-teal),var(--brand-teal-900));
-    box-shadow:var(--shadow-strong);
-  }
+      --white:#ffffff;
+      --danger-bg:#fff0f0;
 
-  .btn.danger{
-    border-color:var(--brand-red);
-    color:var(--brand-red);
-    background:#fff;
-  }
-  .btn.danger:hover{
-    background:linear-gradient(180deg,#ff0000,#cc0000);
-    color:#fff; border-color:transparent;
-    box-shadow:0 10px 26px rgba(255,0,0,.22);
-  }
+      --bg:#f5f7f7;
+      --card:#ffffff;
 
-  .btn.link{
-    border:none; color:var(--brand-teal);
-    padding:.35rem .2rem; background:transparent;
-  }
-  .btn.link:hover{color:var(--brand-teal-700); text-decoration:underline}
+      --radius-sm:8px;
+      --radius-md:12px;
+      --radius-lg:16px;
 
-  .inline{display:inline-block; margin-right:.5rem}
+      --shadow-sm:0 2px 8px rgba(3,44,46,.05);
+      --shadow-md:0 8px 24px rgba(3,44,46,.08);
+      --shadow-lg:0 16px 40px rgba(3,44,46,.11);
 
-  /* ==== Tables (admin list) ==== */
-  table{width:100%; border-collapse:collapse; margin-top:1rem; background:#fff; border-radius:12px; overflow:hidden}
-  thead th{
-    text-align:left; padding:.7rem .6rem;
-    background:linear-gradient(180deg,#f8fbfb,#f1f6f6);
-    border-bottom:2px solid #dfeaea;
-    color:#113234; font-weight:800; letter-spacing:.01em;
-  }
-  tbody td{padding:.6rem .6rem; border-bottom:1px solid #eef3f3; vertical-align:top}
-  tbody tr:hover{background:#fbfefe}
+      --transition:160ms ease;
+    }
 
-  .toolbar{display:flex; gap:.5rem; flex-wrap:wrap; margin:8px 0 16px}
-</style>
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
+
+    body{
+      margin:0;
+      padding:0;
+      background:var(--bg);
+      color:var(--gray-950);
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    button,
+    input,
+    select,
+    textarea{
+      font:inherit;
+    }
+
+    a{
+      color:var(--teal-800);
+    }
+
+    .page{
+      width:100%;
+      min-height:100vh;
+    }
+
+    .wrap{
+      width:min(1180px, calc(100% - 32px));
+      margin:0 auto;
+      padding:24px 0 60px;
+    }
+
+    /* =========================================================
+       SECURITY / COMPLIANCE HEADER
+    ========================================================= */
+
+    .security-bar{
+      background:var(--teal-950);
+      color:#fff;
+      min-height:38px;
+      display:flex;
+      align-items:center;
+    }
+
+    .security-bar-inner{
+      width:min(1180px, calc(100% - 32px));
+      margin:0 auto;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      font-size:12px;
+      letter-spacing:.02em;
+    }
+
+    .security-status{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-weight:700;
+    }
+
+    .security-dot{
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#36c98a;
+      box-shadow:0 0 0 4px rgba(54,201,138,.12);
+    }
+
+    .security-meta{
+      color:#b8c8c8;
+    }
+
+    /* =========================================================
+       BRAND HEADER
+    ========================================================= */
+
+    .header{
+      background:#fff;
+      border-bottom:1px solid var(--gray-200);
+    }
+
+    .header-inner{
+      width:min(1180px, calc(100% - 32px));
+      margin:0 auto;
+      min-height:76px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      text-decoration:none;
+      color:var(--gray-950);
+    }
+
+    .brand-mark{
+      width:42px;
+      height:42px;
+      border-radius:11px;
+      background:linear-gradient(
+        145deg,
+        var(--teal-800),
+        var(--teal-950)
+      );
+      display:grid;
+      place-items:center;
+      color:#fff;
+      font-weight:900;
+      font-size:17px;
+      letter-spacing:-.04em;
+      box-shadow:0 6px 16px rgba(6,61,63,.18);
+    }
+
+    .brand-copy{
+      line-height:1.1;
+    }
+
+    .brand-name{
+      font-size:17px;
+      font-weight:900;
+      letter-spacing:-.02em;
+    }
+
+    .brand-name span{
+      color:var(--red);
+    }
+
+    .brand-subtitle{
+      margin-top:4px;
+      font-size:11px;
+      color:var(--gray-500);
+      font-weight:600;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    .header-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .secure-chip{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      min-height:34px;
+      padding:0 11px;
+      border:1px solid var(--gray-200);
+      border-radius:999px;
+      background:var(--gray-50);
+      color:var(--gray-700);
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .lock-icon{
+      font-size:13px;
+    }
+
+    /* =========================================================
+       PAGE INTRO
+    ========================================================= */
+
+    .page-heading{
+      margin:6px 0 20px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:20px;
+    }
+
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      margin-bottom:7px;
+      color:var(--teal-800);
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.09em;
+      text-transform:uppercase;
+    }
+
+    .eyebrow::before{
+      content:"";
+      width:18px;
+      height:2px;
+      background:var(--gold);
+      border-radius:2px;
+    }
+
+    .page-heading h1{
+      margin:0;
+      color:var(--teal-950);
+      font-size:clamp(24px,4vw,32px);
+      line-height:1.15;
+      letter-spacing:-.035em;
+    }
+
+    .page-heading p{
+      max-width:680px;
+      margin:8px 0 0;
+      color:var(--gray-600);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    /* =========================================================
+       CARDS
+    ========================================================= */
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--gray-200);
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-sm);
+      padding:22px;
+      margin:16px 0;
+    }
+
+    .card:hover{
+      box-shadow:var(--shadow-md);
+    }
+
+    .card-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      margin-bottom:18px;
+    }
+
+    .card-title{
+      margin:0;
+      color:var(--teal-950);
+      font-size:18px;
+      font-weight:850;
+      letter-spacing:-.02em;
+    }
+
+    .card-description{
+      margin:5px 0 0;
+      color:var(--gray-600);
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    .section-title{
+      display:flex;
+      align-items:center;
+      gap:9px;
+    }
+
+    .section-marker{
+      width:5px;
+      height:23px;
+      border-radius:999px;
+      background:linear-gradient(
+        180deg,
+        var(--teal-700),
+        var(--gold)
+      );
+      flex:none;
+    }
+
+    /* =========================================================
+       STATUS
+    ========================================================= */
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      min-height:29px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid transparent;
+      font-size:11px;
+      font-weight:850;
+      letter-spacing:.02em;
+      white-space:nowrap;
+    }
+
+    .badge::before{
+      content:"";
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:currentColor;
+    }
+
+    .badge-approved{
+      color:var(--green);
+      background:var(--green-100);
+      border-color:#ccebdd;
+    }
+
+    .badge-declined{
+      color:var(--red-dark);
+      background:var(--danger-bg);
+      border-color:#f3cccc;
+    }
+
+    .badge-pending{
+      color:var(--orange);
+      background:var(--orange-100);
+      border-color:#efdfb4;
+    }
+
+    /* =========================================================
+       USER ID / ACCOUNT SUMMARY
+    ========================================================= */
+
+    .identity-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      border:1px solid var(--gray-200);
+      border-radius:var(--radius-md);
+      overflow:hidden;
+      margin-top:18px;
+    }
+
+    .identity-item{
+      padding:15px;
+      border-right:1px solid var(--gray-200);
+      background:#fff;
+    }
+
+    .identity-item:last-child{
+      border-right:none;
+    }
+
+    .identity-label{
+      color:var(--gray-500);
+      font-size:10px;
+      font-weight:850;
+      text-transform:uppercase;
+      letter-spacing:.07em;
+      margin-bottom:5px;
+    }
+
+    .identity-value{
+      color:var(--gray-950);
+      font-size:14px;
+      font-weight:750;
+      word-break:break-word;
+    }
+
+    .identity-id{
+      font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+      color:var(--teal-800);
+      letter-spacing:.03em;
+    }
+
+    /* =========================================================
+       TOOLBAR / BUTTONS
+    ========================================================= */
+
+    .toolbar{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:9px;
+      margin-top:18px;
+    }
+
+    .btn{
+      min-height:42px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:0 15px;
+      border-radius:10px;
+      border:1px solid var(--gray-300);
+      background:#fff;
+      color:var(--gray-800);
+      cursor:pointer;
+      text-decoration:none;
+      font-size:13px;
+      font-weight:800;
+      transition:
+        background var(--transition),
+        border-color var(--transition),
+        color var(--transition),
+        box-shadow var(--transition),
+        transform var(--transition);
+    }
+
+    .btn:hover{
+      border-color:var(--teal-700);
+      color:var(--teal-800);
+      box-shadow:0 5px 15px rgba(6,61,63,.08);
+    }
+
+    .btn:active{
+      transform:translateY(1px);
+    }
+
+    .btn:focus-visible{
+      outline:3px solid rgba(6,61,63,.20);
+      outline-offset:2px;
+    }
+
+    .btn.primary{
+      border-color:var(--teal-800);
+      background:linear-gradient(
+        180deg,
+        var(--teal-700),
+        var(--teal-950)
+      );
+      color:#fff;
+      box-shadow:0 5px 15px rgba(6,61,63,.14);
+    }
+
+    .btn.primary:hover{
+      background:linear-gradient(
+        180deg,
+        var(--teal-800),
+        #022628
+      );
+      color:#fff;
+      box-shadow:0 8px 22px rgba(6,61,63,.20);
+    }
+
+    .btn.danger{
+      color:var(--red-dark);
+      border-color:#efcaca;
+      background:#fff;
+    }
+
+    .btn.danger:hover{
+      color:#fff;
+      border-color:var(--red);
+      background:linear-gradient(
+        180deg,
+        var(--red),
+        var(--red-dark)
+      );
+    }
+
+    .btn.gold{
+      color:#5e4700;
+      border-color:#ead9a7;
+      background:var(--gold-100);
+    }
+
+    .btn.gold:hover{
+      border-color:var(--gold);
+    }
+
+    .btn.small{
+      min-height:36px;
+      padding:0 11px;
+      font-size:12px;
+    }
+
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      box-shadow:none;
+      transform:none;
+    }
+
+    /* =========================================================
+       ALERTS
+    ========================================================= */
+
+    .alert{
+      display:flex;
+      align-items:flex-start;
+      gap:11px;
+      padding:13px 14px;
+      border:1px solid;
+      border-radius:11px;
+      margin:15px 0;
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    .alert-icon{
+      flex:none;
+      font-weight:900;
+    }
+
+    .alert-info{
+      background:var(--teal-50);
+      border-color:#cce2e2;
+      color:var(--teal-900);
+    }
+
+    .alert-warning{
+      background:var(--gold-100);
+      border-color:#ead9a7;
+      color:#604900;
+    }
+
+    .alert-danger{
+      background:var(--danger-bg);
+      border-color:#f0caca;
+      color:#780c14;
+    }
+
+    /* =========================================================
+       FORMS
+    ========================================================= */
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+    }
+
+    .form-group{
+      min-width:0;
+    }
+
+    .form-group.full{
+      grid-column:1/-1;
+    }
+
+    label{
+      display:flex;
+      align-items:center;
+      gap:5px;
+      margin:0 0 7px;
+      color:var(--gray-800);
+      font-size:12px;
+      font-weight:850;
+    }
+
+    .required{
+      color:var(--red);
+    }
+
+    .optional{
+      color:var(--gray-500);
+      font-size:10px;
+      font-weight:650;
+    }
+
+    input,
+    select{
+      width:100%;
+      min-height:44px;
+      padding:0 12px;
+      border:1px solid var(--gray-300);
+      border-radius:10px;
+      background:#fff;
+      color:var(--gray-950);
+      outline:none;
+      transition:
+        border-color var(--transition),
+        box-shadow var(--transition),
+        background var(--transition);
+    }
+
+    input:hover,
+    select:hover{
+      border-color:#b8c5c5;
+    }
+
+    input:focus,
+    select:focus{
+      border-color:var(--teal-700);
+      box-shadow:0 0 0 3px rgba(6,61,63,.12);
+    }
+
+    input::placeholder{
+      color:#a3aeae;
+    }
+
+    input[type="number"]{
+      appearance:textfield;
+    }
+
+    .field-help{
+      margin-top:6px;
+      color:var(--gray-500);
+      font-size:11px;
+      line-height:1.5;
+    }
+
+    .form-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:9px;
+      flex-wrap:wrap;
+      margin-top:18px;
+      padding-top:18px;
+      border-top:1px solid var(--gray-200);
+    }
+
+    /* =========================================================
+       FILE UPLOAD
+    ========================================================= */
+
+    .upload-box{
+      position:relative;
+      border:1.5px dashed #c5d0d0;
+      border-radius:12px;
+      background:var(--gray-50);
+      padding:16px;
+      transition:
+        border-color var(--transition),
+        background var(--transition);
+    }
+
+    .upload-box:hover{
+      border-color:var(--teal-700);
+      background:var(--teal-50);
+    }
+
+    .upload-box input[type="file"]{
+      min-height:auto;
+      padding:0;
+      border:none;
+      background:transparent;
+      box-shadow:none;
+      cursor:pointer;
+    }
+
+    .upload-title{
+      color:var(--teal-900);
+      font-size:13px;
+      font-weight:800;
+      margin-bottom:4px;
+    }
+
+    .upload-help{
+      color:var(--gray-500);
+      font-size:11px;
+      line-height:1.5;
+      margin-bottom:10px;
+    }
+
+    .file-status{
+      margin-top:7px;
+      font-size:11px;
+      color:var(--gray-600);
+    }
+
+    /* =========================================================
+       KYC PROCESS STEPS
+    ========================================================= */
+
+    .kyc-steps{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin:18px 0 20px;
+    }
+
+    .step{
+      position:relative;
+      padding:13px;
+      border:1px solid var(--gray-200);
+      border-radius:11px;
+      background:#fff;
+    }
+
+    .step-number{
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:var(--teal-100);
+      color:var(--teal-900);
+      font-size:11px;
+      font-weight:900;
+      margin-bottom:9px;
+    }
+
+    .step-title{
+      color:var(--gray-900);
+      font-size:12px;
+      font-weight:850;
+    }
+
+    .step-text{
+      color:var(--gray-500);
+      font-size:10px;
+      line-height:1.5;
+      margin-top:3px;
+    }
+
+    /* =========================================================
+       ADMIN TABLE
+    ========================================================= */
+
+    .table-wrap{
+      width:100%;
+      overflow-x:auto;
+      border:1px solid var(--gray-200);
+      border-radius:12px;
+      margin-top:16px;
+    }
+
+    table{
+      width:100%;
+      min-width:900px;
+      border-collapse:collapse;
+      background:#fff;
+    }
+
+    thead th{
+      padding:12px 11px;
+      background:var(--gray-50);
+      border-bottom:1px solid var(--gray-200);
+      color:var(--gray-600);
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.07em;
+      text-transform:uppercase;
+      text-align:left;
+      white-space:nowrap;
+    }
+
+    tbody td{
+      padding:13px 11px;
+      border-bottom:1px solid var(--gray-100);
+      color:var(--gray-800);
+      font-size:12px;
+      vertical-align:top;
+    }
+
+    tbody tr:last-child td{
+      border-bottom:none;
+    }
+
+    tbody tr:hover{
+      background:#fbfdfd;
+    }
+
+    .case-id{
+      color:var(--teal-800);
+      font-weight:900;
+      font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+    }
+
+    .table-user{
+      font-weight:800;
+      color:var(--gray-900);
+    }
+
+    .table-muted{
+      display:block;
+      margin-top:3px;
+      color:var(--gray-500);
+      font-size:10px;
+    }
+
+    .file-links{
+      display:flex;
+      flex-wrap:wrap;
+      gap:5px;
+    }
+
+    .file-link{
+      display:inline-flex;
+      align-items:center;
+      min-height:30px;
+      padding:0 8px;
+      border:1px solid var(--gray-200);
+      border-radius:7px;
+      background:#fff;
+      color:var(--teal-800);
+      text-decoration:none;
+      font-size:10px;
+      font-weight:800;
+    }
+
+    .file-link:hover{
+      border-color:var(--teal-700);
+      background:var(--teal-50);
+    }
+
+    .action-stack{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+
+    .reject-form{
+      display:flex;
+      gap:5px;
+      align-items:center;
+    }
+
+    .reject-form input{
+      width:160px;
+      min-height:36px;
+      font-size:11px;
+    }
+
+    /* =========================================================
+       EMPTY STATE
+    ========================================================= */
+
+    .empty-state{
+      padding:42px 20px;
+      text-align:center;
+      border:1px dashed var(--gray-300);
+      border-radius:12px;
+      background:var(--gray-50);
+    }
+
+    .empty-icon{
+      width:46px;
+      height:46px;
+      margin:0 auto 12px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:var(--teal-100);
+      color:var(--teal-900);
+      font-size:19px;
+      font-weight:900;
+    }
+
+    .empty-state h3{
+      margin:0;
+      font-size:15px;
+      color:var(--gray-900);
+    }
+
+    .empty-state p{
+      margin:6px auto 0;
+      max-width:450px;
+      color:var(--gray-500);
+      font-size:12px;
+      line-height:1.6;
+    }
+
+    /* =========================================================
+       REVIEW STATUS
+    ========================================================= */
+
+    .status-panel{
+      border:1px solid var(--gray-200);
+      border-radius:12px;
+      overflow:hidden;
+      margin-top:16px;
+    }
+
+    .status-panel-head{
+      padding:12px 14px;
+      background:var(--gray-50);
+      border-bottom:1px solid var(--gray-200);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .status-panel-title{
+      font-size:12px;
+      font-weight:850;
+      color:var(--gray-800);
+    }
+
+    .status-panel-body{
+      padding:15px;
+      color:var(--gray-600);
+      font-size:13px;
+      line-height:1.65;
+    }
+
+    /* =========================================================
+       FOOTER
+    ========================================================= */
+
+    .footer{
+      width:min(1180px, calc(100% - 32px));
+      margin:0 auto;
+      padding:20px 0 30px;
+      border-top:1px solid var(--gray-200);
+      display:flex;
+      justify-content:space-between;
+      gap:15px;
+      color:var(--gray-500);
+      font-size:10px;
+      line-height:1.5;
+    }
+
+    .footer strong{
+      color:var(--gray-700);
+    }
+
+    /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+    @media(max-width:850px){
+      .identity-grid{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .identity-item:nth-child(2){
+        border-right:none;
+      }
+
+      .identity-item:nth-child(-n+2){
+        border-bottom:1px solid var(--gray-200);
+      }
+
+      .kyc-steps{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media(max-width:680px){
+      .security-meta{
+        display:none;
+      }
+
+      .header-inner{
+        min-height:68px;
+      }
+
+      .secure-chip{
+        display:none;
+      }
+
+      .wrap{
+        width:min(100% - 20px,1180px);
+        padding-top:16px;
+      }
+
+      .card{
+        padding:16px;
+        border-radius:14px;
+      }
+
+      .page-heading{
+        margin-bottom:14px;
+      }
+
+      .page-heading h1{
+        font-size:25px;
+      }
+
+      .form-grid{
+        grid-template-columns:1fr;
+        gap:14px;
+      }
+
+      .form-group.full{
+        grid-column:auto;
+      }
+
+      .form-actions{
+        justify-content:stretch;
+      }
+
+      .form-actions .btn{
+        flex:1;
+      }
+
+      .toolbar .btn{
+        flex:1;
+      }
+
+      .identity-grid{
+        grid-template-columns:1fr;
+      }
+
+      .identity-item{
+        border-right:none !important;
+        border-bottom:1px solid var(--gray-200);
+      }
+
+      .identity-item:last-child{
+        border-bottom:none;
+      }
+
+      .footer{
+        flex-direction:column;
+      }
+    }
+
+    @media(max-width:440px){
+      .brand-subtitle{
+        display:none;
+      }
+
+      .brand-mark{
+        width:38px;
+        height:38px;
+      }
+
+      .brand-name{
+        font-size:15px;
+      }
+
+      .card-title{
+        font-size:16px;
+      }
+
+      .toolbar,
+      .action-stack{
+        flex-direction:column;
+        align-items:stretch;
+      }
+
+      .toolbar .btn,
+      .action-stack .btn{
+        width:100%;
+      }
+
+      .reject-form{
+        flex-direction:column;
+        align-items:stretch;
+      }
+
+      .reject-form input{
+        width:100%;
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce){
+      html{
+        scroll-behavior:auto;
+      }
+
+      *,
+      *::before,
+      *::after{
+        transition:none !important;
+      }
+    }
+  </style>
 </head>
-<body>
-<div class="wrap">
 
-  {# ========================= USER ID PAGE ========================= #}
-  {% if view == "user_id" %}
-  <div class="card">
-    <h2>User ID: {{ user.issued_id }}</h2>
-    <p><strong>Name:</strong> {{ user.full_name or user.username }}</p>
-    <p><strong>Status:</strong>
-      {% if user.id_status == 'approved' %}
-        <span class="badge badge-approved">Approved</span>
-      {% elif user.id_status == 'declined' %}
-        <span class="badge badge-declined">Declined</span>
-      {% else %}
-        <span class="badge badge-pending">Pending</span>
-      {% endif %}
-    </p>
-    <div class="toolbar">
-      <a class="btn" href="{{ url_for('user_id_qr_png', user_id=user.issued_id) }}?t={{ user.qr_token }}" target="_blank">View QR</a>
-      <a class="btn" href="{{ url_for('scan_user_landing', user_id=user.issued_id, t=user.qr_token) }}" target="_blank">Open Scanner View</a>
+<body>
+
+<div class="page">
+
+  <!-- =========================================================
+       SECURITY BAR
+  ========================================================== -->
+
+  <div class="security-bar">
+    <div class="security-bar-inner">
+      <div class="security-status">
+        <span class="security-dot"></span>
+        Secure KYC Environment
+      </div>
+
+      <div class="security-meta">
+        Identity verification • Protected submission
+      </div>
     </div>
   </div>
 
-  {% if can_transact %}
-  <div class="card">
-    <h3>Add Transaction</h3>
-    <form method="post" action="./transactions/new">
-      {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
-      <label>Amount (KWD)</label>
-      <input name="amount_kwd" type="number" step="0.001" required>
-      <label>FX rate (KWD→KES)</label>
-      <input name="fx_rate" type="number" step="0.0001" value="{{ exchange_rate or '' }}" required>
-      <button class="btn primary" type="submit">Create</button>
-    </form>
-  </div>
+  <!-- =========================================================
+       HEADER
+  ========================================================== -->
 
-  <div class="card">
-    <h3>Create Voucher</h3>
-    <form method="post" action="./voucher/new">
-      {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
-      <label>Amount (KES or total)</label>
-      <input name="amount" type="number" step="0.01" required>
-      <button class="btn" type="submit">Create Voucher</button>
-    </form>
-  </div>
-  {% else %}
-  <div class="card">
-    {% if user.id_status == 'pending' %}
-      <p>Your KYC is under review.</p>
-    {% elif user.id_status == 'declined' %}
-      <p>Your KYC was declined. Please resubmit.</p>
-      <a class="btn primary" href="{{ url_for('kyc_start') }}">Resubmit KYC</a>
-    {% else %}
-      <p>You have not submitted KYC yet.</p>
-      <a class="btn primary" href="{{ url_for('kyc_start') }}">Start KYC</a>
-    {% endif %}
-  </div>
-  {% endif %}
-  {% endif %}
+  <header class="header">
+    <div class="header-inner">
 
-  {# ========================= KYC QUEUE (ADMIN/MERCHANT) ========================= #}
-  {% if view == "kyc_queue" %}
-  <div class="card">
-    <h2>Pending KYC Cases</h2>
-    {% if rows|length == 0 %}
-      <p>No pending cases.</p>
-    {% else %}
-    <table>
-      <thead>
-        <tr>
-          <th>Case</th>
-          <th>User</th>
-          <th>ID Type</th>
-          <th>ID Number</th>
-          <th>Files</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for r in rows %}
-        <tr>
-          <td>#{{ r.id }}<br><small>{{ r.created_at }}</small></td>
-          <td>{{ r.phone_e164 or r.username or '—' }}</td>
-          <td>{{ r.id_type }}</td>
-          <td>{{ r.id_number }}</td>
-          <td>
-            <a href="{{ url_for('admin_kyc_file', case_id=r.id) }}?type=selfie" target="_blank">Selfie</a> |
-            <a href="{{ url_for('admin_kyc_file', case_id=r.id) }}?type=id_front" target="_blank">ID Front</a>
-            {% if r.id_back_path %} | <a href="{{ url_for('admin_kyc_file', case_id=r.id) }}?type=id_back" target="_blank">ID Back</a>{% endif %}
-          </td>
-          <td>
-            <form class="inline" method="post" action="{{ url_for('admin_kyc_approve_case', case_id=r.id) }}" onsubmit="return confirm('Approve this KYC case?')">
-              {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
-              <button class="btn primary">Approve</button>
-            </form>
-            <form class="inline" method="post" action="{{ url_for('admin_kyc_reject_case', case_id=r.id) }}" onsubmit="return confirm('Reject this KYC case?')">
-              {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
-              <input name="reason" placeholder="Reason" style="width:180px">
-              <button class="btn danger">Reject</button>
-            </form>
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    {% endif %}
-  </div>
-  {% endif %}
+      <a href="/" class="brand" aria-label="Cheque Matez home">
 
-  {# ========================= START KYC (CUSTOMER) ========================= #}
-  {% if view == "kyc_start" %}
-  <div class="card">
-    <h2>Verify your identity</h2>
-    <p>Upload your ID and a selfie to complete verification.</p>
+        <div class="brand-mark">CM</div>
 
-    <form action="{{ url_for('kyc_start') }}" method="post" enctype="multipart/form-data">
-      {% if csrf_token %}<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">{% endif %}
+        <div class="brand-copy">
+          <div class="brand-name">
+            Cheque <span>Matez</span>
+          </div>
 
-      <label for="id_type">ID Type</label>
-      <select id="id_type" name="id_type" required>
-        <option value="">Select…</option>
-        <option value="ke_national_id">Kenya – National ID</option>
-        <option value="kw_civil_id">Kuwait – Civil ID</option>
-        <option value="passport">Passport</option>
-      </select>
+          <div class="brand-subtitle">
+            Kuwait → Kenya Financial Services
+          </div>
+        </div>
 
-      <label for="id_number">ID Number</label>
-      <input id="id_number" name="id_number" type="text" required placeholder="e.g., 12345678">
+      </a>
 
-      <label for="selfie">Selfie (JPEG/PNG)</label>
-      <input id="selfie" name="selfie" type="file" accept="image/jpeg,image/png" required>
-
-      <label for="id_front">ID Front (JPEG/PNG)</label>
-      <input id="id_front" name="id_front" type="file" accept="image/jpeg,image/png" required>
-
-      <label for="id_back">ID Back (optional)</label>
-      <input id="id_back" name="id_back" type="file" accept="image/jpeg,image/png">
-
-      <div style="margin-top:12px">
-        <button class="btn primary" type="submit">Submit for review</button>
+      <div class="header-right">
+        <div class="secure-chip">
+          <span class="lock-icon">🔒</span>
+          Secure session
+        </div>
       </div>
-    </form>
-  </div>
-  {% endif %}
+
+    </div>
+  </header>
+
+
+  <main class="wrap">
+
+    <!-- =======================================================
+         PAGE INTRO
+    ======================================================== -->
+
+    {% if view == "user_id" %}
+
+    <div class="page-heading">
+
+      <div>
+        <div class="eyebrow">Identity Profile</div>
+
+        <h1>Identity & account verification</h1>
+
+        <p>
+          Review your Cheque Matez identity status and access the services
+          available to your verified account.
+        </p>
+      </div>
+
+    </div>
+
+
+    <!-- =======================================================
+         USER ID CARD
+    ======================================================== -->
+
+    <section class="card">
+
+      <div class="card-header">
+
+        <div>
+          <div class="section-title">
+            <span class="section-marker"></span>
+
+            <h2 class="card-title">
+              Identity profile
+            </h2>
+          </div>
+
+          <p class="card-description">
+            Your issued identity reference and verification status.
+          </p>
+        </div>
+
+        {% if user.id_status == 'approved' %}
+          <span class="badge badge-approved">Verified</span>
+        {% elif user.id_status == 'declined' %}
+          <span class="badge badge-declined">Declined</span>
+        {% else %}
+          <span class="badge badge-pending">Under review</span>
+        {% endif %}
+
+      </div>
+
+
+      <div class="identity-grid">
+
+        <div class="identity-item">
+          <div class="identity-label">Issued ID</div>
+
+          <div class="identity-value identity-id">
+            {{ user.issued_id }}
+          </div>
+        </div>
+
+
+        <div class="identity-item">
+          <div class="identity-label">Account name</div>
+
+          <div class="identity-value">
+            {{ user.full_name or user.username }}
+          </div>
+        </div>
+
+
+        <div class="identity-item">
+          <div class="identity-label">Verification</div>
+
+          <div class="identity-value">
+
+            {% if user.id_status == 'approved' %}
+              Verified
+            {% elif user.id_status == 'declined' %}
+              Declined
+            {% else %}
+              Pending review
+            {% endif %}
+
+          </div>
+        </div>
+
+
+        <div class="identity-item">
+          <div class="identity-label">Account status</div>
+
+          <div class="identity-value">
+            {% if user.id_status == 'approved' %}
+              Active
+            {% else %}
+              Restricted
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+
+      <div class="toolbar">
+
+        <a
+          class="btn"
+          href="{{ url_for('user_id_qr_png', user_id=user.issued_id) }}?t={{ user.qr_token }}"
+          target="_blank"
+          rel="noopener"
+        >
+          View identity QR
+        </a>
+
+
+        <a
+          class="btn"
+          href="{{ url_for('scan_user_landing', user_id=user.issued_id, t=user.qr_token) }}"
+          target="_blank"
+          rel="noopener"
+        >
+          Scanner view
+        </a>
+
+      </div>
+
+    </section>
+
+
+    <!-- =======================================================
+         APPROVED ACCOUNT
+    ======================================================== -->
+
+    {% if can_transact %}
+
+    <section class="card">
+
+      <div class="card-header">
+
+        <div>
+          <div class="section-title">
+            <span class="section-marker"></span>
+
+            <h2 class="card-title">
+              New transaction
+            </h2>
+          </div>
+
+          <p class="card-description">
+            Create a transaction using the current approved account.
+          </p>
+        </div>
+
+        <span class="badge badge-approved">
+          KYC verified
+        </span>
+
+      </div>
+
+
+      <div class="alert alert-info">
+        <div class="alert-icon">✓</div>
+
+        <div>
+          Your identity verification is approved.
+          Transaction access is available subject to Cheque Matez
+          transaction limits, compliance checks and applicable policies.
+        </div>
+      </div>
+
+
+      <form
+        method="post"
+        action="./transactions/new"
+        autocomplete="off"
+      >
+
+        {% if csrf_token %}
+          <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+          >
+        {% endif %}
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="amount_kwd">
+              Amount (KWD)
+              <span class="required">*</span>
+            </label>
+
+            <input
+              id="amount_kwd"
+              name="amount_kwd"
+              type="number"
+              step="0.001"
+              min="0.001"
+              inputmode="decimal"
+              required
+              autocomplete="off"
+              placeholder="0.000"
+            >
+
+            <div class="field-help">
+              Enter the amount you want to initiate.
+            </div>
+
+          </div>
+
+
+          <div class="form-group">
+
+            <label for="fx_rate">
+              FX rate (KWD → KES)
+              <span class="required">*</span>
+            </label>
+
+            <input
+              id="fx_rate"
+              name="fx_rate"
+              type="number"
+              step="0.0001"
+              min="0.0001"
+              inputmode="decimal"
+              value="{{ exchange_rate or '' }}"
+              required
+              autocomplete="off"
+              placeholder="Current rate"
+            >
+
+            <div class="field-help">
+              Confirm the displayed rate before submitting.
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <button
+            class="btn primary"
+            type="submit"
+          >
+            Create transaction
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+
+    <!-- =======================================================
+         VOUCHER
+    ======================================================== -->
+
+    <section class="card">
+
+      <div class="card-header">
+
+        <div>
+          <div class="section-title">
+            <span class="section-marker"></span>
+
+            <h2 class="card-title">
+              Create voucher
+            </h2>
+          </div>
+
+          <p class="card-description">
+            Generate a voucher against the permitted account balance or
+            transaction amount.
+          </p>
+        </div>
+
+      </div>
+
+
+      <form
+        method="post"
+        action="./voucher/new"
+        autocomplete="off"
+      >
+
+        {% if csrf_token %}
+          <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+          >
+        {% endif %}
+
+
+        <div class="form-grid">
+
+          <div class="form-group">
+
+            <label for="voucher_amount">
+              Amount
+              <span class="required">*</span>
+            </label>
+
+            <input
+              id="voucher_amount"
+              name="amount"
+              type="number"
+              step="0.01"
+              min="0.01"
+              inputmode="decimal"
+              required
+              autocomplete="off"
+              placeholder="0.00"
+            >
+
+            <div class="field-help">
+              Enter the applicable KES or total voucher amount.
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <button
+            class="btn"
+            type="submit"
+          >
+            Create voucher
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+
+    {% else %}
+
+    <!-- =======================================================
+         UNVERIFIED USER
+    ======================================================== -->
+
+    <section class="card">
+
+      <div class="card-header">
+
+        <div>
+          <div class="section-title">
+            <span class="section-marker"></span>
+
+            <h2 class="card-title">
+              Identity verification required
+            </h2>
+          </div>
+
+          <p class="card-description">
+            Your account must complete identity verification before
+            transaction services can be enabled.
+          </p>
+        </div>
+
+        {% if user.id_status == 'pending' %}
+          <span class="badge badge-pending">Under review</span>
+        {% elif user.id_status == 'declined' %}
+          <span class="badge badge-declined">Action required</span>
+        {% else %}
+          <span class="badge badge-pending">Not verified</span>
+        {% endif %}
+
+      </div>
+
+
+      {% if user.id_status == 'pending' %}
+
+        <div class="alert alert-warning">
+          <div class="alert-icon">!</div>
+
+          <div>
+            <strong>Your KYC application is under review.</strong><br>
+            Please allow the compliance team to complete the verification
+            process. You do not need to submit another application unless
+            requested.
+          </div>
+        </div>
+
+
+        <div class="status-panel">
+
+          <div class="status-panel-head">
+
+            <span class="status-panel-title">
+              Verification status
+            </span>
+
+            <span class="badge badge-pending">
+              Pending
+            </span>
+
+          </div>
+
+          <div class="status-panel-body">
+            Your submitted identification documents are currently being
+            reviewed. Transaction functionality will become available
+            after successful verification.
+          </div>
+
+        </div>
+
+
+      {% elif user.id_status == 'declined' %}
+
+        <div class="alert alert-danger">
+
+          <div class="alert-icon">!</div>
+
+          <div>
+            <strong>Verification was not approved.</strong><br>
+            Please review your information and submit a new KYC application.
+            Additional documentation may be requested.
+          </div>
+
+        </div>
+
+
+        <div class="toolbar">
+
+          <a
+            class="btn primary"
+            href="{{ url_for('kyc_start') }}"
+          >
+            Resubmit KYC
+          </a>
+
+        </div>
+
+
+      {% else %}
+
+        <div class="alert alert-info">
+
+          <div class="alert-icon">i</div>
+
+          <div>
+            Complete identity verification to activate your Cheque Matez
+            financial services account.
+          </div>
+
+        </div>
+
+
+        <div class="toolbar">
+
+          <a
+            class="btn primary"
+            href="{{ url_for('kyc_start') }}"
+          >
+            Start identity verification
+          </a>
+
+        </div>
+
+      {% endif %}
+
+    </section>
+
+    {% endif %}
+
+    {% endif %}
+
+
+    <!-- =======================================================
+         ADMIN / MERCHANT KYC QUEUE
+    ======================================================== -->
+
+    {% if view == "kyc_queue" %}
+
+    <div class="page-heading">
+
+      <div>
+        <div class="eyebrow">Compliance Operations</div>
+
+        <h1>KYC review queue</h1>
+
+        <p>
+          Review customer identity applications and approve or reject
+          cases according to your compliance procedures.
+        </p>
+      </div>
+
+    </div>
+
+
+    <section class="card">
+
+      <div class="card-header">
+
+        <div>
+          <div class="section-title">
+            <span class="section-marker"></span>
+
+            <h2 class="card-title">
+              Pending cases
+            </h2>
+          </div>
+
+          <p class="card-description">
+            Each case should be reviewed against the submitted identity
+            documents before approval.
+          </p>
+        </div>
+
+
+        {% if rows|length > 0 %}
+          <span class="badge badge-pending">
+            {{ rows|length }} pending
+          </span>
+        {% endif %}
+
+      </div>
+
+
+      {% if rows|length == 0 %}
+
+        <div class="empty-state">
+
+          <div class="empty-icon">✓</div>
+
+          <h3>No pending KYC cases</h3>
+
+          <p>
+            The compliance queue is currently clear. New applications
+            will appear here after customer submission.
+          </p>
+
+        </div>
+
+      {% else %}
+
+        <div class="alert alert-warning">
+
+          <div class="alert-icon">!</div>
+
+          <div>
+            <strong>Compliance review required.</strong><br>
+            Do not approve an application unless the submitted documents
+            are readable, consistent and satisfy your applicable KYC/AML
+            requirements.
+          </div>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Case</th>
+                <th>Applicant</th>
+                <th>Document</th>
+                <th>Identity number</th>
+                <th>Evidence</th>
+                <th>Decision</th>
+              </tr>
+
+            </thead>
+
+
+            <tbody>
+
+            {% for r in rows %}
+
+              <tr>
+
+                <td>
+
+                  <span class="case-id">
+                    #{{ r.id }}
+                  </span>
+
+                  <span class="table-muted">
+                    {{ r.created_at }}
+                  </span>
+
+                </td>
+
+
+                <td>
+
+                  <span class="table-user">
+                    {{ r.phone_e164 or r.username or '—' }}
+                  </span>
+
+                  <span class="table-muted">
+                    Applicant
+                  </span>
+
+                </td>
+
+
+                <td>
+
+                  <strong>
+                    {{ r.id_type }}
+                  </strong>
+
+                </td>
+
+
+                <td>
+
+                  <span class="identity-id">
+                    {{ r.id_number }}
+                  </span>
+
+                </td>
+
+
+                <td>
+
+                  <div class="file-links">
+
+                    <a
+                      class="file-link"
+                      href="{{ url_for('admin_kyc_file', case_id=r.id) }}?type=selfie"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      Selfie
+                    </a>
+
+
+                    <a
+                      class="file-link"
+                      href="{{ url_for('admin_kyc_file', case_id=r.id) }}?type=id_front"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      ID front
+                    </a>
+
+
+                    {% if r.id_back_path %}
+
+                    <a
+                      class="file-link"
+                      href="{{ url_for('admin_kyc_file', case_id=r.id) }}?type=id_back"
+                      target="_blank"
+                      rel="noopener"
+                    >
+                      ID back
+                    </a>
+
+                    {% endif %}
+
+                  </div>
+
+                </td>
+
+
+                <td>
+
+                  <div class="action-stack">
+
+                    <form
+                      class="inline"
+                      method="post"
+                      action="{{ url_for('admin_kyc_approve_case', case_id=r.id) }}"
+                      onsubmit="return confirmApprove(this)"
+                    >
+
+                      {% if csrf_token %}
+                        <input
+                          type="hidden"
+                          name="csrf_token"
+                          value="{{ csrf_token() }}"
+                        >
+                      {% endif %}
+
+                      <button
+                        class="btn primary small"
+                        type="submit"
+                      >
+                        Approve
+                      </button>
+
+                    </form>
+
+
+                    <form
+                      class="reject-form"
+                      method="post"
+                      action="{{ url_for('admin_kyc_reject_case', case_id=r.id) }}"
+                      onsubmit="return confirmReject(this)"
+                    >
+
+                      {% if csrf_token %}
+                        <input
+                          type="hidden"
+                          name="csrf_token"
+                          value="{{ csrf_token() }}"
+                        >
+                      {% endif %}
+
+
+                      <input
+                        name="reason"
+                        type="text"
+                        maxlength="300"
+                        placeholder="Rejection reason"
+                        required
+                      >
+
+
+                      <button
+                        class="btn danger small"
+                        type="submit"
+                      >
+                        Reject
+                      </button>
+
+                    </form>
+
+                  </div>
+
+                </td>
+
+              </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      {% endif %}
+
+    </section>
+
+    {% endif %}
+
+
+    <!-- =======================================================
+         CUSTOMER KYC START
+    ======================================================== -->
+
+    {% if view == "kyc_start" %}
+
+    <div class="page-heading">
+
+      <div>
+        <div class="eyebrow">Customer Verification</div>
+
+        <h1>Verify your identity</h1>
+
+        <p>
+          Complete the secure identity verification process to access
+          Cheque Matez financial services.
+        </p>
+      </div>
+
+    </div>
+
+
+    <section class="card">
+
+      <div class="card-header">
+
+        <div>
+          <div class="section-title">
+            <span class="section-marker"></span>
+
+            <h2 class="card-title">
+              Identity verification
+            </h2>
+          </div>
+
+          <p class="card-description">
+            Provide accurate information exactly as it appears on your
+            identification document.
+          </p>
+        </div>
+
+        <span class="badge badge-pending">
+          Verification required
+        </span>
+
+      </div>
+
+
+      <!-- PROCESS -->
+
+      <div class="kyc-steps">
+
+        <div class="step">
+
+          <div class="step-number">1</div>
+
+          <div class="step-title">
+            Identity document
+          </div>
+
+          <div class="step-text">
+            Select your document type and enter the identification number.
+          </div>
+
+        </div>
+
+
+        <div class="step">
+
+          <div class="step-number">2</div>
+
+          <div class="step-title">
+            Document evidence
+          </div>
+
+          <div class="step-text">
+            Upload a clear image of the front of your identification.
+          </div>
+
+        </div>
+
+
+        <div class="step">
+
+          <div class="step-number">3</div>
+
+          <div class="step-title">
+            Liveness evidence
+          </div>
+
+          <div class="step-text">
+            Upload a clear selfie for identity matching and review.
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="alert alert-info">
+
+        <div class="alert-icon">🔒</div>
+
+        <div>
+          <strong>Protect your information.</strong><br>
+          Only submit your own valid identification documents.
+          Do not upload screenshots, edited documents or documents belonging
+          to another person.
+        </div>
+
+      </div>
+
+
+      <!-- KYC FORM -->
+
+      <form
+        id="kycForm"
+        action="{{ url_for('kyc_start') }}"
+        method="post"
+        enctype="multipart/form-data"
+        autocomplete="off"
+      >
+
+        {% if csrf_token %}
+          <input
+            type="hidden"
+            name="csrf_token"
+            value="{{ csrf_token() }}"
+          >
+        {% endif %}
+
+
+        <div class="form-grid">
+
+          <!-- ID TYPE -->
+
+          <div class="form-group">
+
+            <label for="id_type">
+              Identification type
+              <span class="required">*</span>
+            </label>
+
+            <select
+              id="id_type"
+              name="id_type"
+              required
+            >
+
+              <option value="">
+                Select document type
+              </option>
+
+              <option value="ke_national_id">
+                Kenya — National ID
+              </option>
+
+              <option value="kw_civil_id">
+                Kuwait — Civil ID
+              </option>
+
+              <option value="passport">
+                Passport
+              </option>
+
+            </select>
+
+            <div class="field-help">
+              Select the document you will submit for verification.
+            </div>
+
+          </div>
+
+
+          <!-- ID NUMBER -->
+
+          <div class="form-group">
+
+            <label for="id_number">
+              Identification number
+              <span class="required">*</span>
+            </label>
+
+            <input
+              id="id_number"
+              name="id_number"
+              type="text"
+              maxlength="40"
+              required
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              placeholder="Enter ID or passport number"
+            >
+
+            <div class="field-help">
+              Enter the number exactly as shown on the document.
+            </div>
+
+          </div>
+
+
+          <!-- SELFIE -->
+
+          <div class="form-group full">
+
+            <label for="selfie">
+              Selfie
+              <span class="required">*</span>
+            </label>
+
+            <div class="upload-box">
+
+              <div class="upload-title">
+                Identity selfie
+              </div>
+
+              <div class="upload-help">
+                Use a recent, clear photo of your face. Avoid sunglasses,
+                masks, heavy shadows and other people in the frame.
+                JPEG or PNG only. Maximum recommended size: 5 MB.
+              </div>
+
+              <input
+                id="selfie"
+                name="selfie"
+                type="file"
+                accept="image/jpeg,image/png"
+                required
+              >
+
+              <div
+                class="file-status"
+                id="selfieStatus"
+              >
+                No file selected.
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- ID FRONT -->
+
+          <div class="form-group">
+
+            <label for="id_front">
+              ID front
+              <span class="required">*</span>
+            </label>
+
+            <div class="upload-box">
+
+              <div class="upload-title">
+                Front of identification document
+              </div>
+
+              <div class="upload-help">
+                Ensure all four corners and all text are visible.
+              </div>
+
+              <input
+                id="id_front"
+                name="id_front"
+                type="file"
+                accept="image/jpeg,image/png"
+                required
+              >
+
+              <div
+                class="file-status"
+                id="frontStatus"
+              >
+                No file selected.
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- ID BACK -->
+
+          <div class="form-group">
+
+            <label for="id_back">
+              ID back
+              <span class="optional">(if applicable)</span>
+            </label>
+
+            <div class="upload-box">
+
+              <div class="upload-title">
+                Back of identification document
+              </div>
+
+              <div class="upload-help">
+                Required where the selected document contains information
+                on the reverse side.
+              </div>
+
+              <input
+                id="id_back"
+                name="id_back"
+                type="file"
+                accept="image/jpeg,image/png"
+              >
+
+              <div
+                class="file-status"
+                id="backStatus"
+              >
+                No file selected.
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="alert alert-warning">
+
+          <div class="alert-icon">!</div>
+
+          <div>
+            By submitting this application, you confirm that the information
+            and documents provided are accurate and belong to you.
+            Your application may be subject to additional compliance review.
+          </div>
+
+        </div>
+
+
+        <div class="form-actions">
+
+          <button
+            class="btn"
+            type="reset"
+            id="resetKyc"
+          >
+            Clear
+          </button>
+
+          <button
+            class="btn primary"
+            type="submit"
+            id="submitKyc"
+          >
+            Submit for secure review
+          </button>
+
+        </div>
+
+      </form>
+
+    </section>
+
+    {% endif %}
+
+  </main>
+
+
+  <!-- =========================================================
+       FOOTER
+  ========================================================== -->
+
+  <footer class="footer">
+
+    <div>
+      <strong>Cheque Matez</strong><br>
+      Kuwait → Kenya financial services
+    </div>
+
+    <div>
+      Identity verification is subject to applicable compliance,
+      KYC and AML procedures.<br>
+      © 2026 Cheque Matez. All rights reserved.
+    </div>
+
+  </footer>
 
 </div>
 
+
 <script>
-  /* no flash messages; only small confirms on admin actions (handled inline on forms) */
+(function(){
+
+  "use strict";
+
+  /*
+   * ============================================================
+   * KYC FRONT-END VALIDATION
+   * Server-side validation remains mandatory.
+   * This only improves the customer experience.
+   * ============================================================
+   */
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png"
+  ];
+
+
+  function formatBytes(bytes){
+
+    if (!Number.isFinite(bytes) || bytes <= 0){
+      return "0 KB";
+    }
+
+    const mb = bytes / (1024 * 1024);
+
+    if (mb >= 1){
+      return mb.toFixed(2) + " MB";
+    }
+
+    return Math.round(bytes / 1024) + " KB";
+  }
+
+
+  function validateFile(input, statusElement){
+
+    if (!input || !statusElement){
+      return true;
+    }
+
+    const file = input.files && input.files[0];
+
+    if (!file){
+
+      statusElement.textContent = "No file selected.";
+      statusElement.style.color = "";
+      return !input.required;
+
+    }
+
+
+    if (!allowedTypes.includes(file.type)){
+
+      statusElement.textContent =
+        "Invalid file type. JPEG or PNG only.";
+
+      statusElement.style.color = "#c90000";
+
+      input.value = "";
+
+      return false;
+    }
+
+
+    if (file.size > MAX_FILE_SIZE){
+
+      statusElement.textContent =
+        "File is too large. Maximum allowed size is 5 MB.";
+
+      statusElement.style.color = "#c90000";
+
+      input.value = "";
+
+      return false;
+    }
+
+
+    statusElement.textContent =
+      file.name + " • " + formatBytes(file.size);
+
+    statusElement.style.color = "#087443";
+
+    return true;
+  }
+
+
+  function attachFileValidation(inputId, statusId){
+
+    const input = document.getElementById(inputId);
+    const status = document.getElementById(statusId);
+
+    if (!input || !status){
+      return;
+    }
+
+    input.addEventListener("change", function(){
+
+      validateFile(input, status);
+
+    });
+
+  }
+
+
+  attachFileValidation("selfie", "selfieStatus");
+  attachFileValidation("id_front", "frontStatus");
+  attachFileValidation("id_back", "backStatus");
+
+
+  /*
+   * ============================================================
+   * KYC FORM
+   * ============================================================
+   */
+
+  const form = document.getElementById("kycForm");
+  const submitButton = document.getElementById("submitKyc");
+
+  if (form){
+
+    form.addEventListener("submit", function(event){
+
+      const selfie = document.getElementById("selfie");
+      const front = document.getElementById("id_front");
+      const back = document.getElementById("id_back");
+
+      const selfieStatus =
+        document.getElementById("selfieStatus");
+
+      const frontStatus =
+        document.getElementById("frontStatus");
+
+      const backStatus =
+        document.getElementById("backStatus");
+
+
+      const selfieValid =
+        validateFile(selfie, selfieStatus);
+
+      const frontValid =
+        validateFile(front, frontStatus);
+
+      const backValid =
+        !back.files.length ||
+        validateFile(back, backStatus);
+
+
+      if (
+        !selfieValid ||
+        !frontValid ||
+        !backValid
+      ){
+
+        event.preventDefault();
+
+        alert(
+          "Please correct the document upload errors before submitting."
+        );
+
+        return;
+      }
+
+
+      /*
+       * Prevent accidental double submission.
+       */
+
+      if (submitButton){
+
+        submitButton.disabled = true;
+
+        submitButton.textContent =
+          "Submitting securely…";
+
+      }
+
+    });
+
+  }
+
+
+  /*
+   * ============================================================
+   * RESET
+   * ============================================================
+   */
+
+  const resetButton =
+    document.getElementById("resetKyc");
+
+  if (resetButton){
+
+    resetButton.addEventListener("click", function(){
+
+      setTimeout(function(){
+
+        [
+          "selfieStatus",
+          "frontStatus",
+          "backStatus"
+        ].forEach(function(id){
+
+          const element =
+            document.getElementById(id);
+
+          if (element){
+
+            element.textContent =
+              "No file selected.";
+
+            element.style.color = "";
+
+          }
+
+        });
+
+
+        if (submitButton){
+
+          submitButton.disabled = false;
+
+          submitButton.textContent =
+            "Submit for secure review";
+
+        }
+
+      }, 0);
+
+    });
+
+  }
+
+
+  /*
+   * ============================================================
+   * ADMIN CONFIRMATIONS
+   * ============================================================
+   */
+
+  window.confirmApprove = function(form){
+
+    const confirmed = window.confirm(
+      "Approve this KYC case?\n\n" +
+      "Confirm that the submitted identity information " +
+      "and documents have been reviewed."
+    );
+
+    if (!confirmed){
+      return false;
+    }
+
+    const button =
+      form.querySelector("button");
+
+    if (button){
+
+      button.disabled = true;
+      button.textContent = "Approving…";
+
+    }
+
+    return true;
+  };
+
+
+  window.confirmReject = function(form){
+
+    const reason =
+      form.querySelector('input[name="reason"]');
+
+    if (
+      !reason ||
+      !reason.value.trim()
+    ){
+
+      alert(
+        "A rejection reason is required."
+      );
+
+      if (reason){
+        reason.focus();
+      }
+
+      return false;
+    }
+
+
+    const confirmed = window.confirm(
+      "Reject this KYC case?\n\n" +
+      "The applicant will need to correct or resubmit " +
+      "their verification information."
+    );
+
+
+    if (!confirmed){
+      return false;
+    }
+
+
+    const button =
+      form.querySelector("button");
+
+    if (button){
+
+      button.disabled = true;
+      button.textContent = "Rejecting…";
+
+    }
+
+    return true;
+  };
+
+})();
 </script>
+
 </body>
 </html>

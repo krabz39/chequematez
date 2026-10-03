@@ -1,92 +1,1478 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>WAMD / Link — Payment Instructions</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>WAMD Payment Instructions • ChequeMatez</title>
+
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+
 <style>
-:root{--teal:#063d3f;--gold:#d4a017;}
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial, sans-serif;background:#f6f8fa;color:#111;line-height:1.4}
-.container{max-width:800px;margin:24px auto;padding:0 16px}
-.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(0,0,0,.06)}
-h1{font-size:1.25rem;margin:0 0 8px;color:var(--teal)}
-h2{font-size:1.05rem;margin:18px 0 8px;color:#163}
-.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
-.row{display:grid;grid-template-columns:1fr;gap:10px}
-.copy{display:inline-flex;align-items:center;gap:8px;border:1px solid #e5e7eb;border-radius:10px;padding:8px 10px;background:#fafafa}
-.copy .val{white-space:nowrap}
-.btn{appearance:none;border:none;border-radius:999px;background:var(--gold);padding:10px 14px;font-weight:700;cursor:pointer}
-.btn.ghost{background:#e5e7eb}
-small{color:#555}
-hr{border:none;border-top:1px solid #eee;margin:16px 0}
-.note{background:#fff8e1;border:1px solid #f5e1a3;border-radius:12px;padding:10px}
-.footer{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
-@media (min-width:640px){
-  .row{grid-template-columns:1fr 1fr}
+:root{
+  --black:#050505;
+  --black-soft:#111;
+  --teal:#063d3f;
+  --teal-2:#0b5557;
+  --gold:#d4a017;
+  --gold-soft:#f8efd0;
+  --red:#ff0000;
+
+  --bg:#f4f6f5;
+  --panel:#ffffff;
+  --panel-soft:#f8faf9;
+  --line:#dfe5e3;
+
+  --ink:#111817;
+  --muted:#667370;
+
+  --success:#166534;
+  --success-bg:#ecfdf3;
+
+  --warning:#8a5a00;
+  --warning-bg:#fff8e6;
+
+  --danger:#a61b1b;
+  --danger-bg:#fff0f0;
+
+  --radius:18px;
+  --radius-sm:12px;
+
+  --shadow:0 18px 45px rgba(6,61,63,.09);
+}
+
+*{
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at top right,rgba(212,160,23,.08),transparent 30%),
+    linear-gradient(180deg,#f7f9f8 0%,var(--bg) 100%);
+  color:var(--ink);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Arial,
+    sans-serif;
+  line-height:1.5;
+}
+
+button,
+a{
+  -webkit-tap-highlight-color:transparent;
+}
+
+button{
+  font:inherit;
+}
+
+button:focus-visible,
+a:focus-visible{
+  outline:3px solid rgba(212,160,23,.45);
+  outline-offset:3px;
+}
+
+/* =========================
+   PAGE
+========================= */
+
+.page{
+  width:min(100%,960px);
+  margin:0 auto;
+  padding:28px 18px 44px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.brand-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.brand-mark{
+  width:44px;
+  height:44px;
+  flex:0 0 44px;
+  display:grid;
+  place-items:center;
+  border-radius:13px;
+  background:var(--black);
+  color:#fff;
+  font-weight:950;
+  font-size:19px;
+  letter-spacing:-1px;
+  border:1px solid #222;
+  box-shadow:0 7px 18px rgba(0,0,0,.16);
+}
+
+.brand-copy{
+  min-width:0;
+}
+
+.brand-name{
+  margin:0;
+  color:var(--black);
+  font-size:15px;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+
+.brand-sub{
+  margin:2px 0 0;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:650;
+}
+
+.secure-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:8px 11px;
+  border:1px solid #dce6e4;
+  border-radius:999px;
+  background:#fff;
+  color:var(--teal);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.07em;
+  white-space:nowrap;
+}
+
+.secure-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 0 3px rgba(212,160,23,.13);
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero{
+  background:
+    linear-gradient(135deg,var(--black) 0%,#101717 58%,var(--teal) 100%);
+  color:#fff;
+  border-radius:24px;
+  padding:26px;
+  position:relative;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+
+.hero::after{
+  content:"";
+  position:absolute;
+  width:190px;
+  height:190px;
+  border-radius:50%;
+  right:-75px;
+  top:-85px;
+  border:1px solid rgba(212,160,23,.25);
+  box-shadow:
+    0 0 0 30px rgba(212,160,23,.035),
+    0 0 0 60px rgba(212,160,23,.025);
+  pointer-events:none;
+}
+
+.hero-top{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  color:#f2d46b;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+
+.eyebrow::before{
+  content:"";
+  width:24px;
+  height:2px;
+  background:var(--gold);
+  border-radius:999px;
+}
+
+.hero h1{
+  position:relative;
+  z-index:1;
+  margin:12px 0 7px;
+  font-size:clamp(25px,5vw,38px);
+  line-height:1.05;
+  letter-spacing:-.035em;
+}
+
+.hero p{
+  position:relative;
+  z-index:1;
+  max-width:700px;
+  margin:0;
+  color:#cbd6d4;
+  font-size:14px;
+}
+
+.reference-pill{
+  position:relative;
+  z-index:1;
+  margin-top:20px;
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  max-width:100%;
+  padding:9px 12px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:11px;
+  background:rgba(255,255,255,.06);
+}
+
+.reference-pill span:first-child{
+  color:#9eafac;
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.reference-pill .mono{
+  color:#fff;
+  overflow-wrap:anywhere;
+}
+
+/* =========================
+   TRUST STRIP
+========================= */
+
+.trust-strip{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  margin-top:14px;
+  background:#fff;
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 7px 25px rgba(6,61,63,.05);
+}
+
+.trust-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 16px;
+  border-right:1px solid var(--line);
+}
+
+.trust-item:last-child{
+  border-right:0;
+}
+
+.trust-icon{
+  width:30px;
+  height:30px;
+  flex:0 0 30px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:var(--gold-soft);
+  color:var(--teal);
+  font-size:13px;
+  font-weight:950;
+}
+
+.trust-copy strong{
+  display:block;
+  font-size:12px;
+  color:var(--ink);
+}
+
+.trust-copy span{
+  display:block;
+  margin-top:1px;
+  color:var(--muted);
+  font-size:11px;
+}
+
+/* =========================
+   MAIN GRID
+========================= */
+
+.content-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 285px;
+  gap:16px;
+  margin-top:16px;
+}
+
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+
+.main-card{
+  padding:24px;
+}
+
+.side-card{
+  padding:20px;
+  align-self:start;
+  position:sticky;
+  top:18px;
+}
+
+/* =========================
+   SECTION HEADINGS
+========================= */
+
+.section-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:18px;
+}
+
+.section-number{
+  width:31px;
+  height:31px;
+  flex:0 0 31px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  background:var(--teal);
+  color:#fff;
+  font-size:12px;
+  font-weight:950;
+}
+
+.section-heading{
+  display:flex;
+  gap:10px;
+}
+
+.section-heading h2{
+  margin:1px 0 3px;
+  color:var(--teal);
+  font-size:17px;
+  line-height:1.2;
+}
+
+.section-heading p{
+  margin:0;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.divider{
+  height:1px;
+  background:var(--line);
+  margin:22px 0;
+}
+
+/* =========================
+   PAYMENT DETAILS
+========================= */
+
+.detail-stack{
+  display:grid;
+  gap:11px;
+}
+
+.detail-row{
+  display:grid;
+  grid-template-columns:150px minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  padding:14px;
+  border:1px solid #e3e9e7;
+  border-radius:13px;
+  background:var(--panel-soft);
+}
+
+.detail-label{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:750;
+}
+
+.detail-value{
+  min-width:0;
+  color:var(--ink);
+  font-size:14px;
+  font-weight:850;
+  overflow-wrap:anywhere;
+}
+
+.mono{
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    "Liberation Mono",
+    monospace;
+  letter-spacing:.01em;
+}
+
+.copy-btn{
+  min-height:40px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:9px 12px;
+  border:1px solid #ccd8d5;
+  border-radius:10px;
+  background:#fff;
+  color:var(--teal);
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+  transition:
+    background .15s ease,
+    border-color .15s ease,
+    transform .15s ease;
+}
+
+.copy-btn:hover{
+  background:#f3f7f6;
+  border-color:#aebfbc;
+}
+
+.copy-btn:active{
+  transform:translateY(1px);
+}
+
+.copy-btn.copied{
+  border-color:#9bc7aa;
+  background:var(--success-bg);
+  color:var(--success);
+}
+
+/* =========================
+   INSTRUCTIONS
+========================= */
+
+.instructions{
+  margin:0;
+  padding:0;
+  list-style:none;
+  counter-reset:steps;
+  display:grid;
+  gap:11px;
+}
+
+.instructions li{
+  counter-increment:steps;
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:11px;
+  align-items:start;
+  color:#26302e;
+  font-size:14px;
+}
+
+.instructions li::before{
+  content:counter(steps);
+  width:32px;
+  height:32px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  background:#f4ead0;
+  color:var(--teal);
+  font-size:12px;
+  font-weight:950;
+}
+
+.instructions strong{
+  color:var(--ink);
+}
+
+.inline-code{
+  display:inline-block;
+  padding:2px 6px;
+  border-radius:6px;
+  background:#f0f3f2;
+  color:var(--teal);
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+  font-size:.92em;
+  overflow-wrap:anywhere;
+}
+
+/* =========================
+   NOTICE
+========================= */
+
+.notice{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  padding:14px;
+  border:1px solid #f0dfab;
+  border-left:4px solid var(--gold);
+  border-radius:13px;
+  background:var(--warning-bg);
+  color:#5f4a17;
+}
+
+.notice-icon{
+  width:27px;
+  height:27px;
+  flex:0 0 27px;
+  display:grid;
+  place-items:center;
+  border-radius:8px;
+  background:#f2df9c;
+  color:#705300;
+  font-weight:950;
+  font-size:12px;
+}
+
+.notice strong{
+  display:block;
+  margin-bottom:2px;
+  color:#553f09;
+  font-size:13px;
+}
+
+.notice span{
+  display:block;
+  font-size:12px;
+}
+
+/* =========================
+   SIDE CARD
+========================= */
+
+.side-title{
+  margin:0;
+  color:var(--teal);
+  font-size:14px;
+  font-weight:950;
+}
+
+.side-subtitle{
+  margin:5px 0 17px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.pay-to-box{
+  padding:15px;
+  border-radius:14px;
+  background:var(--black);
+  color:#fff;
+  border:1px solid #202020;
+}
+
+.pay-to-label{
+  color:#a9b8b6;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+}
+
+.pay-to-number{
+  margin-top:7px;
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  overflow-wrap:anywhere;
+}
+
+.side-status{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:13px;
+  padding:10px 11px;
+  border:1px solid #d7e7df;
+  border-radius:11px;
+  background:var(--success-bg);
+  color:var(--success);
+  font-size:11px;
+  font-weight:800;
+}
+
+.status-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#22c55e;
+}
+
+.side-divider{
+  height:1px;
+  background:var(--line);
+  margin:17px 0;
+}
+
+.side-list{
+  margin:0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:11px;
+}
+
+.side-list li{
+  display:flex;
+  gap:9px;
+  align-items:flex-start;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.side-list li::before{
+  content:"✓";
+  color:var(--teal);
+  font-weight:950;
+}
+
+.side-warning{
+  margin-top:16px;
+  padding:11px;
+  border-radius:11px;
+  background:#fff7f7;
+  border:1px solid #f1d4d4;
+  color:#713030;
+  font-size:11px;
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:9px;
+  margin-top:20px;
+}
+
+.btn{
+  min-height:44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:10px 16px;
+  border:1px solid transparent;
+  border-radius:11px;
+  font-size:13px;
+  font-weight:900;
+  cursor:pointer;
+  text-decoration:none;
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease,
+    background .15s ease;
+}
+
+.btn.primary{
+  background:var(--teal);
+  color:#fff;
+  box-shadow:0 7px 17px rgba(6,61,63,.18);
+}
+
+.btn.primary:hover{
+  background:var(--teal-2);
+  transform:translateY(-1px);
+}
+
+.btn.secondary{
+  background:#fff;
+  color:var(--teal);
+  border-color:#cfd9d7;
+}
+
+.btn.secondary:hover{
+  background:#f5f8f7;
+}
+
+.btn.gold{
+  background:var(--gold);
+  color:#17120a;
+}
+
+.btn.gold:hover{
+  background:#e1b42b;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:15px;
+  margin-top:16px;
+  padding:0 4px;
+  color:#7a8582;
+  font-size:11px;
+}
+
+.footer-brand{
+  font-weight:900;
+  color:var(--teal);
+  letter-spacing:.04em;
+}
+
+.footer-note{
+  text-align:right;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:800px){
+  .content-grid{
+    grid-template-columns:1fr;
+  }
+
+  .side-card{
+    position:static;
+  }
+}
+
+@media(max-width:680px){
+  .page{
+    padding:18px 12px 32px;
+  }
+
+  .brand-header{
+    align-items:flex-start;
+  }
+
+  .secure-badge{
+    font-size:10px;
+  }
+
+  .hero{
+    padding:22px 19px;
+    border-radius:20px;
+  }
+
+  .trust-strip{
+    grid-template-columns:1fr;
+  }
+
+  .trust-item{
+    border-right:0;
+    border-bottom:1px solid var(--line);
+  }
+
+  .trust-item:last-child{
+    border-bottom:0;
+  }
+
+  .main-card{
+    padding:19px;
+  }
+
+  .detail-row{
+    grid-template-columns:1fr auto;
+  }
+
+  .detail-label{
+    grid-column:1/-1;
+  }
+
+  .detail-value{
+    grid-column:1;
+  }
+
+  .copy-btn{
+    grid-column:2;
+    grid-row:2;
+  }
+
+  .footer{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .footer-note{
+    text-align:left;
+  }
+}
+
+@media(max-width:460px){
+  .brand-sub{
+    display:none;
+  }
+
+  .secure-badge{
+    padding:7px 9px;
+  }
+
+  .hero h1{
+    font-size:28px;
+  }
+
+  .reference-pill{
+    width:100%;
+    align-items:flex-start;
+    flex-direction:column;
+    gap:3px;
+  }
+
+  .actions{
+    flex-direction:column;
+  }
+
+  .btn{
+    width:100%;
+  }
+}
+
+/* =========================
+   PRINT
+========================= */
+
+@media print{
+  @page{
+    size:A4;
+    margin:16mm;
+  }
+
+  html,
+  body{
+    background:#fff !important;
+    color:#111 !important;
+  }
+
+  body{
+    font-size:11pt;
+  }
+
+  .page{
+    width:100%;
+    max-width:none;
+    margin:0;
+    padding:0;
+  }
+
+  .brand-header{
+    margin-bottom:10px;
+  }
+
+  .hero{
+    color:#000;
+    background:#fff !important;
+    border:2px solid #063d3f;
+    box-shadow:none;
+  }
+
+  .hero h1{
+    color:#063d3f;
+  }
+
+  .hero p{
+    color:#333;
+  }
+
+  .hero::after,
+  .secure-badge{
+    display:none;
+  }
+
+  .trust-strip,
+  .card{
+    box-shadow:none;
+  }
+
+  .trust-strip{
+    break-inside:avoid;
+  }
+
+  .content-grid{
+    display:block;
+  }
+
+  .main-card,
+  .side-card{
+    margin-top:12px;
+    box-shadow:none;
+  }
+
+  .side-card{
+    position:static;
+  }
+
+  .copy-btn,
+  .actions{
+    display:none !important;
+  }
+
+  .detail-row,
+  .notice,
+  .instructions li{
+    break-inside:avoid;
+  }
+
+  .footer{
+    margin-top:20px;
+  }
+}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  html{
+    scroll-behavior:auto;
+  }
+
+  *,
+  *::before,
+  *::after{
+    transition:none !important;
+  }
 }
 </style>
 </head>
+
 <body>
-<div class="container">
-  <div class="card">
-    <h1>WAMD / Link — Payment Instructions</h1>
-    <p>Complete your bank transfer using the details below. Keep the reference exactly as shown.</p>
 
-    <h2>1) Transfer Details</h2>
-    <div class="row">
-      <div>
-        <div class="copy"><strong>Pay To (Phone):</strong> <span class="val mono" id="payTo">{{ pay_to_phone }}</span>
-          <button class="btn ghost" data-copy="#payTo">Copy</button>
-        </div>
-      </div>
-      <div>
-        <div class="copy"><strong>Beneficiary:</strong> <span class="val mono" id="benef">{{ beneficiary }}</span>
-          <button class="btn ghost" data-copy="#benef">Copy</button>
-        </div>
-      </div>
-      <div style="grid-column:1/-1;">
-        <div class="copy" style="width:100%;justify-content:space-between;">
-          <div><strong>Reference (paste into notes):</strong> <span class="val mono" id="ref">{{ ref_code }}</span></div>
-          <button class="btn ghost" data-copy="#ref">Copy</button>
-        </div>
-        <small>Tip: many bank apps call this “transfer notes”, “reference”, or “description”.</small>
+<main class="page">
+
+  <!-- =========================
+       BRAND HEADER
+  ========================== -->
+
+  <header class="brand-header">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">CM</div>
+
+      <div class="brand-copy">
+        <p class="brand-name">CHEQUE MATEZ</p>
+        <p class="brand-sub">Kuwait → Kenya payment services</p>
       </div>
     </div>
 
-    <h2>2) Steps</h2>
-    <ol>
-      <li>Open your bank app → choose <em>WAMD / Transfer by phone</em>.</li>
-      <li>Enter the phone <span class="mono">{{ pay_to_phone }}</span> and your amount in <strong>KWD</strong>.</li>
-      <li>Paste the reference <span class="mono">{{ ref_code }}</span> into the transfer notes/description.</li>
-      <li>Confirm and send.</li>
-    </ol>
+    <div class="secure-badge" aria-label="Payment instruction session">
+      <span class="secure-dot" aria-hidden="true"></span>
+      PAYMENT INSTRUCTIONS
+    </div>
+  </header>
 
-    <div class="note">
-      <strong>Heads up:</strong> The reference ties your transfer to your transaction. If you made a typo, contact support so we can reconcile it quickly.
+
+  <!-- =========================
+       HERO
+  ========================== -->
+
+  <section class="hero" aria-labelledby="page-title">
+
+    <div class="hero-top">
+      <span class="eyebrow">WAMD / Transfer by phone</span>
     </div>
 
-    <div class="footer">
-      <button class="btn" onclick="window.print()">Print / Save PDF</button>
-      <button class="btn ghost" onclick="history.back()">Back</button>
+    <h1 id="page-title">Payment instructions</h1>
+
+    <p>
+      Complete your WAMD transfer using the recipient details below.
+      Keep the payment reference exactly as shown so the transfer can be
+      matched to your transaction.
+    </p>
+
+    <div class="reference-pill">
+      <span>Transaction reference</span>
+      <span class="mono">{{ ref_code }}</span>
     </div>
+
+  </section>
+
+
+  <!-- =========================
+       TRUST STRIP
+  ========================== -->
+
+  <section class="trust-strip" aria-label="Payment information">
+
+    <div class="trust-item">
+      <div class="trust-icon" aria-hidden="true">01</div>
+      <div class="trust-copy">
+        <strong>Use the exact recipient</strong>
+        <span>Transfer to the phone shown below.</span>
+      </div>
+    </div>
+
+    <div class="trust-item">
+      <div class="trust-icon" aria-hidden="true">02</div>
+      <div class="trust-copy">
+        <strong>Keep the reference unchanged</strong>
+        <span>Use it in your transfer notes.</span>
+      </div>
+    </div>
+
+    <div class="trust-item">
+      <div class="trust-icon" aria-hidden="true">03</div>
+      <div class="trust-copy">
+        <strong>Confirm before sending</strong>
+        <span>Review the recipient and amount.</span>
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       MAIN CONTENT
+  ========================== -->
+
+  <div class="content-grid">
+
+    <section class="card main-card" aria-label="WAMD payment instructions">
+
+      <!-- Transfer details -->
+
+      <div class="section-head">
+
+        <div class="section-heading">
+          <span class="section-number" aria-hidden="true">1</span>
+
+          <div>
+            <h2>Transfer details</h2>
+            <p>Use these details exactly as provided.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="detail-stack">
+
+        <div class="detail-row">
+
+          <span class="detail-label">Pay To — Phone</span>
+
+          <span
+            class="detail-value mono"
+            id="payTo"
+          >{{ pay_to_phone }}</span>
+
+          <button
+            type="button"
+            class="copy-btn"
+            data-copy="#payTo"
+            aria-label="Copy payment phone number"
+          >
+            Copy
+          </button>
+
+        </div>
+
+
+        <div class="detail-row">
+
+          <span class="detail-label">Beneficiary</span>
+
+          <span
+            class="detail-value mono"
+            id="benef"
+          >{{ beneficiary }}</span>
+
+          <button
+            type="button"
+            class="copy-btn"
+            data-copy="#benef"
+            aria-label="Copy beneficiary name"
+          >
+            Copy
+          </button>
+
+        </div>
+
+
+        <div class="detail-row">
+
+          <span class="detail-label">Transfer reference</span>
+
+          <span
+            class="detail-value mono"
+            id="ref"
+          >{{ ref_code }}</span>
+
+          <button
+            type="button"
+            class="copy-btn"
+            data-copy="#ref"
+            aria-label="Copy transfer reference"
+          >
+            Copy
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="divider"></div>
+
+
+      <!-- Steps -->
+
+      <div class="section-head">
+
+        <div class="section-heading">
+          <span class="section-number" aria-hidden="true">2</span>
+
+          <div>
+            <h2>Complete your transfer</h2>
+            <p>Follow the sequence below before confirming payment.</p>
+          </div>
+        </div>
+
+      </div>
+
+
+      <ol class="instructions">
+
+        <li>
+          <div>
+            Open your bank app and choose
+            <strong>WAMD / Transfer by phone</strong>.
+          </div>
+        </li>
+
+        <li>
+          <div>
+            Enter the phone number
+            <span class="inline-code">{{ pay_to_phone }}</span>
+            and enter your transfer amount in
+            <strong>KWD</strong>.
+          </div>
+        </li>
+
+        <li>
+          <div>
+            Paste the reference
+            <span class="inline-code">{{ ref_code }}</span>
+            into the transfer notes, description, or reference field.
+          </div>
+        </li>
+
+        <li>
+          <div>
+            Review the recipient, beneficiary and amount, then
+            <strong>confirm and send</strong>.
+          </div>
+        </li>
+
+      </ol>
+
+
+      <div class="divider"></div>
+
+
+      <!-- Notice -->
+
+      <div class="notice" role="note">
+
+        <div class="notice-icon" aria-hidden="true">!</div>
+
+        <div>
+          <strong>Important payment note</strong>
+
+          <span>
+            The reference helps match your transfer to the correct
+            transaction. If the reference is entered incorrectly,
+            contact support so the transfer can be reconciled.
+          </span>
+        </div>
+
+      </div>
+
+
+      <!-- Actions -->
+
+      <div class="actions">
+
+        <button
+          type="button"
+          class="btn gold"
+          id="printBtn"
+        >
+          Print / Save PDF
+        </button>
+
+        <button
+          type="button"
+          class="btn secondary"
+          id="backBtn"
+        >
+          Back
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         SIDE SUMMARY
+    ========================== -->
+
+    <aside class="card side-card" aria-label="Payment summary">
+
+      <h2 class="side-title">Recipient summary</h2>
+
+      <p class="side-subtitle">
+        Verify these details before authorising your transfer.
+      </p>
+
+
+      <div class="pay-to-box">
+
+        <div class="pay-to-label">
+          Pay To — Phone
+        </div>
+
+        <div class="pay-to-number mono">
+          {{ pay_to_phone }}
+        </div>
+
+      </div>
+
+
+      <div
+        class="side-status"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="status-dot" aria-hidden="true"></span>
+        Ready for transfer
+      </div>
+
+
+      <div class="side-divider"></div>
+
+
+      <ul class="side-list">
+
+        <li>
+          Transfer amount is entered in KWD.
+        </li>
+
+        <li>
+          Use the beneficiary exactly as displayed.
+        </li>
+
+        <li>
+          Paste the reference without changing it.
+        </li>
+
+        <li>
+          Confirm the recipient before sending.
+        </li>
+
+      </ul>
+
+
+      <div class="side-warning">
+        <strong>Do not guess recipient details.</strong><br>
+        If anything looks different from your transaction instructions,
+        stop and contact support before sending.
+      </div>
+
+    </aside>
+
   </div>
-</div>
+
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer class="footer">
+
+    <div class="footer-brand">
+      CHEQUE MATEZ
+    </div>
+
+    <div class="footer-note">
+      Payment instructions • Keep your reference for reconciliation
+    </div>
+
+  </footer>
+
+</main>
+
 
 <script>
-document.querySelectorAll('[data-copy]').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    const sel = btn.getAttribute('data-copy');
-    const el = document.querySelector(sel);
-    const txt = el ? el.textContent.trim() : '';
-    if (!txt) return;
-    navigator.clipboard.writeText(txt).then(()=>{
-      const old = btn.textContent;
-      btn.textContent = 'Copied!';
-      setTimeout(()=>btn.textContent = old, 900);
+(function () {
+  "use strict";
+
+  const copyButtons = document.querySelectorAll("[data-copy]");
+  const printBtn = document.getElementById("printBtn");
+  const backBtn = document.getElementById("backBtn");
+
+  function fallbackCopy(text) {
+    const textarea = document.createElement("textarea");
+
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    textarea.style.pointerEvents = "none";
+
+    document.body.appendChild(textarea);
+
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+
+    let copied = false;
+
+    try {
+      copied = document.execCommand("copy");
+    } catch (_) {
+      copied = false;
+    }
+
+    textarea.remove();
+
+    return copied;
+  }
+
+  async function copyText(text) {
+    if (!text) {
+      return false;
+    }
+
+    if (
+      navigator.clipboard &&
+      window.isSecureContext
+    ) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (_) {
+        // Continue to fallback.
+      }
+    }
+
+    return fallbackCopy(text);
+  }
+
+  copyButtons.forEach(function (button) {
+
+    button.addEventListener("click", async function () {
+
+      const selector = button.getAttribute("data-copy");
+
+      if (!selector) {
+        return;
+      }
+
+      const element = document.querySelector(selector);
+
+      if (!element) {
+        return;
+      }
+
+      const text = element.textContent.trim();
+
+      if (!text) {
+        return;
+      }
+
+      const originalText = button.textContent;
+
+      const success = await copyText(text);
+
+      if (!success) {
+        button.textContent = "Copy failed";
+
+        window.setTimeout(function () {
+          button.textContent = originalText;
+        }, 1400);
+
+        return;
+      }
+
+      button.textContent = "Copied";
+      button.classList.add("copied");
+
+      window.setTimeout(function () {
+        button.textContent = originalText;
+        button.classList.remove("copied");
+      }, 1100);
+
     });
+
   });
-});
+
+
+  if (printBtn) {
+    printBtn.addEventListener("click", function () {
+      window.print();
+    });
+  }
+
+
+  if (backBtn) {
+    backBtn.addEventListener("click", function () {
+
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+
+      /*
+       * No fallback URL is invented here because the original
+       * template did not define a dedicated return route.
+       */
+    });
+  }
+
+})();
 </script>
+
 </body>
 </html>

@@ -396,3 +396,4106 @@
   </script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="theme-color" content="#063d3f"/>
+<title>ChequeMatez — Admin CMS</title>
+
+<style>
+:root{
+  --bg:#071012;
+  --sidebar:#061b1c;
+  --panel:#0d1c1e;
+  --panel2:#102326;
+  --soft:#142b2e;
+  --line:#20383b;
+  --text:#eef7f5;
+  --muted:#8da5a5;
+  --teal:#063d3f;
+  --teal2:#0a5b5c;
+  --gold:#d4a017;
+  --gold2:#f0c34e;
+  --red:#ff3b30;
+  --green:#2ecc71;
+  --orange:#f39c12;
+  --blue:#4da3ff;
+  --danger:#e74c3c;
+  --radius:16px;
+  --shadow:0 20px 60px rgba(0,0,0,.28);
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 80% -10%,rgba(212,160,23,.08),transparent 30%),
+    radial-gradient(circle at 10% 20%,rgba(6,61,63,.35),transparent 35%),
+    var(--bg);
+  color:var(--text);
+}
+
+button,input,select{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+a{
+  color:inherit;
+  text-decoration:none;
+}
+
+/* =========================================================
+   APP
+========================================================= */
+
+.app{
+  min-height:100vh;
+  display:flex;
+}
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.sidebar{
+  width:250px;
+  flex:0 0 250px;
+  min-height:100vh;
+  background:
+    linear-gradient(180deg,#061719,#061214);
+  border-right:1px solid var(--line);
+  padding:20px 14px;
+  position:sticky;
+  top:0;
+  height:100vh;
+  z-index:50;
+  display:flex;
+  flex-direction:column;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:4px 8px 22px;
+}
+
+.brand-logo{
+  width:42px;
+  height:42px;
+  border-radius:13px;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+  color:#111;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  box-shadow:0 10px 30px rgba(212,160,23,.2);
+}
+
+.brand strong{
+  display:block;
+  font-size:15px;
+  letter-spacing:.5px;
+}
+
+.brand span{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.nav-label{
+  font-size:10px;
+  color:#5e7778;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+  padding:14px 10px 7px;
+}
+
+.nav{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+
+.nav button{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  border:1px solid transparent;
+  color:#b9cecd;
+  background:transparent;
+  padding:11px 12px;
+  border-radius:11px;
+  text-align:left;
+  font-weight:650;
+  transition:.18s ease;
+}
+
+.nav button:hover{
+  background:rgba(255,255,255,.035);
+  color:#fff;
+}
+
+.nav button.active{
+  color:#fff;
+  background:linear-gradient(90deg,rgba(212,160,23,.16),rgba(212,160,23,.04));
+  border-color:rgba(212,160,23,.2);
+}
+
+.nav-icon{
+  width:20px;
+  text-align:center;
+  opacity:.9;
+}
+
+.nav-badge{
+  margin-left:auto;
+  font-size:10px;
+  padding:3px 7px;
+  border-radius:99px;
+  background:rgba(255,59,48,.13);
+  color:#ff8c86;
+  border:1px solid rgba(255,59,48,.18);
+}
+
+.sidebar-bottom{
+  margin-top:auto;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+}
+
+.admin-card{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:10px;
+  border-radius:12px;
+  background:rgba(255,255,255,.025);
+}
+
+.admin-avatar{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:var(--teal2);
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+}
+
+.admin-card strong{
+  display:block;
+  font-size:12px;
+}
+
+.admin-card span{
+  color:var(--muted);
+  font-size:10px;
+}
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+.main{
+  min-width:0;
+  flex:1;
+}
+
+.topbar{
+  height:70px;
+  position:sticky;
+  top:0;
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:0 26px;
+  background:rgba(7,16,18,.9);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--line);
+}
+
+.top-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.mobile-menu{
+  display:none;
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:#fff;
+  width:38px;
+  height:38px;
+  border-radius:10px;
+}
+
+.page-title h1{
+  margin:0;
+  font-size:17px;
+}
+
+.page-title p{
+  margin:3px 0 0;
+  color:var(--muted);
+  font-size:11px;
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.system-status{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  padding:7px 10px;
+  border:1px solid rgba(46,204,113,.2);
+  background:rgba(46,204,113,.06);
+  border-radius:99px;
+  color:#9de8bb;
+  font-size:11px;
+  font-weight:700;
+}
+
+.status-dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 12px rgba(46,204,113,.7);
+}
+
+/* =========================================================
+   CONTENT
+========================================================= */
+
+.content{
+  padding:26px;
+  max-width:1600px;
+  margin:auto;
+}
+
+.page{
+  display:none;
+}
+
+.page.active{
+  display:block;
+}
+
+.page-heading{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  margin-bottom:20px;
+}
+
+.page-heading h2{
+  margin:0;
+  font-size:25px;
+}
+
+.page-heading p{
+  margin:6px 0 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.heading-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  border:1px solid var(--line);
+  background:var(--soft);
+  color:#fff;
+  padding:10px 13px;
+  border-radius:11px;
+  font-weight:700;
+  font-size:12px;
+  transition:.18s ease;
+}
+
+.btn:hover{
+  transform:translateY(-1px);
+  border-color:#35585a;
+}
+
+.btn.primary{
+  background:linear-gradient(135deg,var(--gold),#b98608);
+  color:#111;
+  border-color:transparent;
+}
+
+.btn.teal{
+  background:var(--teal2);
+  border-color:transparent;
+}
+
+.btn.danger{
+  background:rgba(231,76,60,.12);
+  border-color:rgba(231,76,60,.3);
+  color:#ffaaa4;
+}
+
+.btn.ghost{
+  background:transparent;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.card{
+  background:
+    linear-gradient(145deg,rgba(16,35,38,.92),rgba(9,24,26,.92));
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+
+.card-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.card-title h3{
+  margin:0;
+  font-size:14px;
+}
+
+.card-title span{
+  color:var(--muted);
+  font-size:11px;
+}
+
+/* =========================================================
+   KPI
+========================================================= */
+
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:12px;
+  margin-bottom:14px;
+}
+
+.kpi{
+  padding:17px;
+  border-radius:15px;
+  border:1px solid var(--line);
+  background:linear-gradient(145deg,#102326,#0b1b1d);
+  position:relative;
+  overflow:hidden;
+}
+
+.kpi:after{
+  content:"";
+  position:absolute;
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:rgba(212,160,23,.05);
+  right:-25px;
+  top:-25px;
+}
+
+.kpi-label{
+  color:var(--muted);
+  font-size:11px;
+}
+
+.kpi-value{
+  font-size:25px;
+  font-weight:850;
+  margin-top:8px;
+  letter-spacing:-.5px;
+}
+
+.kpi-sub{
+  margin-top:5px;
+  font-size:10px;
+  color:#6e8989;
+}
+
+.kpi.gold .kpi-value{color:var(--gold2)}
+.kpi.green .kpi-value{color:#77dfa0}
+.kpi.red .kpi-value{color:#ff8f87}
+.kpi.blue .kpi-value{color:#80bcff}
+
+/* =========================================================
+   GRIDS
+========================================================= */
+
+.grid{
+  display:grid;
+  gap:14px;
+}
+
+.cols-2{
+  grid-template-columns:1.25fr .75fr;
+}
+
+.cols-3{
+  grid-template-columns:repeat(3,1fr);
+}
+
+.cols-4{
+  grid-template-columns:repeat(4,1fr);
+}
+
+/* =========================================================
+   QUICK ACTIONS
+========================================================= */
+
+.quick-actions{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+}
+
+.quick{
+  padding:13px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#0c1b1d;
+  color:#fff;
+  text-align:left;
+  transition:.18s;
+}
+
+.quick:hover{
+  border-color:rgba(212,160,23,.4);
+  transform:translateY(-2px);
+}
+
+.quick-icon{
+  font-size:19px;
+  margin-bottom:8px;
+}
+
+.quick strong{
+  display:block;
+  font-size:12px;
+}
+
+.quick span{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  margin-top:3px;
+}
+
+/* =========================================================
+   FORMS
+========================================================= */
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+.field label{
+  color:#9ab0b0;
+  font-size:11px;
+  font-weight:650;
+}
+
+.field input,
+.field select{
+  width:100%;
+  padding:11px 12px;
+  color:#fff;
+  background:#091618;
+  border:1px solid var(--line);
+  border-radius:10px;
+  outline:none;
+}
+
+.field input:focus,
+.field select:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(212,160,23,.08);
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table-wrap{
+  width:100%;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:12px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:760px;
+}
+
+th,td{
+  padding:12px;
+  border-bottom:1px solid var(--line);
+  text-align:left;
+  font-size:11px;
+  white-space:nowrap;
+}
+
+th{
+  color:#7e9798;
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+  background:#091618;
+  position:sticky;
+  top:0;
+  z-index:1;
+}
+
+tr:hover td{
+  background:rgba(255,255,255,.015);
+}
+
+td strong{
+  font-size:12px;
+}
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 8px;
+  border-radius:99px;
+  border:1px solid var(--line);
+  background:#091618;
+  font-size:10px;
+  font-weight:750;
+}
+
+.badge.ok{
+  color:#8ce8ae;
+  border-color:rgba(46,204,113,.25);
+  background:rgba(46,204,113,.08);
+}
+
+.badge.warn{
+  color:#f4cf66;
+  border-color:rgba(241,196,15,.25);
+  background:rgba(241,196,15,.08);
+}
+
+.badge.bad{
+  color:#ff9189;
+  border-color:rgba(231,76,60,.25);
+  background:rgba(231,76,60,.08);
+}
+
+.badge.blue{
+  color:#8bc4ff;
+  border-color:rgba(77,163,255,.25);
+  background:rgba(77,163,255,.08);
+}
+
+/* =========================================================
+   ACTIVITY
+========================================================= */
+
+.activity{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.activity-item{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:10px;
+  border-radius:11px;
+  background:rgba(255,255,255,.018);
+  border:1px solid transparent;
+}
+
+.activity-item:hover{
+  border-color:var(--line);
+}
+
+.activity-icon{
+  width:32px;
+  height:32px;
+  border-radius:10px;
+  display:grid;
+  place-items:center;
+  background:var(--teal);
+}
+
+.activity-main{
+  min-width:0;
+  flex:1;
+}
+
+.activity-main strong{
+  display:block;
+  font-size:11px;
+}
+
+.activity-main span{
+  color:var(--muted);
+  font-size:10px;
+}
+
+.activity-amount{
+  font-weight:800;
+  font-size:12px;
+}
+
+/* =========================================================
+   EMPTY / LOADING
+========================================================= */
+
+.empty{
+  padding:32px;
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.loading{
+  padding:20px;
+  color:var(--muted);
+  text-align:center;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:rgba(0,0,0,.68);
+  backdrop-filter:blur(8px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.modal.open{
+  display:flex;
+}
+
+.modal-box{
+  width:min(560px,100%);
+  max-height:90vh;
+  overflow:auto;
+  background:#0c1b1d;
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:0 40px 100px rgba(0,0,0,.55);
+  padding:20px;
+}
+
+.modal-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.modal-head h3{
+  margin:0;
+}
+
+.close{
+  width:34px;
+  height:34px;
+  border-radius:9px;
+  border:1px solid var(--line);
+  background:transparent;
+  color:#fff;
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  z-index:200;
+  background:#102326;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px 15px;
+  min-width:250px;
+  box-shadow:var(--shadow);
+  transform:translateY(120px);
+  opacity:0;
+  transition:.25s;
+  font-size:12px;
+}
+
+.toast.show{
+  transform:translateY(0);
+  opacity:1;
+}
+
+.toast.ok{
+  border-color:rgba(46,204,113,.35);
+}
+
+.toast.bad{
+  border-color:rgba(231,76,60,.35);
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:1200px){
+  .kpi-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+  .quick-actions{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .cols-2{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:900px){
+  .sidebar{
+    position:fixed;
+    left:-270px;
+    transition:.25s;
+    box-shadow:20px 0 60px rgba(0,0,0,.4);
+  }
+
+  .sidebar.open{
+    left:0;
+  }
+
+  .mobile-menu{
+    display:block;
+  }
+
+  .content{
+    padding:18px;
+  }
+
+  .topbar{
+    padding:0 16px;
+  }
+
+  .form-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .cols-3,
+  .cols-4{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:620px){
+  .system-status{
+    display:none;
+  }
+
+  .page-heading{
+    flex-direction:column;
+  }
+
+  .heading-actions{
+    width:100%;
+  }
+
+  .heading-actions .btn{
+    flex:1;
+  }
+
+  .kpi-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .form-grid,
+  .cols-3,
+  .cols-4{
+    grid-template-columns:1fr;
+  }
+
+  .quick-actions{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .content{
+    padding:13px;
+  }
+
+  .card{
+    padding:14px;
+  }
+
+  .page-heading h2{
+    font-size:21px;
+  }
+}
+
+@media(max-width:400px){
+  .kpi-grid{
+    grid-template-columns:1fr;
+  }
+
+  .quick-actions{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- =====================================================
+       SIDEBAR
+  ====================================================== -->
+
+  <aside id="sidebar" class="sidebar">
+
+    <div class="brand">
+      <div class="brand-logo">C</div>
+      <div>
+        <strong>ChequeMatez</strong>
+        <span>Admin CMS / Operations</span>
+      </div>
+    </div>
+
+    <div class="nav-label">Overview</div>
+
+    <nav class="nav">
+
+      <button class="nav-btn active" data-page="dashboard">
+        <span class="nav-icon">⌂</span>
+        Dashboard
+      </button>
+
+      <button class="nav-btn" data-page="transactions">
+        <span class="nav-icon">↔</span>
+        Transactions
+        <span id="pendingBadge" class="nav-badge">0</span>
+      </button>
+
+      <button class="nav-btn" data-page="customers">
+        <span class="nav-icon">◎</span>
+        Customers
+      </button>
+
+    </nav>
+
+    <div class="nav-label">Finance</div>
+
+    <nav class="nav">
+
+      <button class="nav-btn" data-page="rates">
+        <span class="nav-icon">₵</span>
+        Rates & Fees
+      </button>
+
+      <button class="nav-btn" data-page="wamd">
+        <span class="nav-icon">W</span>
+        WAMD
+      </button>
+
+      <button class="nav-btn" data-page="recon">
+        <span class="nav-icon">✓</span>
+        Reconciliation
+      </button>
+
+      <button class="nav-btn" data-page="reports">
+        <span class="nav-icon">▤</span>
+        Reports
+      </button>
+
+    </nav>
+
+    <div class="nav-label">Control</div>
+
+    <nav class="nav">
+
+      <button class="nav-btn" data-page="risk">
+        <span class="nav-icon">!</span>
+        Risk & Fraud
+      </button>
+
+      <button class="nav-btn" data-page="audit">
+        <span class="nav-icon">◷</span>
+        Audit Log
+      </button>
+
+      <button class="nav-btn" data-page="settings">
+        <span class="nav-icon">⚙</span>
+        Settings
+      </button>
+
+    </nav>
+
+    <div class="sidebar-bottom">
+
+      <div class="admin-card">
+        <div class="admin-avatar">A</div>
+        <div>
+          <strong>Administrator</strong>
+          <span>Full operations access</span>
+        </div>
+      </div>
+
+      <a href="/admin" class="btn ghost" style="width:100%;margin-top:9px">
+        ← Admin Home
+      </a>
+
+    </div>
+
+  </aside>
+
+
+  <!-- =====================================================
+       MAIN
+  ====================================================== -->
+
+  <main class="main">
+
+    <header class="topbar">
+
+      <div class="top-left">
+
+        <button id="mobileMenu" class="mobile-menu">☰</button>
+
+        <div class="page-title">
+          <h1 id="topTitle">Operations Dashboard</h1>
+          <p id="topSubtitle">ChequeMatez platform control center</p>
+        </div>
+
+      </div>
+
+      <div class="top-actions">
+
+        <div class="system-status">
+          <span class="status-dot"></span>
+          System Operational
+        </div>
+
+        <button id="globalRefresh" class="btn">
+          ↻ Refresh
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <div class="content">
+
+
+      <!-- =================================================
+           DASHBOARD
+      ================================================== -->
+
+      <section id="page-dashboard" class="page active">
+
+        <div class="page-heading">
+          <div>
+            <h2>Good day, Administrator.</h2>
+            <p>Monitor ChequeMatez activity, money movement and operational risk.</p>
+          </div>
+
+          <div class="heading-actions">
+            <button class="btn primary" data-action="transactions">
+              + Manage Transactions
+            </button>
+            <button class="btn" data-action="rates">
+              ₵ Manage Rate
+            </button>
+          </div>
+        </div>
+
+
+        <div class="kpi-grid">
+
+          <div class="kpi gold">
+            <div class="kpi-label">Today's Volume</div>
+            <div id="kpiVolume" class="kpi-value">—</div>
+            <div class="kpi-sub">KWD processed</div>
+          </div>
+
+          <div class="kpi green">
+            <div class="kpi-label">Transactions</div>
+            <div id="kpiTransactions" class="kpi-value">—</div>
+            <div class="kpi-sub">Today's activity</div>
+          </div>
+
+          <div class="kpi blue">
+            <div class="kpi-label">Current Rate</div>
+            <div id="kpiRate" class="kpi-value">—</div>
+            <div class="kpi-sub">1 KWD → KES</div>
+          </div>
+
+          <div class="kpi red">
+            <div class="kpi-label">Pending</div>
+            <div id="kpiPending" class="kpi-value">—</div>
+            <div class="kpi-sub">Require attention</div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-label">Risk Flags</div>
+            <div id="kpiRisk" class="kpi-value">—</div>
+            <div class="kpi-sub">Open flags</div>
+          </div>
+
+        </div>
+
+
+        <div class="card" style="margin-bottom:14px">
+
+          <div class="card-title">
+            <h3>Quick Actions</h3>
+            <span>Common administrator operations</span>
+          </div>
+
+          <div class="quick-actions">
+
+            <button class="quick" data-action="transactions">
+              <div class="quick-icon">↔</div>
+              <strong>Transactions</strong>
+              <span>Review and manage transfers</span>
+            </button>
+
+            <button class="quick" data-action="rates">
+              <div class="quick-icon">₵</div>
+              <strong>Update Rate</strong>
+              <span>Change KWD/KES pricing</span>
+            </button>
+
+            <button class="quick" data-action="recon">
+              <div class="quick-icon">✓</div>
+              <strong>Reconcile</strong>
+              <span>Compare internal and external payments</span>
+            </button>
+
+            <button class="quick" data-action="risk">
+              <div class="quick-icon">!</div>
+              <strong>Risk Review</strong>
+              <span>Investigate suspicious activity</span>
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="grid cols-2">
+
+          <div class="card">
+
+            <div class="card-title">
+              <h3>Recent Activity</h3>
+              <button class="btn" data-action="transactions">View all</button>
+            </div>
+
+            <div id="dashboardActivity" class="activity">
+              <div class="loading">Loading activity…</div>
+            </div>
+
+          </div>
+
+
+          <div class="card">
+
+            <div class="card-title">
+              <h3>Operational Health</h3>
+              <span>Live</span>
+            </div>
+
+            <div class="activity">
+
+              <div class="activity-item">
+                <div class="activity-icon">₵</div>
+                <div class="activity-main">
+                  <strong>Exchange Rate</strong>
+                  <span>Current customer-facing rate</span>
+                </div>
+                <div id="healthRate" class="activity-amount">—</div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon">W</div>
+                <div class="activity-main">
+                  <strong>WAMD</strong>
+                  <span>Manual settlement channel</span>
+                </div>
+                <span class="badge ok">Enabled</span>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon">M</div>
+                <div class="activity-main">
+                  <strong>M-Pesa</strong>
+                  <span>Customer collection channel</span>
+                </div>
+                <span class="badge ok">Active</span>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon">!</div>
+                <div class="activity-main">
+                  <strong>Risk Monitor</strong>
+                  <span>Automated flag engine</span>
+                </div>
+                <span id="healthRisk" class="badge blue">Checking</span>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           TRANSACTIONS
+      ================================================== -->
+
+      <section id="page-transactions" class="page">
+
+        <div class="page-heading">
+
+          <div>
+            <h2>Transactions</h2>
+            <p>Search, review and manage customer money movement.</p>
+          </div>
+
+          <div class="heading-actions">
+            <button id="transactionRefresh" class="btn">↻ Refresh</button>
+          </div>
+
+        </div>
+
+
+        <div class="card" style="margin-bottom:14px">
+
+          <div class="form-grid">
+
+            <div class="field">
+              <label>Search</label>
+              <input id="txSearch" placeholder="Reference, phone, customer..."/>
+            </div>
+
+            <div class="field">
+              <label>Status</label>
+              <select id="txStatus">
+                <option value="">All statuses</option>
+                <option>PENDING</option>
+                <option>PROCESSING</option>
+                <option>COMPLETED</option>
+                <option>FAILED</option>
+                <option>CANCELLED</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label>Method</label>
+              <select id="txMethod">
+                <option value="">All methods</option>
+                <option>MPESA</option>
+                <option>WAMD</option>
+                <option>BANK</option>
+              </select>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="card-title">
+            <h3>Transaction Ledger</h3>
+            <span id="txCount">—</span>
+          </div>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Reference</th>
+                  <th>Customer</th>
+                  <th>Method</th>
+                  <th>Amount</th>
+                  <th>Recipient</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                  <th></th>
+                </tr>
+              </thead>
+
+              <tbody id="transactionsBody">
+                <tr>
+                  <td colspan="8" class="loading">Loading transactions…</td>
+                </tr>
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           CUSTOMERS
+      ================================================== -->
+
+      <section id="page-customers" class="page">
+
+        <div class="page-heading">
+
+          <div>
+            <h2>Customers</h2>
+            <p>Customer accounts, transaction activity and account overview.</p>
+          </div>
+
+          <button id="customerRefresh" class="btn">↻ Refresh</button>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="form-grid" style="margin-bottom:14px">
+
+            <div class="field">
+              <label>Search customer</label>
+              <input id="customerSearch" placeholder="Name, phone, email..."/>
+            </div>
+
+            <div class="field">
+              <label>Account status</label>
+              <select id="customerStatus">
+                <option value="">All customers</option>
+                <option>ACTIVE</option>
+                <option>BLOCKED</option>
+                <option>REVIEW</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="table-wrap">
+
+            <table>
+
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Transactions</th>
+                  <th>Volume</th>
+                  <th>Status</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+
+              <tbody id="customersBody">
+                <tr>
+                  <td colspan="7" class="loading">
+                    Customer endpoint not loaded yet.
+                  </td>
+                </tr>
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           RATES
+      ================================================== -->
+
+      <section id="page-rates" class="page">
+
+        <div class="page-heading">
+
+          <div>
+            <h2>Rates & Fees</h2>
+            <p>Control the customer-facing KWD/KES exchange rate and service charges.</p>
+          </div>
+
+        </div>
+
+
+        <div class="grid cols-2">
+
+          <div class="card">
+
+            <div class="card-title">
+              <h3>Exchange Rate</h3>
+              <span>Customer facing</span>
+            </div>
+
+            <div class="field">
+              <label>1 KWD = KES</label>
+              <input id="rateInput" type="number" step="0.01" placeholder="420.00"/>
+            </div>
+
+            <div style="height:10px"></div>
+
+            <div class="row" style="display:flex;gap:8px">
+
+              <button id="saveRate" class="btn primary">
+                Save Rate
+              </button>
+
+              <button id="reloadRate" class="btn">
+                Reload
+              </button>
+
+            </div>
+
+            <div class="hint" style="margin-top:12px">
+              Changes should only be made after confirming the live settlement rate and business margin.
+            </div>
+
+          </div>
+
+
+          <div class="card">
+
+            <div class="card-title">
+              <h3>Fee Configuration</h3>
+              <span>Business pricing</span>
+            </div>
+
+            <div class="form-grid">
+
+              <div class="field">
+                <label>Margin %</label>
+                <input id="marginInput" type="number" step="0.01" placeholder="2"/>
+              </div>
+
+              <div class="field">
+                <label>Minimum fee KWD</label>
+                <input id="minFeeInput" type="number" step="0.001" placeholder="0.150"/>
+              </div>
+
+              <div class="field">
+                <label>Maximum fee KWD</label>
+                <input id="maxFeeInput" type="number" step="0.001" placeholder="1.150"/>
+              </div>
+
+            </div>
+
+            <div style="margin-top:12px">
+              <button id="saveFees" class="btn primary">
+                Save Fee Settings
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="card" style="margin-top:14px">
+
+          <div class="card-title">
+            <h3>Current Pricing Preview</h3>
+            <span>Before publishing changes</span>
+          </div>
+
+          <div class="kpi-grid">
+
+            <div class="kpi gold">
+              <div class="kpi-label">1 KWD</div>
+              <div id="previewRate" class="kpi-value">—</div>
+              <div class="kpi-sub">KES</div>
+            </div>
+
+            <div class="kpi">
+              <div class="kpi-label">100 KWD</div>
+              <div id="preview100" class="kpi-value">—</div>
+              <div class="kpi-sub">KES before fees</div>
+            </div>
+
+            <div class="kpi">
+              <div class="kpi-label">500 KWD</div>
+              <div id="preview500" class="kpi-value">—</div>
+              <div class="kpi-sub">KES before fees</div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           WAMD
+      ================================================== -->
+
+      <section id="page-wamd" class="page">
+
+        <div class="page-heading">
+
+          <div>
+            <h2>WAMD Operations</h2>
+            <p>Manage the manual Kuwait-side settlement channel.</p>
+          </div>
+
+          <button id="wamdRefresh" class="btn">↻ Refresh</button>
+
+        </div>
+
+
+        <div class="kpi-grid">
+
+          <div class="kpi">
+            <div class="kpi-label">Pending WAMD</div>
+            <div id="wamdPending" class="kpi-value">—</div>
+            <div class="kpi-sub">Awaiting settlement</div>
+          </div>
+
+          <div class="kpi gold">
+            <div class="kpi-label">Today's WAMD</div>
+            <div id="wamdVolume" class="kpi-value">—</div>
+            <div class="kpi-sub">KWD volume</div>
+          </div>
+
+          <div class="kpi green">
+            <div class="kpi-label">Completed</div>
+            <div id="wamdCompleted" class="kpi-value">—</div>
+            <div class="kpi-sub">Successful settlements</div>
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="card-title">
+            <h3>Settlement Queue</h3>
+            <span>Manual operations</span>
+          </div>
+
+          <div id="wamdQueue" class="empty">
+            WAMD operations endpoint will populate this queue.
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           RECON
+      ================================================== -->
+
+      <section id="page-recon" class="page">
+
+        <div class="page-heading">
+
+          <div>
+            <h2>Daily Reconciliation</h2>
+            <p>Compare internal ChequeMatez records against external M-Pesa callbacks.</p>
+          </div>
+
+          <div class="heading-actions">
+
+            <button id="btnReconPreview" class="btn primary">
+              Preview
+            </button>
+
+            <a id="dlReconCsv" class="btn" download>
+              CSV
+            </a>
+
+            <button id="viewReconPdf" class="btn">
+              Print / PDF
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="form-grid">
+
+            <div class="field">
+              <label>Date UTC</label>
+              <input id="reconDate" type="date"/>
+            </div>
+
+          </div>
+
+          <div style="margin-top:14px">
+            <span id="reconStats" class="badge blue">No preview</span>
+          </div>
+
+        </div>
+
+
+        <div class="card" style="margin-top:14px">
+
+          <div class="table-wrap">
+
+            <table id="reconTable">
+
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Receipt</th>
+                  <th>Internal</th>
+                  <th>External</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+
+              <tbody></tbody>
+
+            </table>
+
+          </div>
+
+          <div id="reconEmpty" class="empty">
+            No preview yet.
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           REPORTS
+      ================================================== -->
+
+      <section id="page-reports" class="page">
+
+        <div class="page-heading">
+
+          <div>
+            <h2>Reports</h2>
+            <p>Generate operational and regulatory monthly reports.</p>
+          </div>
+
+          <div class="heading-actions">
+
+            <button id="btnRepPreview" class="btn primary">
+              Generate
+            </button>
+
+            <a id="dlRepCsv" class="btn">
+              CSV
+            </a>
+
+            <button id="viewRepPdf" class="btn">
+              Print / PDF
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="field" style="max-width:300px">
+
+            <label>Reporting month UTC</label>
+
+            <input id="repMonth" type="month"/>
+
+          </div>
+
+        </div>
+
+
+        <div class="card" style="margin-top:14px">
+
+          <div class="card-title">
+            <h3>Monthly Report</h3>
+            <span id="repFlags">—</span>
+          </div>
+
+          <div class="table-wrap">
+
+            <table id="repTable">
+
+              <thead></thead>
+              <tbody></tbody>
+
+            </table>
+
+          </div>
+
+          <div id="repEmpty" class="empty">
+            No report generated.
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           RISK
+      ================================================== -->
+
+      <section id="page-risk" class="page">
+
+        <div class="page-heading">
+
+          <div>
+            <h2>Risk & Fraud</h2>
+            <p>Velocity, structuring, odd-hours and transaction anomaly monitoring.</p>
+          </div>
+
+          <button id="btnRiskReload" class="btn">
+            ↻ Reload
+          </button>
+
+        </div>
+
+
+        <div class="kpi-grid">
+
+          <div class="kpi red">
+            <div class="kpi-label">High Risk</div>
+            <div id="riskHigh" class="kpi-value">—</div>
+            <div class="kpi-sub">Immediate attention</div>
+          </div>
+
+          <div class="kpi gold">
+            <div class="kpi-label">Medium Risk</div>
+            <div id="riskMedium" class="kpi-value">—</div>
+            <div class="kpi-sub">Review recommended</div>
+          </div>
+
+          <div class="kpi">
+            <div class="kpi-label">Total Flags</div>
+            <div id="riskTotal" class="kpi-value">—</div>
+            <div class="kpi-sub">Open flags</div>
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="table-wrap">
+
+            <table id="riskTable">
+
+              <thead>
+
+                <tr>
+                  <th>#</th>
+                  <th>Transaction</th>
+                  <th>Reason</th>
+                  <th>Severity</th>
+                  <th>Tags</th>
+                  <th>Time</th>
+                </tr>
+
+              </thead>
+
+              <tbody></tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           AUDIT
+      ================================================== -->
+
+      <section id="page-audit" class="page">
+
+        <div class="page-heading">
+
+          <div>
+            <h2>Audit Log</h2>
+            <p>Track administrator actions and system events.</p>
+          </div>
+
+          <button id="auditRefresh" class="btn">
+            ↻ Refresh
+          </button>
+
+        </div>
+
+
+        <div class="card">
+
+          <div id="auditList" class="activity">
+
+            <div class="empty">
+              Audit endpoint will populate administrator activity here.
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           SETTINGS
+      ================================================== -->
+
+      <section id="page-settings" class="page">
+
+        <div class="page-heading">
+
+          <div>
+            <h2>System Settings</h2>
+            <p>Platform-wide operational controls.</p>
+          </div>
+
+        </div>
+
+
+        <div class="grid cols-2">
+
+          <div class="card">
+
+            <div class="card-title">
+              <h3>Payment Channels</h3>
+              <span>Availability</span>
+            </div>
+
+            <div class="activity">
+
+              <div class="activity-item">
+                <div class="activity-icon">M</div>
+                <div class="activity-main">
+                  <strong>M-Pesa</strong>
+                  <span>C2B / STK collection</span>
+                </div>
+                <span class="badge ok">Active</span>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon">W</div>
+                <div class="activity-main">
+                  <strong>WAMD</strong>
+                  <span>Manual Kuwait payment</span>
+                </div>
+                <span class="badge ok">Active</span>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon">B</div>
+                <div class="activity-main">
+                  <strong>Bank</strong>
+                  <span>Customer bank settlement</span>
+                </div>
+                <span class="badge warn">Review</span>
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="card">
+
+            <div class="card-title">
+              <h3>Platform Information</h3>
+              <span>Configuration</span>
+            </div>
+
+            <div class="activity">
+
+              <div class="activity-item">
+                <div class="activity-main">
+                  <strong>Platform</strong>
+                  <span>ChequeMatez</span>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-main">
+                  <strong>Settlement Corridor</strong>
+                  <span>Kuwait → Kenya</span>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-main">
+                  <strong>Primary Currency</strong>
+                  <span>KWD / KES</span>
+                </div>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-main">
+                  <strong>Environment</strong>
+                  <span id="environmentLabel">Production</span>
+                </div>
+                <span class="badge ok">Live</span>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="card" style="margin-top:14px">
+
+          <div class="card-title">
+            <h3>Danger Zone</h3>
+            <span>Use carefully</span>
+          </div>
+
+          <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">
+
+            <button class="btn danger" id="maintenanceBtn">
+              Maintenance Mode
+            </button>
+
+            <button class="btn danger" id="cacheBtn">
+              Clear Application Cache
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<!-- =======================================================
+     TRANSACTION DETAIL MODAL
+======================================================== -->
+
+<div id="txModal" class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <h3>Transaction Details</h3>
+      <button class="close" data-close="txModal">×</button>
+    </div>
+
+    <div id="txDetails">
+      Loading…
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =======================================================
+     RATE CONFIRMATION MODAL
+======================================================== -->
+
+<div id="confirmModal" class="modal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <h3>Confirm Rate Change</h3>
+      <button class="close" data-close="confirmModal">×</button>
+    </div>
+
+    <p class="hint">
+      You are about to change the customer-facing exchange rate.
+      Confirm that the new rate has been verified.
+    </p>
+
+    <div class="card" style="margin:14px 0">
+
+      <div class="activity-item">
+        <div class="activity-main">
+          <strong>New rate</strong>
+          <span>1 KWD</span>
+        </div>
+
+        <div id="confirmRate" class="activity-amount">
+          —
+        </div>
+      </div>
+
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+
+      <button class="btn" data-close="confirmModal">
+        Cancel
+      </button>
+
+      <button id="confirmSaveRate" class="btn primary">
+        Confirm & Save
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="toast" class="toast"></div>
+
+
+<script>
+
+/* =========================================================
+   CONFIGURATION
+========================================================= */
+
+const API = {
+
+  rate:
+    '/api/rate',
+
+  rateSettings:
+    '/api/wamd/settings',
+
+  transactions:
+    '/admin/transactions/json',
+
+  customers:
+    '/admin/customers/json',
+
+  wamd:
+    '/admin/wamd/json',
+
+  audit:
+    '/admin/audit/json',
+
+  risk:
+    '/admin/risk/json',
+
+  reconcile:
+    '/admin/reconcile.csv',
+
+  monthly:
+    '/admin/reports/monthly.csv'
+
+};
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function escapeHtml(value){
+
+  return String(value ?? '')
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
+
+}
+
+
+function fmt(value, decimals=2){
+
+  const n = Number(value);
+
+  if(!Number.isFinite(n)){
+    return '—';
+  }
+
+  return n.toLocaleString(undefined,{
+    minimumFractionDigits:decimals,
+    maximumFractionDigits:decimals
+  });
+
+}
+
+
+function todayUTC(){
+
+  const d = new Date();
+
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}-${String(d.getUTCDate()).padStart(2,'0')}`;
+
+}
+
+
+function thisMonthUTC(){
+
+  const d = new Date();
+
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}`;
+
+}
+
+
+function statusBadge(status){
+
+  const s = String(status || '').toUpperCase();
+
+  let cls='blue';
+  let label=s || 'UNKNOWN';
+
+  if([
+    'COMPLETED',
+    'SUCCESS',
+    'PAYMENT_CONFIRMED',
+    'SETTLEMENT_CONFIRMED'
+  ].includes(s)){
+    cls='ok';
+    label='Completed';
+  }
+
+  else if([
+    'PENDING',
+    'CREATED',
+    'AWAITING_PAYMENT',
+    'PROCESSING'
+  ].includes(s)){
+    cls='warn';
+    label=s === 'AWAITING_PAYMENT'
+      ? 'Awaiting payment'
+      : 'Processing';
+  }
+
+  else if([
+    'FAILED',
+    'PAYMENT_FAILED',
+    'SETTLEMENT_FAILED',
+    'CANCELLED',
+    'EXPIRED'
+  ].includes(s)){
+    cls='bad';
+    label=s.charAt(0)+s.slice(1).toLowerCase();
+  }
+
+  return `<span class="badge ${cls}">${escapeHtml(label)}</span>`;
+
+}
+
+
+function showToast(message,type='ok'){
+
+  const el=document.getElementById('toast');
+
+  el.textContent=message;
+
+  el.className=`toast show ${type}`;
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer=setTimeout(()=>{
+    el.className='toast';
+  },3200);
+
+}
+
+
+async function fetchJSON(url,options={}){
+
+  const res=await fetch(url,{
+    cache:'no-store',
+    ...options
+  });
+
+  const text=await res.text();
+
+  let data;
+
+  try{
+    data=JSON.parse(text);
+  }catch{
+    throw new Error(text || `HTTP ${res.status}`);
+  }
+
+  if(!res.ok){
+    throw new Error(data.message || data.error || `HTTP ${res.status}`);
+  }
+
+  return data;
+
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+const titles={
+
+  dashboard:[
+    'Operations Dashboard',
+    'ChequeMatez platform control center'
+  ],
+
+  transactions:[
+    'Transactions',
+    'Customer money movement'
+  ],
+
+  customers:[
+    'Customers',
+    'Customer account management'
+  ],
+
+  rates:[
+    'Rates & Fees',
+    'Exchange rate and pricing controls'
+  ],
+
+  wamd:[
+    'WAMD Operations',
+    'Kuwait-side settlement management'
+  ],
+
+  recon:[
+    'Reconciliation',
+    'Internal versus external payment matching'
+  ],
+
+  reports:[
+    'Reports',
+    'Operational and regulatory reporting'
+  ],
+
+  risk:[
+    'Risk & Fraud',
+    'Transaction anomaly monitoring'
+  ],
+
+  audit:[
+    'Audit Log',
+    'Administrator activity'
+  ],
+
+  settings:[
+    'System Settings',
+    'Platform configuration'
+  ]
+
+};
+
+
+function openPage(name){
+
+  document.querySelectorAll('.page')
+    .forEach(p=>p.classList.remove('active'));
+
+  const page=document.getElementById(`page-${name}`);
+
+  if(page){
+    page.classList.add('active');
+  }
+
+  document.querySelectorAll('.nav-btn')
+    .forEach(btn=>{
+      btn.classList.toggle(
+        'active',
+        btn.dataset.page===name
+      );
+    });
+
+  const title=titles[name] || titles.dashboard;
+
+  document.getElementById('topTitle').textContent=title[0];
+  document.getElementById('topSubtitle').textContent=title[1];
+
+  document.getElementById('sidebar')
+    .classList.remove('open');
+
+  if(name==='dashboard') loadDashboard();
+  if(name==='transactions') loadTransactions();
+  if(name==='customers') loadCustomers();
+  if(name==='rates') loadRateSettings();
+  if(name==='wamd') loadWamd();
+  if(name==='recon') loadReconciliation();
+  if(name==='reports') loadReport();
+  if(name==='risk') loadRisk();
+  if(name==='audit') loadAudit();
+
+}
+
+
+document.querySelectorAll('.nav-btn')
+  .forEach(btn=>{
+
+    btn.addEventListener('click',()=>{
+      openPage(btn.dataset.page);
+    });
+
+  });
+
+
+document.querySelectorAll('[data-action]')
+  .forEach(btn=>{
+
+    btn.addEventListener('click',()=>{
+      openPage(btn.dataset.action);
+    });
+
+  });
+
+
+document.getElementById('mobileMenu')
+  .addEventListener('click',()=>{
+    document.getElementById('sidebar')
+      .classList.toggle('open');
+  });
+
+
+document.getElementById('globalRefresh')
+  .addEventListener('click',()=>{
+
+    const active=document.querySelector('.nav-btn.active');
+
+    if(active){
+      openPage(active.dataset.page);
+    }
+
+    showToast('Dashboard refreshed');
+
+  });
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+async function loadDashboard(){
+
+  loadRate();
+
+  const activity=document.getElementById('dashboardActivity');
+
+  try{
+
+    const data=await fetchJSON(API.transactions);
+
+    const items=
+      Array.isArray(data)
+      ? data
+      : data.items || data.transactions || [];
+
+    const pending=items.filter(x=>[
+      'PENDING',
+      'PROCESSING',
+      'AWAITING_PAYMENT',
+      'CREATED'
+    ].includes(String(x.status||'').toUpperCase()));
+
+    document.getElementById('kpiTransactions')
+      .textContent=items.length;
+
+    document.getElementById('kpiPending')
+      .textContent=pending.length;
+
+    document.getElementById('pendingBadge')
+      .textContent=pending.length;
+
+    let volume=0;
+
+    items.forEach(x=>{
+      volume+=Number(
+        x.amount ||
+        x.kwd_amount ||
+        x.amount_kwd ||
+        0
+      );
+    });
+
+    document.getElementById('kpiVolume')
+      .textContent=`${fmt(volume)} KWD`;
+
+    if(!items.length){
+
+      activity.innerHTML=
+        `<div class="empty">No transactions available.</div>`;
+
+      return;
+
+    }
+
+    activity.innerHTML='';
+
+    items.slice(0,8).forEach(tx=>{
+
+      const amount=Number(
+        tx.amount ||
+        tx.kwd_amount ||
+        tx.amount_kwd ||
+        0
+      );
+
+      const reference=
+        tx.reference ||
+        tx.tx_id ||
+        tx.transaction_id ||
+        tx.id ||
+        '—';
+
+      const method=
+        tx.method ||
+        tx.payment_method ||
+        '—';
+
+      const row=document.createElement('div');
+
+      row.className='activity-item';
+
+      row.innerHTML=`
+
+        <div class="activity-icon">
+          ${method==='WAMD'?'W':method==='MPESA'?'M':'₵'}
+        </div>
+
+        <div class="activity-main">
+          <strong>${escapeHtml(reference)}</strong>
+          <span>${escapeHtml(method)} · ${escapeHtml(tx.status || 'UNKNOWN')}</span>
+        </div>
+
+        <div>
+          <div class="activity-amount">
+            ${fmt(amount)} KWD
+          </div>
+        </div>
+
+      `;
+
+      activity.appendChild(row);
+
+    });
+
+  }catch(e){
+
+    document.getElementById('kpiTransactions')
+      .textContent='—';
+
+    document.getElementById('kpiPending')
+      .textContent='—';
+
+    document.getElementById('kpiVolume')
+      .textContent='—';
+
+    activity.innerHTML=
+      `<div class="empty">
+        Transaction dashboard endpoint unavailable.
+      </div>`;
+
+  }
+
+}
+
+
+/* =========================================================
+   RATE
+========================================================= */
+
+async function loadRate(){
+
+  try{
+
+    const data=await fetchJSON(API.rate);
+
+    const rate=Number(
+      data.rate ??
+      data.kwd_to_kes ??
+      data.value ??
+      data
+    );
+
+    if(!Number.isFinite(rate)){
+      throw new Error('Invalid rate');
+    }
+
+    document.getElementById('kpiRate')
+      .textContent=fmt(rate);
+
+    document.getElementById('healthRate')
+      .textContent=`${fmt(rate)} KES`;
+
+    document.getElementById('rateInput')
+      .value=rate;
+
+    updateRatePreview(rate);
+
+  }catch{
+
+    document.getElementById('kpiRate')
+      .textContent='—';
+
+    document.getElementById('healthRate')
+      .textContent='Unavailable';
+
+  }
+
+}
+
+
+function updateRatePreview(rate){
+
+  const r=Number(rate);
+
+  if(!Number.isFinite(r)){
+    return;
+  }
+
+  document.getElementById('previewRate')
+    .textContent=fmt(r);
+
+  document.getElementById('preview100')
+    .textContent=fmt(r*100);
+
+  document.getElementById('preview500')
+    .textContent=fmt(r*500);
+
+}
+
+
+document.getElementById('rateInput')
+  .addEventListener('input',e=>{
+    updateRatePreview(e.target.value);
+  });
+
+
+async function loadRateSettings(){
+
+  await loadRate();
+
+  try{
+
+    const data=await fetchJSON(API.rateSettings);
+
+    const s=data.settings || data;
+
+    if(s.margin_percent != null)
+      document.getElementById('marginInput').value=s.margin_percent;
+
+    if(s.min_fee != null)
+      document.getElementById('minFeeInput').value=s.min_fee;
+
+    if(s.max_fee != null)
+      document.getElementById('maxFeeInput').value=s.max_fee;
+
+  }catch{
+
+    // Settings endpoint may not expose fee fields yet.
+
+  }
+
+}
+
+
+document.getElementById('reloadRate')
+  .addEventListener('click',loadRateSettings);
+
+
+document.getElementById('saveRate')
+  .addEventListener('click',()=>{
+
+    const rate=Number(
+      document.getElementById('rateInput').value
+    );
+
+    if(!Number.isFinite(rate) || rate<=0){
+
+      showToast('Enter a valid exchange rate','bad');
+      return;
+
+    }
+
+    document.getElementById('confirmRate')
+      .textContent=`${fmt(rate)} KES`;
+
+    document.getElementById('confirmModal')
+      .classList.add('open');
+
+  });
+
+
+document.getElementById('confirmSaveRate')
+  .addEventListener('click',async()=>{
+
+    const rate=Number(
+      document.getElementById('rateInput').value
+    );
+
+    const btn=document.getElementById('confirmSaveRate');
+
+    btn.disabled=true;
+    btn.textContent='Saving…';
+
+    try{
+
+      /*
+       * This endpoint is intentionally kept separate from
+       * /api/rate so the backend can enforce admin-only access.
+       */
+      const res=await fetch('/admin/settings/rate',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+          rate:rate
+        })
+      });
+
+      const data=await res.json();
+
+      if(!res.ok){
+        throw new Error(
+          data.message ||
+          data.error ||
+          'Could not save rate'
+        );
+      }
+
+      showToast('Exchange rate updated');
+
+      document.getElementById('confirmModal')
+        .classList.remove('open');
+
+      await loadRate();
+
+    }catch(e){
+
+      showToast(e.message || 'Rate update failed','bad');
+
+    }finally{
+
+      btn.disabled=false;
+      btn.textContent='Confirm & Save';
+
+    }
+
+  });
+
+
+document.getElementById('saveFees')
+  .addEventListener('click',async()=>{
+
+    const payload={
+
+      margin_percent:
+        Number(document.getElementById('marginInput').value),
+
+      min_fee:
+        Number(document.getElementById('minFeeInput').value),
+
+      max_fee:
+        Number(document.getElementById('maxFeeInput').value)
+
+    };
+
+    try{
+
+      const res=await fetch('/admin/settings/fees',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify(payload)
+      });
+
+      const data=await res.json();
+
+      if(!res.ok){
+        throw new Error(
+          data.message ||
+          data.error ||
+          'Unable to save fee settings'
+        );
+      }
+
+      showToast('Fee settings saved');
+
+    }catch(e){
+
+      showToast(e.message,'bad');
+
+    }
+
+  });
+
+
+/* =========================================================
+   TRANSACTIONS
+========================================================= */
+
+let transactionCache=[];
+
+
+async function loadTransactions(){
+
+  const body=document.getElementById('transactionsBody');
+
+  body.innerHTML=
+    `<tr><td colspan="8" class="loading">Loading…</td></tr>`;
+
+  try{
+
+    const data=await fetchJSON(API.transactions);
+
+    transactionCache=
+      Array.isArray(data)
+      ? data
+      : data.items || data.transactions || [];
+
+    renderTransactions();
+
+  }catch(e){
+
+    body.innerHTML=
+      `<tr>
+        <td colspan="8" class="empty">
+          Transaction endpoint unavailable.
+        </td>
+      </tr>`;
+
+  }
+
+}
+
+
+function renderTransactions(){
+
+  const body=document.getElementById('transactionsBody');
+
+  const search=
+    document.getElementById('txSearch')
+      .value
+      .trim()
+      .toLowerCase();
+
+  const status=
+    document.getElementById('txStatus').value
+      .toUpperCase();
+
+  const method=
+    document.getElementById('txMethod').value
+      .toUpperCase();
+
+  const items=transactionCache.filter(tx=>{
+
+    const text=JSON.stringify(tx).toLowerCase();
+
+    if(search && !text.includes(search)){
+      return false;
+    }
+
+    if(status &&
+      String(tx.status||'').toUpperCase()!==status){
+      return false;
+    }
+
+    const txMethod=String(
+      tx.method ||
+      tx.payment_method ||
+      ''
+    ).toUpperCase();
+
+    if(method && txMethod!==method){
+      return false;
+    }
+
+    return true;
+
+  });
+
+  document.getElementById('txCount')
+    .textContent=`${items.length} records`;
+
+  if(!items.length){
+
+    body.innerHTML=
+      `<tr>
+        <td colspan="8" class="empty">
+          No matching transactions.
+        </td>
+      </tr>`;
+
+    return;
+
+  }
+
+  body.innerHTML='';
+
+  items.slice(0,500).forEach(tx=>{
+
+    const reference=
+      tx.reference ||
+      tx.tx_id ||
+      tx.transaction_id ||
+      tx.id ||
+      '—';
+
+    const customer=
+      tx.customer_name ||
+      tx.full_name ||
+      tx.sender_name ||
+      'Customer';
+
+    const recipient=
+      tx.recipient_name ||
+      tx.wamd_recipient_name ||
+      tx.phone ||
+      tx.recipient_phone ||
+      tx.bank_account ||
+      '—';
+
+    const amount=Number(
+      tx.amount ||
+      tx.kwd_amount ||
+      tx.amount_kwd ||
+      0
+    );
+
+    const method=
+      tx.method ||
+      tx.payment_method ||
+      '—';
+
+    const created=
+      tx.created_at ||
+      tx.timestamp ||
+      tx.date ||
+      '—';
+
+    const tr=document.createElement('tr');
+
+    tr.innerHTML=`
+
+      <td>
+        <strong>${escapeHtml(reference)}</strong>
+      </td>
+
+      <td>
+        ${escapeHtml(customer)}
+      </td>
+
+      <td>
+        <span class="badge blue">
+          ${escapeHtml(method)}
+        </span>
+      </td>
+
+      <td>
+        <strong>${fmt(amount)} KWD</strong>
+      </td>
+
+      <td>
+        ${escapeHtml(recipient)}
+      </td>
+
+      <td>
+        ${statusBadge(tx.status)}
+      </td>
+
+      <td>
+        ${escapeHtml(created)}
+      </td>
+
+      <td>
+        <button class="btn" data-tx-view="${escapeHtml(reference)}">
+          View
+        </button>
+      </td>
+
+    `;
+
+    body.appendChild(tr);
+
+  });
+
+  body.querySelectorAll('[data-tx-view]')
+    .forEach(btn=>{
+
+      btn.addEventListener('click',()=>{
+
+        const tx=transactionCache.find(x=>
+          String(
+            x.reference ||
+            x.tx_id ||
+            x.transaction_id ||
+            x.id ||
+            ''
+          )===btn.dataset.txView
+        );
+
+        if(tx){
+          openTransaction(tx);
+        }
+
+      });
+
+    });
+
+}
+
+
+document.getElementById('txSearch')
+  .addEventListener('input',renderTransactions);
+
+document.getElementById('txStatus')
+  .addEventListener('change',renderTransactions);
+
+document.getElementById('txMethod')
+  .addEventListener('change',renderTransactions);
+
+document.getElementById('transactionRefresh')
+  .addEventListener('click',loadTransactions);
+
+
+function openTransaction(tx){
+
+  const reference=
+    tx.reference ||
+    tx.tx_id ||
+    tx.transaction_id ||
+    tx.id ||
+    '—';
+
+  const customer=
+    tx.customer_name ||
+    tx.full_name ||
+    tx.sender_name ||
+    'Customer';
+
+  const recipient=
+    tx.recipient_name ||
+    tx.wamd_recipient_name ||
+    tx.phone ||
+    tx.recipient_phone ||
+    tx.bank_account ||
+    '—';
+
+  const amount=Number(
+    tx.amount ||
+    tx.kwd_amount ||
+    tx.amount_kwd ||
+    0
+  );
+
+  const fee=Number(
+    tx.fee ||
+    tx.service_charge ||
+    tx.total_fee ||
+    0
+  );
+
+  document.getElementById('txDetails').innerHTML=`
+
+    <div class="kpi-grid" style="grid-template-columns:1fr 1fr">
+
+      <div class="kpi gold">
+        <div class="kpi-label">Amount</div>
+        <div class="kpi-value">${fmt(amount)}</div>
+        <div class="kpi-sub">KWD</div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-label">Status</div>
+        <div style="margin-top:12px">
+          ${statusBadge(tx.status)}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="activity" style="margin-top:14px">
+
+      <div class="activity-item">
+        <div class="activity-main">
+          <strong>Reference</strong>
+          <span>${escapeHtml(reference)}</span>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-main">
+          <strong>Customer</strong>
+          <span>${escapeHtml(customer)}</span>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-main">
+          <strong>Recipient</strong>
+          <span>${escapeHtml(recipient)}</span>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-main">
+          <strong>Method</strong>
+          <span>${escapeHtml(tx.method || tx.payment_method || '—')}</span>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-main">
+          <strong>Fee</strong>
+          <span>${fmt(fee)} KWD</span>
+        </div>
+      </div>
+
+      <div class="activity-item">
+        <div class="activity-main">
+          <strong>Created</strong>
+          <span>${escapeHtml(tx.created_at || tx.timestamp || '—')}</span>
+        </div>
+      </div>
+
+    </div>
+
+  `;
+
+  document.getElementById('txModal')
+    .classList.add('open');
+
+}
+
+
+/* =========================================================
+   CUSTOMERS
+========================================================= */
+
+let customerCache=[];
+
+
+async function loadCustomers(){
+
+  const body=document.getElementById('customersBody');
+
+  body.innerHTML=
+    `<tr><td colspan="7" class="loading">Loading…</td></tr>`;
+
+  try{
+
+    const data=await fetchJSON(API.customers);
+
+    customerCache=
+      Array.isArray(data)
+      ? data
+      : data.items || data.customers || [];
+
+    renderCustomers();
+
+  }catch{
+
+    body.innerHTML=
+      `<tr>
+        <td colspan="7" class="empty">
+          Customer CMS endpoint not connected yet.
+        </td>
+      </tr>`;
+
+  }
+
+}
+
+
+function renderCustomers(){
+
+  const body=document.getElementById('customersBody');
+
+  const search=
+    document.getElementById('customerSearch')
+      .value
+      .trim()
+      .toLowerCase();
+
+  const status=
+    document.getElementById('customerStatus')
+      .value
+      .toUpperCase();
+
+  const items=customerCache.filter(c=>{
+
+    if(search &&
+      !JSON.stringify(c).toLowerCase().includes(search)){
+      return false;
+    }
+
+    if(status &&
+      String(c.status||'').toUpperCase()!==status){
+      return false;
+    }
+
+    return true;
+
+  });
+
+  if(!items.length){
+
+    body.innerHTML=
+      `<tr>
+        <td colspan="7" class="empty">
+          No customers found.
+        </td>
+      </tr>`;
+
+    return;
+
+  }
+
+  body.innerHTML='';
+
+  items.forEach(c=>{
+
+    const tr=document.createElement('tr');
+
+    tr.innerHTML=`
+
+      <td>
+        <strong>
+          ${escapeHtml(
+            c.full_name ||
+            c.name ||
+            c.customer_name ||
+            'Customer'
+          )}
+        </strong>
+      </td>
+
+      <td>
+        ${escapeHtml(c.phone || c.phone_number || '—')}
+      </td>
+
+      <td>
+        ${escapeHtml(c.email || '—')}
+      </td>
+
+      <td>
+        ${escapeHtml(
+          c.transaction_count ??
+          c.transactions ??
+          '—'
+        )}
+      </td>
+
+      <td>
+        ${c.volume != null
+          ? `${fmt(c.volume)} KWD`
+          : '—'}
+      </td>
+
+      <td>
+        ${statusBadge(
+          c.status ||
+          'ACTIVE'
+        )}
+      </td>
+
+      <td>
+        ${escapeHtml(
+          c.created_at ||
+          c.joined_at ||
+          '—'
+        )}
+      </td>
+
+    `;
+
+    body.appendChild(tr);
+
+  });
+
+}
+
+
+document.getElementById('customerSearch')
+  .addEventListener('input',renderCustomers);
+
+document.getElementById('customerStatus')
+  .addEventListener('change',renderCustomers);
+
+document.getElementById('customerRefresh')
+  .addEventListener('click',loadCustomers);
+
+
+/* =========================================================
+   WAMD
+========================================================= */
+
+async function loadWamd(){
+
+  try{
+
+    const data=await fetchJSON(API.wamd);
+
+    const items=
+      Array.isArray(data)
+      ? data
+      : data.items || data.transactions || [];
+
+    const pending=items.filter(x=>[
+      'PENDING',
+      'PROCESSING',
+      'AWAITING_PAYMENT',
+      'CREATED'
+    ].includes(String(x.status||'').toUpperCase()));
+
+    const completed=items.filter(x=>
+      String(x.status||'').toUpperCase()==='COMPLETED'
+    );
+
+    const volume=items.reduce((sum,x)=>
+      sum+Number(
+        x.amount ||
+        x.kwd_amount ||
+        x.amount_kwd ||
+        0
+      ),0);
+
+    document.getElementById('wamdPending')
+      .textContent=pending.length;
+
+    document.getElementById('wamdCompleted')
+      .textContent=completed.length;
+
+    document.getElementById('wamdVolume')
+      .textContent=`${fmt(volume)} KWD`;
+
+    const queue=document.getElementById('wamdQueue');
+
+    if(!pending.length){
+
+      queue.innerHTML=
+        `<div class="empty">No WAMD settlements awaiting action.</div>`;
+
+      return;
+
+    }
+
+    queue.innerHTML='';
+
+    pending.forEach(tx=>{
+
+      const row=document.createElement('div');
+
+      row.className='activity-item';
+
+      row.innerHTML=`
+
+        <div class="activity-icon">W</div>
+
+        <div class="activity-main">
+
+          <strong>
+            ${escapeHtml(
+              tx.reference ||
+              tx.tx_id ||
+              tx.id ||
+              'WAMD transaction'
+            )}
+          </strong>
+
+          <span>
+            ${escapeHtml(
+              tx.recipient_name ||
+              tx.wamd_recipient_name ||
+              tx.phone ||
+              'Recipient'
+            )}
+          </span>
+
+        </div>
+
+        <div class="activity-amount">
+          ${fmt(
+            tx.amount ||
+            tx.kwd_amount ||
+            tx.amount_kwd
+          )} KWD
+        </div>
+
+        ${statusBadge(tx.status)}
+
+      `;
+
+      queue.appendChild(row);
+
+    });
+
+  }catch{
+
+    document.getElementById('wamdQueue').innerHTML=
+      `<div class="empty">
+        WAMD operations endpoint not connected yet.
+      </div>`;
+
+  }
+
+}
+
+
+document.getElementById('wamdRefresh')
+  .addEventListener('click',loadWamd);
+
+
+/* =========================================================
+   RECONCILIATION
+========================================================= */
+
+const reconDate=document.getElementById('reconDate');
+
+reconDate.value=todayUTC();
+
+
+function setReconLink(){
+
+  const date=reconDate.value || todayUTC();
+
+  document.getElementById('dlReconCsv').href=
+    `${API.reconcile}?date=${encodeURIComponent(date)}`;
+
+}
+
+
+reconDate.addEventListener('change',setReconLink);
+
+
+async function loadReconciliation(){
+
+  setReconLink();
+
+}
+
+
+document.getElementById('btnReconPreview')
+  .addEventListener('click',async()=>{
+
+    const date=
+      reconDate.value ||
+      todayUTC();
+
+    setReconLink();
+
+    const tbody=
+      document.querySelector('#reconTable tbody');
+
+    tbody.innerHTML=
+      `<tr>
+        <td colspan="5" class="loading">Loading…</td>
+      </tr>`;
+
+    try{
+
+      const res=await fetch(
+        `${API.reconcile}?date=${encodeURIComponent(date)}`,
+        {cache:'no-store'}
+      );
+
+      const csv=await res.text();
+
+      const rows=csv
+        .trim()
+        .split(/\r?\n/)
+        .map(line=>
+          line.split(',').map(
+            x=>x.replace(/^"|"$/g,'')
+          )
+        );
+
+      let missingExt=0;
+      let missingInt=0;
+      let mismatches=0;
+
+      rows.slice(1).forEach(r=>{
+
+        if(r[0]==='INT_ONLY')
+          missingExt++;
+
+        if(r[0]==='EXT_ONLY')
+          missingInt++;
+
+        if(r[0]==='AMOUNT_DIFF')
+          mismatches++;
+
+      });
+
+      document.getElementById('reconStats')
+        .textContent=
+        `Missing ext: ${missingExt} · Missing int: ${missingInt} · Amount mismatches: ${mismatches}`;
+
+      tbody.innerHTML='';
+
+      rows.slice(1,201).forEach(r=>{
+
+        const tr=document.createElement('tr');
+
+        tr.innerHTML=`
+
+          <td>${escapeHtml(r[0] || '')}</td>
+          <td>${escapeHtml(r[1] || '')}</td>
+          <td>${escapeHtml(r[2] || '')}</td>
+          <td>${escapeHtml(r[3] || '')}</td>
+          <td>${escapeHtml(r[4] || '')}</td>
+
+        `;
+
+        tbody.appendChild(tr);
+
+      });
+
+      document.getElementById('reconEmpty')
+        .textContent=
+        rows.length<=1
+        ? 'No reconciliation records.'
+        : '';
+
+    }catch{
+
+      tbody.innerHTML=
+        `<tr>
+          <td colspan="5" class="empty">
+            Failed to load reconciliation.
+          </td>
+        </tr>`;
+
+    }
+
+  });
+
+
+/* =========================================================
+   REPORTS
+========================================================= */
+
+const repMonth=document.getElementById('repMonth');
+
+repMonth.value=thisMonthUTC();
+
+
+function setReportLink(){
+
+  const ym=
+    repMonth.value ||
+    thisMonthUTC();
+
+  document.getElementById('dlRepCsv').href=
+    `${API.monthly}?ym=${encodeURIComponent(ym)}`;
+
+}
+
+
+repMonth.addEventListener('change',setReportLink);
+
+
+async function loadReport(){
+
+  setReportLink();
+
+}
+
+
+document.getElementById('btnRepPreview')
+  .addEventListener('click',async()=>{
+
+    const ym=
+      repMonth.value ||
+      thisMonthUTC();
+
+    setReportLink();
+
+    const thead=
+      document.querySelector('#repTable thead');
+
+    const tbody=
+      document.querySelector('#repTable tbody');
+
+    const empty=
+      document.getElementById('repEmpty');
+
+    thead.innerHTML='';
+    tbody.innerHTML='';
+    empty.textContent='Loading…';
+
+    try{
+
+      const res=await fetch(
+        `${API.monthly}?ym=${encodeURIComponent(ym)}`,
+        {cache:'no-store'}
+      );
+
+      const csv=await res.text();
+
+      const rows=csv
+        .trim()
+        .split(/\r?\n/)
+        .map(line=>
+          line.split(',').map(
+            x=>x.replace(/^"|"$/g,'')
+          )
+        );
+
+      if(!rows.length){
+
+        empty.textContent='No report data.';
+        return;
+
+      }
+
+      const headers=rows[0];
+
+      thead.innerHTML=
+        `<tr>${
+          headers.map(h=>
+            `<th>${escapeHtml(h)}</th>`
+          ).join('')
+        }</tr>`;
+
+      let flagCount=0;
+
+      rows.forEach(r=>{
+
+        if(
+          String(r[0]||'')
+            .toLowerCase()
+            .includes('suspicious')
+        ){
+
+          flagCount=Number(r[1]||0);
+
+        }
+
+      });
+
+      document.getElementById('repFlags')
+        .textContent=
+        `Suspicious flags: ${flagCount}`;
+
+      rows
+        .slice(1)
+        .filter(r=>
+          r.some(Boolean) &&
+          String(r[0]||'')
+            .toUpperCase()!=='TOTALS'
+        )
+        .slice(0,300)
+        .forEach(r=>{
+
+          const tr=document.createElement('tr');
+
+          tr.innerHTML=r.map(c=>
+            `<td>${escapeHtml(c)}</td>`
+          ).join('');
+
+          tbody.appendChild(tr);
+
+        });
+
+      empty.textContent='';
+
+    }catch{
+
+      empty.textContent=
+        'Failed to generate report.';
+
+    }
+
+  });
+
+
+/* =========================================================
+   RISK
+========================================================= */
+
+async function loadRisk(){
+
+  const tbody=
+    document.querySelector('#riskTable tbody');
+
+  tbody.innerHTML=
+    `<tr>
+      <td colspan="6" class="loading">
+        Loading risk flags…
+      </td>
+    </tr>`;
+
+  try{
+
+    const data=await fetchJSON(API.risk);
+
+    const items=
+      data.items ||
+      data.flags ||
+      [];
+
+    let high=0;
+    let medium=0;
+
+    items.forEach(a=>{
+
+      const sev=
+        String(a.severity||'')
+          .toLowerCase();
+
+      if(sev==='high') high++;
+
+      if(
+        sev==='medium' ||
+        sev==='med'
+      ) medium++;
+
+    });
+
+    document.getElementById('riskHigh')
+      .textContent=high;
+
+    document.getElementById('riskMedium')
+      .textContent=medium;
+
+    document.getElementById('riskTotal')
+      .textContent=items.length;
+
+    document.getElementById('kpiRisk')
+      .textContent=items.length;
+
+    document.getElementById('healthRisk')
+      .textContent=
+      items.length
+      ? `${items.length} open`
+      : 'Clear';
+
+    document.getElementById('healthRisk')
+      .className=
+      `badge ${items.length?'warn':'ok'}`;
+
+    if(!items.length){
+
+      tbody.innerHTML=
+        `<tr>
+          <td colspan="6" class="empty">
+            No open risk flags.
+          </td>
+        </tr>`;
+
+      return;
+
+    }
+
+    tbody.innerHTML='';
+
+    items.slice(0,300).forEach(a=>{
+
+      const sev=
+        String(a.severity||'')
+          .toLowerCase();
+
+      const cls=
+        sev==='high'
+        ? 'bad'
+        : sev==='medium' || sev==='med'
+          ? 'warn'
+          : 'ok';
+
+      const tags=(a.tags||[])
+        .map(t=>
+          `<span class="badge">${escapeHtml(t)}</span>`
+        )
+        .join(' ');
+
+      const tr=document.createElement('tr');
+
+      tr.innerHTML=`
+
+        <td>${escapeHtml(a.id)}</td>
+
+        <td>
+          <strong>
+            ${escapeHtml(
+              a.tx_id ||
+              a.transaction_id ||
+              '—'
+            )}
+          </strong>
+        </td>
+
+        <td>
+          ${escapeHtml(a.reason || '—')}
+        </td>
+
+        <td>
+          <span class="badge ${cls}">
+            ${escapeHtml(a.severity || '—')}
+          </span>
+        </td>
+
+        <td>${tags}</td>
+
+        <td>
+          ${escapeHtml(a.timestamp || '—')}
+        </td>
+
+      `;
+
+      tbody.appendChild(tr);
+
+    });
+
+  }catch{
+
+    tbody.innerHTML=
+      `<tr>
+        <td colspan="6" class="empty">
+          Failed to load risk flags.
+        </td>
+      </tr>`;
+
+  }
+
+}
+
+
+document.getElementById('btnRiskReload')
+  .addEventListener('click',loadRisk);
+
+
+/* =========================================================
+   AUDIT
+========================================================= */
+
+async function loadAudit(){
+
+  const list=
+    document.getElementById('auditList');
+
+  try{
+
+    const data=await fetchJSON(API.audit);
+
+    const items=
+      data.items ||
+      data.logs ||
+      data.audit ||
+      [];
+
+    if(!items.length){
+
+      list.innerHTML=
+        `<div class="empty">
+          No audit events available.
+        </div>`;
+
+      return;
+
+    }
+
+    list.innerHTML='';
+
+    items.slice(0,100).forEach(a=>{
+
+      const row=document.createElement('div');
+
+      row.className='activity-item';
+
+      row.innerHTML=`
+
+        <div class="activity-icon">
+          ◷
+        </div>
+
+        <div class="activity-main">
+
+          <strong>
+            ${escapeHtml(
+              a.action ||
+              a.event ||
+              'System event'
+            )}
+          </strong>
+
+          <span>
+            ${escapeHtml(
+              a.admin ||
+              a.username ||
+              'Administrator'
+            )}
+            ·
+            ${escapeHtml(
+              a.timestamp ||
+              a.created_at ||
+              ''
+            )}
+          </span>
+
+        </div>
+
+        <span class="badge blue">
+          ${escapeHtml(
+            a.type ||
+            'AUDIT'
+          )}
+        </span>
+
+      `;
+
+      list.appendChild(row);
+
+    });
+
+  }catch{
+
+    list.innerHTML=
+      `<div class="empty">
+        Audit endpoint not connected yet.
+      </div>`;
+
+  }
+
+}
+
+
+document.getElementById('auditRefresh')
+  .addEventListener('click',loadAudit);
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+document.querySelectorAll('[data-close]')
+  .forEach(btn=>{
+
+    btn.addEventListener('click',()=>{
+
+      const id=btn.dataset.close;
+
+      document.getElementById(id)
+        .classList.remove('open');
+
+    });
+
+  });
+
+
+document.querySelectorAll('.modal')
+  .forEach(modal=>{
+
+    modal.addEventListener('click',e=>{
+
+      if(e.target===modal){
+        modal.classList.remove('open');
+      }
+
+    });
+
+  });
+
+
+document.addEventListener('keydown',e=>{
+
+  if(e.key==='Escape'){
+
+    document.querySelectorAll('.modal.open')
+      .forEach(m=>m.classList.remove('open'));
+
+  }
+
+});
+
+
+/* =========================================================
+   DANGER ACTIONS
+========================================================= */
+
+document.getElementById('maintenanceBtn')
+  .addEventListener('click',()=>{
+
+    const ok=confirm(
+      'Enable or change maintenance mode? This should only be implemented after the backend endpoint is connected.'
+    );
+
+    if(ok){
+
+      showToast(
+        'Maintenance endpoint is not connected yet.',
+        'bad'
+      );
+
+    }
+
+  });
+
+
+document.getElementById('cacheBtn')
+  .addEventListener('click',()=>{
+
+    const ok=confirm(
+      'Clear application cache?'
+    );
+
+    if(ok){
+
+      showToast(
+        'Cache management endpoint is not connected yet.',
+        'bad'
+      );
+
+    }
+
+  });
+
+
+/* =========================================================
+   PRINT
+========================================================= */
+
+function printTable(title,table){
+
+  if(!table){
+    showToast('Generate a preview first','bad');
+    return;
+  }
+
+  const win=
+    window.open(
+      '',
+      '_blank',
+      'width=1200,height=800'
+    );
+
+  if(!win){
+
+    showToast(
+      'Please allow pop-ups to print reports.',
+      'bad'
+    );
+
+    return;
+
+  }
+
+  win.document.write(`
+
+    <!doctype html>
+
+    <html>
+
+    <head>
+
+      <meta charset="utf-8"/>
+
+      <title>${escapeHtml(title)}</title>
+
+      <style>
+
+        body{
+          font-family:Arial,sans-serif;
+          padding:25px;
+          color:#111;
+        }
+
+        h1{
+          font-size:22px;
+        }
+
+        table{
+          width:100%;
+          border-collapse:collapse;
+          font-size:11px;
+        }
+
+        th,td{
+          border:1px solid #ccc;
+          padding:7px;
+          text-align:left;
+        }
+
+        th{
+          background:#f2f2f2;
+        }
+
+      </style>
+
+    </head>
+
+    <body>
+
+      <h1>${escapeHtml(title)}</h1>
+
+      <p>
+        Generated:
+        ${new Date().toISOString()}
+      </p>
+
+      ${table.outerHTML}
+
+      <script>
+        window.onload=function(){
+          window.print();
+        }
+      <\/script>
+
+    </body>
+
+    </html>
+
+  `);
+
+  win.document.close();
+
+}
+
+
+document.getElementById('viewReconPdf')
+  .addEventListener('click',()=>{
+
+    printTable(
+      'ChequeMatez — Daily Reconciliation',
+      document.getElementById('reconTable')
+    );
+
+  });
+
+
+document.getElementById('viewRepPdf')
+  .addEventListener('click',()=>{
+
+    printTable(
+      'ChequeMatez — Monthly Report',
+      document.getElementById('repTable')
+    );
+
+  });
+
+
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
+
+(async function(){
+
+  await loadDashboard();
+
+  setReconLink();
+
+  setReportLink();
+
+})();
+
+
+/*
+ * Keep operational figures reasonably fresh.
+ * This does not reload the entire page.
+ */
+
+setInterval(()=>{
+
+  const active=
+    document.querySelector('.nav-btn.active');
+
+  if(
+    active &&
+    (
+      active.dataset.page==='dashboard' ||
+      active.dataset.page==='transactions'
+    )
+  ){
+
+    if(active.dataset.page==='dashboard')
+      loadDashboard();
+
+    if(active.dataset.page==='transactions')
+      loadTransactions();
+
+  }
+
+},30000);
+
+</script>
+
+</body>
+</html>

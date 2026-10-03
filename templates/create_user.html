@@ -1,160 +1,1371 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Create User — chequematez</title>
+
 <style>
-/* === Brand Palette === */
 :root{
-  --brand-black:#000000;
-  --brand-red:#ff0000;
-  --brand-teal-1:#063d3f;
-  --brand-teal-2:#053c3f;
-  --brand-teal-3:#053d3f;
-  --brand-teal-4:#063d40;
-  --brand-teal-5:#063c3f;
-  --brand-teal-6:#053d40;
-  --brand-gold:#d4a017;
+  --black:#000000;
+  --red:#ff0000;
+  --teal-1:#063d3f;
+  --teal-2:#053c3f;
+  --teal-3:#053d3f;
+  --teal-4:#063d40;
+  --teal-5:#063c3f;
+  --gold:#d4a017;
+
+  --bg:#f3f6f6;
+  --card:#ffffff;
+  --text:#111827;
+  --muted:#667085;
+  --border:#d9e0e1;
+  --danger:#b00020;
+  --success:#087443;
 }
 
-/* Base */
-*{box-sizing:border-box}
-html,body{height:100%}
-body{font-family:Arial, sans-serif; margin:0; background:#f5f5f5; color:#111;}
+*{
+  box-sizing:border-box;
+}
 
-/* Header / Nav */
-header{background:var(--brand-teal-1); color:#fff; padding:16px; display:flex; align-items:center; justify-content:space-between; border-bottom:4px solid var(--brand-gold);}
-header h1{margin:0; font-size:1.4rem}
-header .right{display:flex; gap:8px; align-items:center;}
-header a{color:#fff; text-decoration:none; border:1px solid rgba(255,255,255,0.3); padding:8px 12px; border-radius:8px;}
-header a:hover{border-color:#fff}
+html{
+  min-height:100%;
+  scroll-behavior:smooth;
+}
 
-/* Page container */
-.container{padding:24px; max-width:520px; margin:32px auto;}
+body{
+  min-height:100vh;
+  margin:0;
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(6,61,63,.08),
+      transparent 35%
+    ),
+    var(--bg);
+  color:var(--text);
+}
 
-/* Card */
+/* =========================================================
+   HEADER
+========================================================= */
+
+header{
+  background:
+    linear-gradient(
+      135deg,
+      var(--teal-1),
+      var(--teal-4)
+    );
+  color:#fff;
+  padding:14px 20px;
+  border-bottom:4px solid var(--gold);
+  box-shadow:0 4px 18px rgba(0,0,0,.12);
+}
+
+.header-inner{
+  width:100%;
+  max-width:1180px;
+  margin:0 auto;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+
+.brand-mark{
+  width:40px;
+  height:40px;
+  border-radius:11px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:var(--gold);
+  color:#111;
+  font-weight:900;
+  font-size:18px;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,.2);
+}
+
+.brand-text{
+  min-width:0;
+}
+
+.brand-text h1{
+  margin:0;
+  font-size:1.05rem;
+  font-weight:800;
+  letter-spacing:.2px;
+}
+
+.brand-text span{
+  display:block;
+  margin-top:2px;
+  color:rgba(255,255,255,.68);
+  font-size:.75rem;
+}
+
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.header-actions a{
+  color:#fff;
+  text-decoration:none;
+
+  border:1px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.05);
+
+  padding:8px 12px;
+  border-radius:9px;
+
+  font-size:.85rem;
+  font-weight:600;
+
+  transition:
+    background .2s ease,
+    border-color .2s ease,
+    transform .2s ease;
+}
+
+.header-actions a:hover{
+  background:rgba(255,255,255,.12);
+  border-color:rgba(255,255,255,.55);
+  transform:translateY(-1px);
+}
+
+.header-actions a.logout{
+  color:#fff;
+  border-color:rgba(255,0,0,.45);
+}
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.container{
+  width:100%;
+  max-width:620px;
+  margin:42px auto;
+  padding:0 18px;
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
 .card{
-  background:#fff; padding:24px; border-radius:10px;
-  box-shadow:0 8px 24px rgba(0,0,0,0.08);
-  border-top:4px solid var(--brand-teal-4);
+  background:var(--card);
+  border:1px solid #e2e8e9;
+  border-top:4px solid var(--teal-4);
+
+  border-radius:18px;
+
+  padding:28px;
+
+  box-shadow:
+    0 16px 40px rgba(0,0,0,.07);
 }
-.card h2{margin:0 0 6px; color:var(--brand-teal-2);}
-.card p.sub{margin:0 0 16px; color:#333}
 
-/* Form */
-.field{margin-top:12px;}
-label{font-weight:600;color:var(--brand-teal-5);}
-input, select{width:100%; padding:12px; margin-top:6px; border:1px solid #ccc; border-radius:8px; font-size:1rem;}
-input:focus, select:focus{outline:2px solid var(--brand-teal-6); border-color:var(--brand-teal-6);}
+.card-header{
+  margin-bottom:24px;
+}
 
-/* Actions */
-.actions{margin-top:16px; display:flex; gap:10px; align-items:center;}
+.card-header h2{
+  margin:0;
+
+  color:var(--teal-2);
+
+  font-size:1.55rem;
+  line-height:1.25;
+}
+
+.card-header p{
+  margin:8px 0 0;
+
+  color:var(--muted);
+
+  font-size:.92rem;
+  line-height:1.55;
+}
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.field{
+  margin-top:17px;
+}
+
+.field:first-child{
+  margin-top:0;
+}
+
+label{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  gap:10px;
+
+  color:var(--teal-5);
+
+  font-size:.88rem;
+  font-weight:700;
+}
+
+.label-hint{
+  color:#899697;
+  font-size:.75rem;
+  font-weight:500;
+}
+
+.input-wrap{
+  position:relative;
+  margin-top:7px;
+}
+
+input,
+select{
+  width:100%;
+
+  padding:12px 13px;
+
+  border:1px solid var(--border);
+  border-radius:10px;
+
+  background:#fbfcfc;
+  color:var(--text);
+
+  font:inherit;
+  font-size:.95rem;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+input{
+  min-height:46px;
+}
+
+select{
+  min-height:46px;
+  cursor:pointer;
+}
+
+input::placeholder{
+  color:#9aa5a7;
+}
+
+input:hover,
+select:hover{
+  border-color:#b9c6c8;
+}
+
+input:focus,
+select:focus{
+  outline:none;
+
+  border-color:var(--teal-4);
+
+  background:#fff;
+
+  box-shadow:
+    0 0 0 3px rgba(6,61,63,.11);
+}
+
+/* Password fields */
+
+.password-input{
+  padding-right:48px;
+}
+
+.password-toggle{
+  position:absolute;
+
+  right:7px;
+  top:50%;
+
+  transform:translateY(-50%);
+
+  width:36px;
+  height:36px;
+
+  border:0;
+  border-radius:8px;
+
+  background:transparent;
+
+  color:#687779;
+
+  cursor:pointer;
+
+  font-size:.82rem;
+  font-weight:700;
+}
+
+.password-toggle:hover{
+  background:#eef3f3;
+  color:var(--teal-1);
+}
+
+/* =========================================================
+   ROLE SELECT
+========================================================= */
+
+.role-help{
+  margin-top:8px;
+  padding:10px 12px;
+
+  border-radius:10px;
+
+  background:#f3f7f7;
+  border:1px solid #e1eaea;
+
+  color:#536365;
+
+  font-size:.8rem;
+  line-height:1.45;
+}
+
+.role-help strong{
+  color:var(--teal-1);
+}
+
+/* =========================================================
+   PASSWORD STRENGTH
+========================================================= */
+
+.password-strength{
+  margin-top:8px;
+}
+
+.strength-bar{
+  height:5px;
+
+  border-radius:999px;
+
+  background:#e6ebec;
+
+  overflow:hidden;
+}
+
+.strength-fill{
+  height:100%;
+  width:0;
+
+  border-radius:999px;
+
+  transition:
+    width .25s ease,
+    background .25s ease;
+}
+
+.strength-text{
+  margin-top:5px;
+
+  color:#7b8788;
+
+  font-size:.75rem;
+}
+
+/* =========================================================
+   ERROR / SUCCESS
+========================================================= */
+
+.message{
+  min-height:20px;
+  margin-top:14px;
+
+  font-size:.86rem;
+  line-height:1.4;
+}
+
+.message.error{
+  color:var(--danger);
+}
+
+.message.success{
+  color:var(--success);
+}
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.actions{
+  display:flex;
+  gap:10px;
+
+  margin-top:20px;
+}
+
 .btn{
-  padding:12px 16px; border:none; border-radius:30px;
-  background:var(--brand-gold); font-weight:700; cursor:pointer; color:#1a1a1a;
+  min-height:46px;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:11px 17px;
+
+  border-radius:11px;
+  border:0;
+
+  font:inherit;
+  font-weight:800;
+
+  text-decoration:none;
+
+  cursor:pointer;
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease,
+    background .2s ease,
+    border-color .2s ease;
 }
-.btn:hover{background:#e1b632; outline:2px solid var(--brand-red);}
 
-/* Helper / Error */
-.note{margin-top:10px; font-size:0.95rem; color:#333;}
-.error{color:#b00020; min-height:18px; margin-top:6px; font-size:0.95rem;}
+.btn-primary{
+  flex:1;
 
-/* Footer */
-footer{background:var(--brand-teal-2); color:white; text-align:center; padding:15px; margin-top:32px; border-top:4px solid var(--brand-gold);}
+  background:var(--gold);
+  color:#171717;
+
+  box-shadow:
+    0 5px 14px rgba(212,160,23,.18);
+}
+
+.btn-primary:hover{
+  background:#e1b632;
+
+  transform:translateY(-1px);
+
+  box-shadow:
+    0 8px 18px rgba(212,160,23,.22);
+}
+
+.btn-primary:disabled{
+  opacity:.65;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.btn-secondary{
+  background:#fff;
+
+  border:1px solid var(--border);
+
+  color:var(--teal-1);
+}
+
+.btn-secondary:hover{
+  background:#f5f8f8;
+  border-color:var(--teal-4);
+}
+
+/* =========================================================
+   SECURITY NOTE
+========================================================= */
+
+.security-note{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+
+  margin-top:20px;
+  padding:13px;
+
+  border-radius:11px;
+
+  background:#f7f8f8;
+  border:1px solid #e4e9e9;
+
+  color:#667274;
+
+  font-size:.78rem;
+  line-height:1.5;
+}
+
+.security-icon{
+  width:25px;
+  height:25px;
+
+  flex:0 0 25px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:7px;
+
+  background:var(--teal-1);
+  color:#fff;
+
+  font-size:.72rem;
+  font-weight:800;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+footer{
+  margin-top:40px;
+
+  padding:18px;
+
+  background:var(--teal-2);
+
+  border-top:4px solid var(--gold);
+
+  color:rgba(255,255,255,.75);
+
+  text-align:center;
+
+  font-size:.8rem;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.spinner{
+  width:16px;
+  height:16px;
+
+  border:2px solid rgba(0,0,0,.2);
+  border-top-color:#111;
+
+  border-radius:50%;
+
+  animation:spin .7s linear infinite;
+}
+
+@keyframes spin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:650px){
+
+  header{
+    padding:12px 14px;
+  }
+
+  .header-inner{
+    align-items:flex-start;
+  }
+
+  .brand-text h1{
+    font-size:.95rem;
+  }
+
+  .brand-text span{
+    font-size:.7rem;
+  }
+
+  .header-actions{
+    gap:5px;
+  }
+
+  .header-actions a{
+    padding:7px 9px;
+    font-size:.72rem;
+  }
+
+  .header-actions a:nth-child(2){
+    display:none;
+  }
+
+  .container{
+    margin:24px auto;
+    padding:0 12px;
+  }
+
+  .card{
+    padding:21px 17px;
+    border-radius:15px;
+  }
+
+  .card-header h2{
+    font-size:1.35rem;
+  }
+
+  .actions{
+    flex-direction:column;
+  }
+
+  .btn{
+    width:100%;
+  }
+}
+
+@media(max-width:400px){
+
+  .brand-mark{
+    width:35px;
+    height:35px;
+    font-size:15px;
+  }
+
+  .brand-text h1{
+    font-size:.86rem;
+  }
+
+  .brand-text span{
+    display:none;
+  }
+
+  .header-actions a{
+    padding:6px 7px;
+    font-size:.68rem;
+  }
+}
 </style>
 </head>
+
 <body>
 
+<!-- =======================================================
+     HEADER
+======================================================= -->
+
 <header>
-  <h1>chequematez Admin</h1>
-  <div class="right">
-    <a href="/admin">Admin Home</a>
-    <a href="/">Public Site</a>
-    <a href="/logout">Logout</a>
+  <div class="header-inner">
+
+    <div class="brand">
+      <div class="brand-mark">C</div>
+
+      <div class="brand-text">
+        <h1>chequematez Admin</h1>
+        <span>Administration & User Management</span>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <a href="/admin">Admin Home</a>
+      <a href="/">Public Site</a>
+      <a href="/logout" class="logout">Logout</a>
+    </div>
+
   </div>
 </header>
 
-<div class="container">
-  <div class="card">
-    <h2>Create New User</h2>
-    <p class="sub">Add a new account and choose their role. After creation, the server should redirect them to the relevant dashboard.</p>
 
-    <!-- IMPORTANT:
-         - The server should accept: email, username, password, confirm_password, role
-         - Role values used here: customer | admin | merchant
-         - On success, backend may redirect to: /customer, /admin, or /merchant (your choice)
+<!-- =======================================================
+     MAIN
+======================================================= -->
+
+<main class="container">
+
+  <section class="card">
+
+    <div class="card-header">
+      <h2>Create New User</h2>
+
+      <p>
+        Create a ChequeMatez account and assign the appropriate
+        access role. User permissions are controlled by the
+        selected role.
+      </p>
+    </div>
+
+
+    <!--
+      Backend endpoint:
+      POST /admin/create-user
+
+      Expected fields:
+      - email
+      - username
+      - password
+      - confirm_password
+      - role
+
+      Roles:
+      - customer
+      - admin
+      - merchant
     -->
-    <form method="POST" action="/admin/create-user" onsubmit="return validateCreateUser();">
-      <div class="field">
-        <label for="cu_email">Email</label>
-        <input id="cu_email" name="email" type="email" placeholder="user@example.com" required>
-      </div>
+
+    <form
+      method="POST"
+      action="/admin/create-user"
+      id="createUserForm"
+      novalidate
+    >
+
+      <!-- EMAIL -->
 
       <div class="field">
-        <label for="cu_username">Username</label>
-        <input id="cu_username" name="username" type="text" placeholder="uniqueusername" required>
+
+        <label for="cu_email">
+          <span>Email address</span>
+          <span class="label-hint">Required</span>
+        </label>
+
+        <input
+          id="cu_email"
+          name="email"
+          type="email"
+          autocomplete="email"
+          placeholder="user@example.com"
+          maxlength="254"
+          required
+        >
+
       </div>
 
-      <div class="field">
-        <label for="cu_password">Password</label>
-        <input id="cu_password" name="password" type="password" placeholder="At least 8 characters" required>
-      </div>
+
+      <!-- USERNAME -->
 
       <div class="field">
-        <label for="cu_confirm">Confirm Password</label>
-        <input id="cu_confirm" name="confirm_password" type="password" placeholder="Re-enter password" required>
+
+        <label for="cu_username">
+          <span>Username</span>
+          <span class="label-hint">3–30 characters</span>
+        </label>
+
+        <input
+          id="cu_username"
+          name="username"
+          type="text"
+          autocomplete="username"
+          placeholder="uniqueusername"
+          minlength="3"
+          maxlength="30"
+          pattern="[A-Za-z0-9_.-]+"
+          required
+        >
+
       </div>
 
+
+      <!-- PASSWORD -->
+
       <div class="field">
-        <label for="cu_role">Role</label>
-        <select id="cu_role" name="role" required>
-          <option value="customer" selected>Customer</option>
-          <option value="admin">Admin</option>
-          <option value="merchant">Merchant</option>
+
+        <label for="cu_password">
+          <span>Password</span>
+          <span class="label-hint">Minimum 8 characters</span>
+        </label>
+
+        <div class="input-wrap">
+
+          <input
+            id="cu_password"
+            name="password"
+            class="password-input"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Create a secure password"
+            minlength="8"
+            maxlength="128"
+            required
+          >
+
+          <button
+            type="button"
+            class="password-toggle"
+            data-target="cu_password"
+            aria-label="Show password"
+          >
+            Show
+          </button>
+
+        </div>
+
+        <div class="password-strength">
+
+          <div class="strength-bar">
+            <div
+              id="strengthFill"
+              class="strength-fill"
+            ></div>
+          </div>
+
+          <div
+            id="strengthText"
+            class="strength-text"
+          >
+            Use letters and numbers for a stronger password.
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- CONFIRM PASSWORD -->
+
+      <div class="field">
+
+        <label for="cu_confirm">
+          <span>Confirm password</span>
+        </label>
+
+        <div class="input-wrap">
+
+          <input
+            id="cu_confirm"
+            name="confirm_password"
+            class="password-input"
+            type="password"
+            autocomplete="new-password"
+            placeholder="Re-enter password"
+            minlength="8"
+            maxlength="128"
+            required
+          >
+
+          <button
+            type="button"
+            class="password-toggle"
+            data-target="cu_confirm"
+            aria-label="Show password"
+          >
+            Show
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- ROLE -->
+
+      <div class="field">
+
+        <label for="cu_role">
+          <span>Account role</span>
+          <span class="label-hint">Required</span>
+        </label>
+
+        <select
+          id="cu_role"
+          name="role"
+          required
+        >
+          <option value="customer" selected>
+            Customer
+          </option>
+
+          <option value="merchant">
+            Merchant
+          </option>
+
+          <option value="admin">
+            Administrator
+          </option>
         </select>
+
+
+        <div
+          class="role-help"
+          id="roleHelp"
+        >
+          <strong>Customer:</strong>
+          Standard customer account with access to customer-facing features.
+        </div>
+
       </div>
 
-      <div class="error" id="formError"></div>
+
+      <!-- MESSAGE -->
+
+      <div
+        id="formError"
+        class="message error"
+        role="alert"
+        aria-live="polite"
+      ></div>
+
+
+      <!-- ACTIONS -->
 
       <div class="actions">
-        <button class="btn" type="submit">Create User</button>
-        <a class="btn" href="/admin" style="text-decoration:none; display:inline-block;">Cancel</a>
+
+        <button
+          id="createBtn"
+          class="btn btn-primary"
+          type="submit"
+        >
+          Create User
+        </button>
+
+        <a
+          class="btn btn-secondary"
+          href="/admin"
+        >
+          Cancel
+        </a>
+
       </div>
 
-      <div class="note">
-        Tip: Make sure the email is valid. Passwords must be at least 8 characters and include letters & numbers.
+
+      <!-- SECURITY -->
+
+      <div class="security-note">
+
+        <div class="security-icon">
+          ✓
+        </div>
+
+        <div>
+          <strong>Account security</strong><br>
+
+          Passwords should contain at least 8 characters,
+          including letters and numbers. Never share user
+          passwords or store them in plain text.
+        </div>
+
       </div>
+
     </form>
-  </div>
-</div>
+
+  </section>
+
+</main>
+
+
+<!-- =======================================================
+     FOOTER
+======================================================= -->
 
 <footer>
-  &copy; 2025 chequematez. All Rights Reserved.
+  &copy; 2026 chequematez. All Rights Reserved.
 </footer>
 
-<script>
-function validateCreateUser(){
-  const email = document.getElementById('cu_email').value.trim();
-  const user  = document.getElementById('cu_username').value.trim();
-  const p     = document.getElementById('cu_password').value;
-  const c     = document.getElementById('cu_confirm').value;
-  const role  = document.getElementById('cu_role').value;
-  const errEl = document.getElementById('formError');
 
-  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!emailRe.test(email)){ errEl.textContent='Enter a valid email.'; return false; }
-  if(user.length < 3){ errEl.textContent='Username should be at least 3 characters.'; return false; }
-  if(p.length < 8 || !/[A-Za-z]/.test(p) || !/\d/.test(p)){
-    errEl.textContent='Password must be 8+ chars and include letters & numbers.'; return false;
+<!-- =======================================================
+     JAVASCRIPT
+======================================================= -->
+
+<script>
+
+const form = document.getElementById('createUserForm');
+
+const emailInput = document.getElementById('cu_email');
+const usernameInput = document.getElementById('cu_username');
+const passwordInput = document.getElementById('cu_password');
+const confirmInput = document.getElementById('cu_confirm');
+const roleInput = document.getElementById('cu_role');
+
+const errorEl = document.getElementById('formError');
+const createBtn = document.getElementById('createBtn');
+
+const strengthFill = document.getElementById('strengthFill');
+const strengthText = document.getElementById('strengthText');
+
+const roleHelp = document.getElementById('roleHelp');
+
+
+/* =========================================================
+   PASSWORD VISIBILITY
+========================================================= */
+
+document.querySelectorAll('.password-toggle').forEach(button => {
+
+  button.addEventListener('click', () => {
+
+    const targetId = button.dataset.target;
+    const input = document.getElementById(targetId);
+
+    if(!input) return;
+
+    const showing = input.type === 'text';
+
+    input.type = showing ? 'password' : 'text';
+
+    button.textContent = showing ? 'Show' : 'Hide';
+
+    button.setAttribute(
+      'aria-label',
+      showing ? 'Show password' : 'Hide password'
+    );
+
+  });
+
+});
+
+
+/* =========================================================
+   PASSWORD STRENGTH
+========================================================= */
+
+function updatePasswordStrength(){
+
+  const password = passwordInput.value;
+
+  if(!password){
+
+    strengthFill.style.width = '0%';
+    strengthText.textContent =
+      'Use letters and numbers for a stronger password.';
+
+    return;
   }
-  if(p !== c){ errEl.textContent='Passwords do not match.'; return false; }
-  if(!['customer','admin','merchant'].includes(role)){
-    errEl.textContent='Please select a valid role.'; return false;
+
+  let score = 0;
+
+  if(password.length >= 8){
+    score++;
   }
-  errEl.textContent='';
-  return true;
+
+  if(password.length >= 12){
+    score++;
+  }
+
+  if(/[A-Z]/.test(password)){
+    score++;
+  }
+
+  if(/[a-z]/.test(password)){
+    score++;
+  }
+
+  if(/\d/.test(password)){
+    score++;
+  }
+
+  if(/[^A-Za-z0-9]/.test(password)){
+    score++;
+  }
+
+
+  if(score <= 2){
+
+    strengthFill.style.width = '30%';
+    strengthFill.style.background = '#ff0000';
+
+    strengthText.textContent = 'Weak password.';
+
+  }else if(score <= 4){
+
+    strengthFill.style.width = '65%';
+    strengthFill.style.background = '#d4a017';
+
+    strengthText.textContent = 'Moderate password.';
+
+  }else{
+
+    strengthFill.style.width = '100%';
+    strengthFill.style.background = '#087443';
+
+    strengthText.textContent = 'Strong password.';
+
+  }
+
 }
+
+passwordInput.addEventListener(
+  'input',
+  updatePasswordStrength
+);
+
+
+/* =========================================================
+   ROLE DESCRIPTION
+========================================================= */
+
+const roleDescriptions = {
+
+  customer:
+    '<strong>Customer:</strong> Standard customer account with access to customer-facing features.',
+
+  merchant:
+    '<strong>Merchant:</strong> Merchant account intended for business/payment-related functionality.',
+
+  admin:
+    '<strong>Administrator:</strong> Full administrative access. Only assign this role to trusted staff.'
+};
+
+roleInput.addEventListener('change', () => {
+
+  roleHelp.innerHTML =
+    roleDescriptions[roleInput.value] ||
+    roleDescriptions.customer;
+
+});
+
+
+/* =========================================================
+   USERNAME NORMALIZATION
+========================================================= */
+
+usernameInput.addEventListener('input', () => {
+
+  usernameInput.value =
+    usernameInput.value
+      .replace(/\s+/g, '')
+      .toLowerCase();
+
+});
+
+
+/* =========================================================
+   VALIDATION
+========================================================= */
+
+function showError(message){
+
+  errorEl.textContent = message;
+
+  errorEl.className = 'message error';
+
+}
+
+
+function validateCreateUser(){
+
+  const email =
+    emailInput.value.trim();
+
+  const username =
+    usernameInput.value.trim();
+
+  const password =
+    passwordInput.value;
+
+  const confirm =
+    confirmInput.value;
+
+  const role =
+    roleInput.value;
+
+
+  /* Email */
+
+  const emailRe =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if(!emailRe.test(email)){
+
+    showError(
+      'Please enter a valid email address.'
+    );
+
+    emailInput.focus();
+
+    return false;
+  }
+
+
+  /* Username */
+
+  if(username.length < 3){
+
+    showError(
+      'Username must contain at least 3 characters.'
+    );
+
+    usernameInput.focus();
+
+    return false;
+  }
+
+
+  if(username.length > 30){
+
+    showError(
+      'Username cannot exceed 30 characters.'
+    );
+
+    usernameInput.focus();
+
+    return false;
+  }
+
+
+  if(!/^[a-z0-9_.-]+$/.test(username)){
+
+    showError(
+      'Username can only contain letters, numbers, dots, underscores and hyphens.'
+    );
+
+    usernameInput.focus();
+
+    return false;
+  }
+
+
+  /* Password */
+
+  if(password.length < 8){
+
+    showError(
+      'Password must contain at least 8 characters.'
+    );
+
+    passwordInput.focus();
+
+    return false;
+  }
+
+
+  if(!/[A-Za-z]/.test(password)){
+
+    showError(
+      'Password must contain at least one letter.'
+    );
+
+    passwordInput.focus();
+
+    return false;
+  }
+
+
+  if(!/\d/.test(password)){
+
+    showError(
+      'Password must contain at least one number.'
+    );
+
+    passwordInput.focus();
+
+    return false;
+  }
+
+
+  /* Confirm */
+
+  if(password !== confirm){
+
+    showError(
+      'Passwords do not match.'
+    );
+
+    confirmInput.focus();
+
+    return false;
+  }
+
+
+  /* Role */
+
+  if(
+    ![
+      'customer',
+      'admin',
+      'merchant'
+    ].includes(role)
+  ){
+
+    showError(
+      'Please select a valid account role.'
+    );
+
+    roleInput.focus();
+
+    return false;
+  }
+
+
+  errorEl.textContent = '';
+
+  return true;
+
+}
+
+
+/* =========================================================
+   FORM SUBMISSION
+========================================================= */
+
+form.addEventListener('submit', event => {
+
+  if(!validateCreateUser()){
+
+    event.preventDefault();
+
+    return;
+  }
+
+
+  /*
+    Let Flask handle the POST normally.
+
+    The loading state prevents accidental
+    double submissions.
+  */
+
+  createBtn.disabled = true;
+
+  createBtn.innerHTML = `
+    <span class="spinner"></span>
+    Creating user...
+  `;
+
+});
+
+
+/* =========================================================
+   LIVE CONFIRM PASSWORD VALIDATION
+========================================================= */
+
+confirmInput.addEventListener('input', () => {
+
+  if(!confirmInput.value){
+
+    errorEl.textContent = '';
+
+    return;
+  }
+
+  if(
+    passwordInput.value !==
+    confirmInput.value
+  ){
+
+    showError(
+      'Passwords do not match.'
+    );
+
+  }else{
+
+    errorEl.textContent = '';
+
+  }
+
+});
+
+
+/* =========================================================
+   INITIAL STATE
+========================================================= */
+
+updatePasswordStrength();
+
 </script>
 
 </body>

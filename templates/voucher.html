@@ -3,284 +3,1692 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Voucher • Cheque Matez</title>
-<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<meta name="theme-color" content="#063d3f">
+<meta name="robots" content="noindex,nofollow">
+<title>Payment Voucher • ChequeMatez</title>
+
 <style>
   :root{
-    --panel:#fff; --line:#e9edf2; --ink:#0b3b27; --muted:#475467; --gold:#d4a017;
-    --ok:#2f7d32; --warn:#8a6d00; --err:#b00020;
-    --radius:14px; --pad:18px;
+    --black:#071012;
+    --teal:#063d3f;
+    --teal-dark:#042c2e;
+    --teal-soft:#e8f3f3;
+    --gold:#d4a017;
+    --gold-light:#f2d46b;
+    --red:#c62828;
+
+    --ink:#101828;
+    --muted:#667085;
+    --line:#e4e7ec;
+    --panel:#ffffff;
+    --surface:#f5f7f9;
+    --surface-2:#f8fafc;
+
+    --success:#137333;
+    --success-bg:#eaf7ee;
+    --warning:#8a6500;
+    --warning-bg:#fff8df;
+    --error:#b42318;
+    --error-bg:#fff0ee;
+
+    --radius:18px;
+    --radius-sm:12px;
+    --shadow:0 12px 34px rgba(16,24,40,.10);
+    --shadow-soft:0 5px 18px rgba(16,24,40,.07);
   }
-  /* Base */
+
   *{box-sizing:border-box}
-  html,body{height:100%}
-  body{margin:0;background:#f5f7fb;font:15px/1.45 ui-sans-serif,system-ui,Segoe UI,Inter,Arial;color:#111}
-  .wrap{max-width:920px;margin:16px auto;padding:12px}
-  .card{
-    background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
-    box-shadow:0 8px 24px rgba(16,24,40,.12);padding:var(--pad)
-  }
-  h1{margin:0 0 10px;font-size:clamp(20px,3.2vw,26px);color:#0c2e2f}
-  p.small{margin:0 0 14px;color:#667085;font-size:clamp(14px,2.4vw,15px)}
 
-  /* Fields */
-  label{display:block;font-weight:800;color:#0f2f30;margin-top:6px}
-  .control{
-    display:flex;align-items:center;gap:8px;margin-top:6px
+  html{
+    min-height:100%;
+    scroll-behavior:smooth;
   }
-  input,select{
-    width:100%;padding:12px 14px;border:1px solid #d0d5dd;border-radius:12px;
-    font-size:16px;background:#fff;line-height:1.2;appearance:none;-webkit-appearance:none
-  }
-  /* Uniform height for input/select */
-  select{padding-right:36px} /* room for native caret */
 
-  /* Responsive grid rows */
-  .row{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  body{
+    margin:0;
+    min-height:100%;
+    background:
+      radial-gradient(circle at 10% 0%, rgba(6,61,63,.08), transparent 34%),
+      linear-gradient(180deg,#f8fafb 0%,#f3f5f7 100%);
+    color:var(--ink);
+    font:15px/1.5 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,
+         "Segoe UI",Inter,Roboto,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  button,input,select{
+    font:inherit;
+  }
+
+  a{
+    color:var(--teal);
+    font-weight:800;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible{
+    outline:3px solid rgba(212,160,23,.55);
+    outline-offset:2px;
+  }
+
+  .page{
+    width:min(980px,100%);
+    margin:0 auto;
+    padding:22px 16px 40px;
+  }
+
+  /* =========================================================
+     BRAND HEADER
+     ========================================================= */
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:18px;
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
     gap:12px;
+    min-width:0;
   }
-  .row-1{
-    display:grid;grid-template-columns:1fr;gap:12px
+
+  .brand-mark{
+    width:42px;
+    height:42px;
+    flex:0 0 42px;
+    display:grid;
+    place-items:center;
+    border-radius:12px;
+    background:var(--teal);
+    color:#fff;
+    font-weight:950;
+    letter-spacing:-.05em;
+    box-shadow:0 6px 18px rgba(6,61,63,.20);
+  }
+
+  .brand-copy{
+    min-width:0;
+  }
+
+  .brand-name{
+    margin:0;
+    color:var(--teal);
+    font-size:15px;
+    line-height:1.1;
+    font-weight:950;
+    letter-spacing:.10em;
+  }
+
+  .brand-sub{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:12px;
+    font-weight:650;
+  }
+
+  .secure-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:7px 11px;
+    border:1px solid #dce5e5;
+    border-radius:999px;
+    background:#fff;
+    color:var(--teal);
+    font-size:12px;
+    font-weight:900;
+    white-space:nowrap;
+  }
+
+  .secure-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:#198754;
+    box-shadow:0 0 0 3px rgba(25,135,84,.10);
+  }
+
+  /* =========================================================
+     MAIN VOUCHER
+     ========================================================= */
+
+  .voucher-shell{
+    overflow:hidden;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:24px;
+    box-shadow:var(--shadow);
+  }
+
+  .voucher-head{
+    position:relative;
+    overflow:hidden;
+    padding:26px 28px;
+    background:
+      radial-gradient(circle at 90% 0%,rgba(212,160,23,.20),transparent 28%),
+      linear-gradient(135deg,var(--teal-dark),var(--teal));
+    color:#fff;
+  }
+
+  .voucher-head::after{
+    content:"";
+    position:absolute;
+    width:220px;
+    height:220px;
+    right:-100px;
+    bottom:-140px;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:50%;
+    pointer-events:none;
+  }
+
+  .head-row{
+    position:relative;
+    z-index:1;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:20px;
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    margin-bottom:9px;
+    color:#d9eeee;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+
+  .eyebrow::before{
+    content:"";
+    width:22px;
+    height:2px;
+    border-radius:2px;
+    background:var(--gold);
+  }
+
+  h1{
+    margin:0;
+    font-size:clamp(24px,4vw,32px);
+    line-height:1.08;
+    letter-spacing:-.035em;
+  }
+
+  .merchant-line{
+    margin:10px 0 0;
+    color:#c7dddd;
+    font-size:14px;
+  }
+
+  .merchant-line strong{
+    color:#fff;
+  }
+
+  .voucher-state{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    flex-shrink:0;
+    padding:8px 12px;
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:999px;
+    background:rgba(255,255,255,.08);
+    color:#fff;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .voucher-state::before{
+    content:"";
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--gold);
+  }
+
+  /* =========================================================
+     CONTENT
+     ========================================================= */
+
+  .content{
+    padding:28px;
+  }
+
+  .security-note{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    padding:14px 15px;
+    margin-bottom:24px;
+    border:1px solid #d9e8e8;
+    border-radius:14px;
+    background:var(--teal-soft);
+    color:#17494b;
+  }
+
+  .security-icon{
+    width:30px;
+    height:30px;
+    flex:0 0 30px;
+    display:grid;
+    place-items:center;
+    border-radius:9px;
+    background:var(--teal);
+    color:#fff;
+    font-size:14px;
+    font-weight:900;
+  }
+
+  .security-note strong{
+    display:block;
+    margin-bottom:2px;
+    font-size:13px;
+  }
+
+  .security-note span{
+    display:block;
+    color:#48686a;
+    font-size:13px;
+  }
+
+  .section-title{
+    margin:0 0 5px;
+    color:var(--teal);
+    font-size:16px;
+    font-weight:950;
+    letter-spacing:.01em;
+  }
+
+  .section-subtitle{
+    margin:0 0 18px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  /* =========================================================
+     FORM
+     ========================================================= */
+
+  .field-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:17px;
+  }
+
+  .field{
+    min-width:0;
+  }
+
+  .field.full{
+    grid-column:1/-1;
+  }
+
+  label{
+    display:block;
+    margin-bottom:7px;
+    color:#243b3d;
+    font-size:13px;
+    font-weight:850;
+  }
+
+  .required{
+    color:var(--red);
+  }
+
+  .control{
+    position:relative;
+  }
+
+  input,
+  select{
+    width:100%;
+    min-height:48px;
+    padding:12px 14px;
+    border:1px solid #cfd5dc;
+    border-radius:12px;
+    background:#fff;
+    color:var(--ink);
+    font-size:16px;
+    line-height:1.2;
+    transition:
+      border-color .16s ease,
+      box-shadow .16s ease,
+      background .16s ease;
+  }
+
+  input::placeholder{
+    color:#98a2b3;
+  }
+
+  input:hover,
+  select:hover{
+    border-color:#aab3bf;
+  }
+
+  input:focus,
+  select:focus{
+    border-color:var(--teal);
+    box-shadow:0 0 0 4px rgba(6,61,63,.09);
+    outline:none;
+  }
+
+  select{
+    appearance:auto;
+    -webkit-appearance:auto;
+  }
+
+  .field-note{
+    margin-top:6px;
+    color:#667085;
+    font-size:12px;
+  }
+
+  /* =========================================================
+     PAYOUT METHODS
+     ========================================================= */
+
+  .method-panel{
+    margin-top:18px;
+    padding:17px;
+    border:1px solid var(--line);
+    border-radius:15px;
+    background:var(--surface-2);
+  }
+
+  .method-label{
+    margin-bottom:13px;
+    color:var(--teal);
+    font-size:12px;
+    font-weight:950;
+    letter-spacing:.10em;
+    text-transform:uppercase;
+  }
+
+  /* =========================================================
+     FEE SUMMARY
+     ========================================================= */
+
+  .summary{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin-top:20px;
+  }
+
+  .summary-item{
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:13px;
+    background:#fff;
+  }
+
+  .summary-label{
+    color:var(--muted);
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+
+  .summary-value{
+    margin-top:4px;
+    color:var(--teal);
+    font-size:17px;
+    font-weight:950;
+  }
+
+  #fee_line{
+    min-height:18px;
+    margin-top:10px;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  /* =========================================================
+     ACTION AREA
+     ========================================================= */
+
+  .payment-area{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 112px;
+    gap:20px;
+    align-items:center;
+    margin-top:24px;
+    padding-top:22px;
+    border-top:1px solid var(--line);
+  }
+
+  .payment-copy h2{
+    margin:0 0 5px;
+    color:var(--teal);
+    font-size:17px;
+    font-weight:950;
+  }
+
+  .payment-copy p{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .payment-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:15px;
   }
 
   .btn{
-    display:inline-flex;align-items:center;justify-content:center;gap:8px;
-    border:none;border-radius:999px;padding:12px 18px;font-weight:900;
-    background:linear-gradient(135deg,var(--gold),#f2d46b);cursor:pointer
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    min-height:46px;
+    padding:11px 18px;
+    border:1px solid transparent;
+    border-radius:12px;
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    color:#151515;
+    font-weight:950;
+    letter-spacing:.01em;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(212,160,23,.20);
+    transition:
+      transform .15s ease,
+      box-shadow .15s ease,
+      opacity .15s ease;
   }
-  .btn:disabled{opacity:.6;cursor:not-allowed}
 
-  .status{display:none;padding:8px 12px;border-radius:999px;font-weight:800;font-size:.92rem}
-  .status.warn{display:inline-block;background:#fff7e0;color:var(--warn)}
-  .status.ok{display:inline-block;background:#e8ffe8;color:var(--ok)}
-  .status.err{display:inline-block;background:#ffe8e8;color:var(--err)}
-  .mt8{margin-top:8px}
-  .fine{font-size:.95rem;color:#667085}
-
-  /* Action row: button + status + QR */
-  .actions{
-    display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px
+  .btn:hover:not(:disabled){
+    transform:translateY(-1px);
+    box-shadow:0 9px 20px rgba(212,160,23,.25);
   }
+
+  .btn:active:not(:disabled){
+    transform:translateY(0);
+  }
+
+  .btn:disabled{
+    opacity:.55;
+    cursor:not-allowed;
+    box-shadow:none;
+  }
+
+  .qr-wrap{
+    display:grid;
+    justify-items:center;
+    gap:7px;
+  }
+
   .qr{
-    margin-left:auto;width:86px;height:86px;border:1px solid var(--line);border-radius:10px;background:#fff
+    width:106px;
+    height:106px;
+    padding:7px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+    object-fit:contain;
+    box-shadow:var(--shadow-soft);
   }
 
-  /* Breakpoints */
-  @media (max-width:700px){
-    .actions{justify-content:space-between}
-    .qr{margin-left:0}
+  .qr-label{
+    color:#667085;
+    font-size:10px;
+    font-weight:800;
+    text-align:center;
+    letter-spacing:.05em;
+    text-transform:uppercase;
   }
-  @media (max-width:520px){
-    .wrap{padding:8px}
-    .card{padding:14px}
-    .actions{flex-direction:column;align-items:stretch}
-    .btn{width:100%}
-    .status{align-self:center}
-    .qr{width:96px;height:96px}
+
+  /* =========================================================
+     STATUS
+     ========================================================= */
+
+  .status{
+    display:none;
+    align-items:center;
+    gap:7px;
+    width:max-content;
+    max-width:100%;
+    padding:8px 11px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:900;
+  }
+
+  .status::before{
+    content:"";
+    width:7px;
+    height:7px;
+    flex:0 0 7px;
+    border-radius:50%;
+    background:currentColor;
+  }
+
+  .status.warn{
+    background:var(--warning-bg);
+    color:var(--warning);
+  }
+
+  .status.ok{
+    background:var(--success-bg);
+    color:var(--success);
+  }
+
+  .status.err{
+    background:var(--error-bg);
+    color:var(--error);
+  }
+
+  /* =========================================================
+     RESULT PANELS
+     ========================================================= */
+
+  .result{
+    margin-top:20px;
+    padding:17px;
+    border:1px solid var(--line);
+    border-radius:15px;
+    background:var(--surface-2);
+  }
+
+  .result.success{
+    border-color:#cce8d4;
+    background:#f4fbf6;
+  }
+
+  .result.error{
+    border-color:#f1d0cc;
+    background:#fff8f7;
+  }
+
+  .result-title{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    color:var(--teal);
+    font-weight:950;
+  }
+
+  .result.success .result-title{
+    color:var(--success);
+  }
+
+  .result.error .result-title{
+    color:var(--error);
+  }
+
+  .result-copy{
+    margin:7px 0 0;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  #receipt_link{
+    margin-top:9px;
+  }
+
+  /* =========================================================
+     FOOTER
+     ========================================================= */
+
+  .footer{
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    flex-wrap:wrap;
+    margin-top:15px;
+    padding:0 4px;
+    color:#7b8794;
+    font-size:11px;
+  }
+
+  .footer strong{
+    color:var(--teal);
+  }
+
+  /* =========================================================
+     RESPONSIVE
+     ========================================================= */
+
+  @media (max-width:720px){
+    .page{
+      padding:14px 10px 28px;
+    }
+
+    .topbar{
+      align-items:flex-start;
+    }
+
+    .secure-badge{
+      font-size:11px;
+      padding:6px 9px;
+    }
+
+    .voucher-head{
+      padding:22px 20px;
+    }
+
+    .content{
+      padding:21px 20px;
+    }
+
+    .payment-area{
+      grid-template-columns:1fr 106px;
+    }
+  }
+
+  @media (max-width:560px){
+    .topbar{
+      gap:10px;
+    }
+
+    .brand-mark{
+      width:38px;
+      height:38px;
+      flex-basis:38px;
+    }
+
+    .brand-sub{
+      display:none;
+    }
+
+    .secure-badge{
+      padding:6px 8px;
+    }
+
+    .voucher-shell{
+      border-radius:19px;
+    }
+
+    .head-row{
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .voucher-state{
+      align-self:flex-start;
+    }
+
+    .field-grid{
+      grid-template-columns:1fr;
+      gap:14px;
+    }
+
+    .field.full{
+      grid-column:auto;
+    }
+
+    .summary{
+      grid-template-columns:1fr;
+    }
+
+    .payment-area{
+      grid-template-columns:1fr;
+      text-align:left;
+    }
+
+    .qr-wrap{
+      justify-items:start;
+      margin-top:4px;
+    }
+
+    .payment-actions{
+      flex-direction:column;
+      align-items:stretch;
+    }
+
+    .btn{
+      width:100%;
+    }
+
+    .status{
+      align-self:center;
+    }
+
+    .qr{
+      width:110px;
+      height:110px;
+    }
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    *,
+    *::before,
+    *::after{
+      scroll-behavior:auto !important;
+      transition:none !important;
+    }
+  }
+
+  @media print{
+    @page{
+      size:A4;
+      margin:14mm;
+    }
+
+    body{
+      background:#fff;
+    }
+
+    .page{
+      width:100%;
+      max-width:none;
+      padding:0;
+    }
+
+    .topbar{
+      margin-bottom:12px;
+    }
+
+    .secure-badge{
+      border:1px solid #999;
+      color:#111;
+    }
+
+    .voucher-shell{
+      box-shadow:none;
+      border:1px solid #aaa;
+      border-radius:8px;
+    }
+
+    .voucher-head{
+      background:#063d3f !important;
+      -webkit-print-color-adjust:exact;
+      print-color-adjust:exact;
+    }
+
+    .content{
+      padding:20px;
+    }
+
+    .btn{
+      display:none !important;
+    }
+
+    .payment-area{
+      grid-template-columns:1fr 110px;
+    }
+
+    .footer{
+      margin-top:10px;
+    }
+
+    .result,
+    .method-panel,
+    .summary-item{
+      break-inside:avoid;
+    }
+
+    a[href]::after{
+      content:"";
+    }
   }
 </style>
 </head>
+
 <body>
-<div class="wrap">
-  <div class="card">
-    <h1>Voucher:</h1>
-    <p class="small">Shop: <strong>{{ merchant_id }}</strong>. One-time QR; expires after ~10 minutes or once paid.</p>
 
-    <!-- Amount + Method (aligned, responsive) -->
-    <div class="row">
-      <div>
-        <label for="amount">Amount (KES)</label>
-        <div class="control">
-          <input id="amount" type="number" min="1" step="1" placeholder="Enter amount" inputmode="numeric">
+<main class="page">
+
+  <!-- =======================================================
+       BRAND / TRUST HEADER
+       ======================================================= -->
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">CM</div>
+
+      <div class="brand-copy">
+        <div class="brand-name">CHEQUEMATEZ</div>
+        <div class="brand-sub">Kuwait → Kenya payment services</div>
+      </div>
+    </div>
+
+    <div class="secure-badge" aria-label="Secure payment session">
+      <span class="secure-dot" aria-hidden="true"></span>
+      Secure payment session
+    </div>
+  </header>
+
+  <!-- =======================================================
+       VOUCHER
+       ======================================================= -->
+
+  <section class="voucher-shell" aria-labelledby="voucher-title">
+
+    <header class="voucher-head">
+      <div class="head-row">
+
+        <div>
+          <div class="eyebrow">Payment Voucher</div>
+
+          <h1 id="voucher-title">
+            Complete your payment
+          </h1>
+
+          <p class="merchant-line">
+            Merchant:
+            <strong>{{ merchant_id }}</strong>
+            · One-time voucher
+          </p>
+        </div>
+
+        <div class="voucher-state">
+          Active voucher
+        </div>
+
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Security / lifecycle notice -->
+
+      <div class="security-note" role="note">
+        <div class="security-icon" aria-hidden="true">✓</div>
+
+        <div>
+          <strong>Protected one-time payment request</strong>
+          <span>
+            This voucher is intended for a single payment and may expire
+            after approximately 10 minutes or once payment is completed.
+          </span>
         </div>
       </div>
-      <div>
-        <label for="method">Payout method</label>
-        <div class="control">
-          <select id="method">
-            <option value="">Select…</option>
-            <option value="phone">Mpesa (phone)</option>
-            <option value="till">Buy Goods / Till</option>
-            <option value="bank">Bank transfer</option>
-          </select>
+
+      <!-- Payment details -->
+
+      <section aria-labelledby="payment-details-title">
+
+        <h2 class="section-title" id="payment-details-title">
+          Payment details
+        </h2>
+
+        <p class="section-subtitle">
+          Enter the amount and select where the payout should be directed.
+        </p>
+
+        <div class="field-grid">
+
+          <div class="field">
+            <label for="amount">
+              Amount (KES) <span class="required">*</span>
+            </label>
+
+            <div class="control">
+              <input
+                id="amount"
+                type="number"
+                min="1"
+                step="1"
+                inputmode="numeric"
+                autocomplete="off"
+                placeholder="Enter amount"
+                aria-describedby="amount_note"
+              >
+            </div>
+
+            <div class="field-note" id="amount_note">
+              Enter the amount to be processed in Kenyan shillings.
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="method">
+              Payout method <span class="required">*</span>
+            </label>
+
+            <div class="control">
+              <select id="method" aria-describedby="method_note">
+                <option value="">Select payout method…</option>
+                <option value="phone">M-Pesa — Phone</option>
+                <option value="till">Buy Goods / Till</option>
+                <option value="bank">Bank transfer</option>
+              </select>
+            </div>
+
+            <div class="field-note" id="method_note">
+              Choose the destination method for this transaction.
+            </div>
+          </div>
+
         </div>
+
+        <!-- Dynamic payout details -->
+
+        <div class="method-panel" id="payout_details" style="display:none">
+
+          <div class="method-label">
+            Payout destination
+          </div>
+
+          <!-- Phone -->
+
+          <div id="pm_phone" class="field" style="display:none">
+            <label for="target_phone">
+              M-Pesa phone number <span class="required">*</span>
+            </label>
+
+            <input
+              id="target_phone"
+              placeholder="2547XXXXXXXX"
+              inputmode="numeric"
+              autocomplete="tel"
+            >
+
+            <div class="field-note">
+              Use the Kenyan international format, for example 2547XXXXXXXX.
+            </div>
+          </div>
+
+          <!-- Till -->
+
+          <div id="pm_till" class="field" style="display:none">
+            <label for="target_till">
+              Till / Buy Goods number <span class="required">*</span>
+            </label>
+
+            <input
+              id="target_till"
+              placeholder="e.g. 123456"
+              inputmode="numeric"
+              autocomplete="off"
+            >
+          </div>
+
+          <!-- Bank -->
+
+          <div id="pm_bank" class="field-grid" style="display:none">
+
+            <div class="field">
+              <label for="target_bank">
+                Bank account <span class="required">*</span>
+              </label>
+
+              <input
+                id="target_bank"
+                placeholder="e.g. 010123456789"
+                inputmode="numeric"
+                autocomplete="off"
+              >
+            </div>
+
+            <div class="field">
+              <label for="bank_name">
+                Bank name
+              </label>
+
+              <input
+                id="bank_name"
+                placeholder="e.g. KCB"
+                autocomplete="organization"
+              >
+            </div>
+
+            <div class="field">
+              <label for="bank_branch">
+                Branch
+              </label>
+
+              <input
+                id="bank_branch"
+                placeholder="e.g. Westlands"
+                autocomplete="off"
+              >
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- Fee summary -->
+
+      <div class="summary" aria-label="Payment summary">
+
+        <div class="summary-item">
+          <div class="summary-label">Payment amount</div>
+          <div class="summary-value" id="summary_amount">KES 0.00</div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Service fee</div>
+          <div class="summary-value" id="summary_fee">KES 0.00</div>
+        </div>
+
+        <div class="summary-item">
+          <div class="summary-label">Estimated total</div>
+          <div class="summary-value" id="summary_total">KES 0.00</div>
+        </div>
+
       </div>
+
+      <div id="fee_line" aria-live="polite"></div>
+
+      <!-- =====================================================
+           PAYMENT ACTION
+           ===================================================== -->
+
+      <section class="payment-area" aria-labelledby="payment-action-title">
+
+        <div class="payment-copy">
+
+          <h2 id="payment-action-title">
+            Ready to proceed?
+          </h2>
+
+          <p>
+            Review the details above, then request the M-Pesa STK/payment
+            process. Do not approve a prompt you did not initiate.
+          </p>
+
+          <div class="payment-actions">
+
+            <button
+              id="pay"
+              class="btn"
+              type="button"
+            >
+              Request STK
+            </button>
+
+            <span
+              id="st"
+              class="status warn"
+              role="status"
+              aria-live="polite"
+            >
+              Processing…
+            </span>
+
+          </div>
+
+        </div>
+
+        <div class="qr-wrap">
+
+          <img
+            class="qr"
+            alt="QR code for this payment voucher"
+            src="{{ url_for('voucher_qr', code=code) }}"
+          >
+
+          <div class="qr-label">
+            Voucher QR
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- =====================================================
+           SUCCESS
+           ===================================================== -->
+
+      <section
+        id="ok_block"
+        class="result success"
+        style="display:none"
+        role="status"
+        aria-live="polite"
+        aria-labelledby="success-title"
+      >
+
+        <div class="result-title" id="success-title">
+          <span aria-hidden="true">✓</span>
+          Payment received
+        </div>
+
+        <p class="result-copy">
+          The payment has been successfully processed. You may proceed
+          with the associated goods or payout.
+        </p>
+
+        <div id="receipt_link"></div>
+
+      </section>
+
+      <!-- =====================================================
+           ERROR
+           ===================================================== -->
+
+      <section
+        id="err_block"
+        class="result error"
+        style="display:none"
+        role="alert"
+        aria-labelledby="error-title"
+      >
+
+        <div class="result-title" id="error-title">
+          <span aria-hidden="true">!</span>
+          Payment could not be completed
+        </div>
+
+        <div id="errmsg" class="result-copy"></div>
+
+      </section>
+
     </div>
 
-    <!-- Method-specific inputs -->
-    <div id="pm_phone" class="row-1" style="display:none">
-      <div>
-        <label>Phone (2547… / 2541…)</label>
-        <input id="target_phone" placeholder="2547XXXXXXXX" inputmode="numeric">
-      </div>
-    </div>
+  </section>
 
-    <div id="pm_till" class="row-1" style="display:none">
-      <div>
-        <label>Till / BuyGoods number</label>
-        <input id="target_till" placeholder="e.g. 123456" inputmode="numeric">
-      </div>
-    </div>
+  <footer class="footer">
+    <span>
+      <strong>ChequeMatez</strong> · Payment voucher
+    </span>
 
-    <div id="pm_bank" class="row" style="display:none">
-      <div>
-        <label>Bank account</label>
-        <input id="target_bank" placeholder="e.g. 010123456789" inputmode="numeric">
-      </div>
-      <div>
-        <label>Branch (optional)</label>
-        <input id="bank_branch" placeholder="e.g. Westlands">
-      </div>
-      <div>
-        <label>Bank name (optional)</label>
-        <input id="bank_name" placeholder="e.g. KCB">
-      </div>
-    </div>
+    <span>
+      Keep your payment information private.
+    </span>
+  </footer>
 
-    <div id="fee_line" class="fine mt8"></div>
-
-    <!-- Button + status + QR (responsive) -->
-    <div class="actions">
-      <button id="pay" class="btn">Request STK</button>
-      <span id="st" class="status warn">Processing…</span>
-      <img class="qr" alt="Voucher QR" src="{{ url_for('voucher_qr', code=code) }}">
-    </div>
-
-    <div id="ok_block" class="mt8" style="display:none">
-      <span class="status ok">Success</span>
-      <div class="fine mt8">Payment received. Deliver goods / start payout.</div>
-      <div id="receipt_link" class="mt8"></div>
-    </div>
-
-    <div id="err_block" class="mt8" style="display:none">
-      <span class="status err">Failed</span>
-      <div id="errmsg" class="fine mt8"></div>
-    </div>
-  </div>
-</div>
+</main>
 
 <script>
 (function () {
-  // Injected by Flask/Jinja. If not provided, it becomes an empty string.
-  const code = "{{ code|default('') }}";
+  "use strict";
 
-  // Grab DOM nodes once
+  /* =========================================================
+     SERVER-INJECTED DATA
+     ========================================================= */
+
+  const code = {{ code|default('')|tojson }};
+
+  /* =========================================================
+     DOM
+     ========================================================= */
+
   const amountEl = document.getElementById('amount');
   const methodEl = document.getElementById('method');
+
+  const payBtn = document.getElementById('pay');
+
   const stEl = document.getElementById('st');
+
   const okBlock = document.getElementById('ok_block');
   const linkBox = document.getElementById('receipt_link');
+
   const errBlock = document.getElementById('err_block');
   const errMsg = document.getElementById('errmsg');
+
   const feeLine = document.getElementById('fee_line');
 
+  const payoutDetails = document.getElementById('payout_details');
+
   const pmPhone = document.getElementById('pm_phone');
-  const pmTill  = document.getElementById('pm_till');
-  const pmBank  = document.getElementById('pm_bank');
+  const pmTill = document.getElementById('pm_till');
+  const pmBank = document.getElementById('pm_bank');
+
+  const summaryAmount = document.getElementById('summary_amount');
+  const summaryFee = document.getElementById('summary_fee');
+  const summaryTotal = document.getElementById('summary_total');
+
+  const targetPhone = document.getElementById('target_phone');
+  const targetTill = document.getElementById('target_till');
+  const targetBank = document.getElementById('target_bank');
+  const bankName = document.getElementById('bank_name');
+  const bankBranch = document.getElementById('bank_branch');
 
   let poller = null;
+  let paymentStarted = false;
 
-  // Helper: fee in KES for a given amount in KES
-  function feeKES(x) {
-    const a = Number(x || 0);
-    return Math.min(200, a * 0.018 + 10).toFixed(2);
+  /* =========================================================
+     HELPERS
+     ========================================================= */
+
+  function numberValue(value) {
+    const n = Number(value);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
   }
 
-  // Live fee preview as amount changes
-  amountEl.addEventListener('input', () => {
-    const v = parseFloat(amountEl.value || '0');
-    feeLine.textContent = v > 0 ? `Estimated service fee: KES ${feeKES(v)}` : '';
-  });
+  function formatKES(value) {
+    return numberValue(value).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
 
-  // Show/hide payout target inputs
-  methodEl.addEventListener('change', () => {
-    pmPhone.style.display = methodEl.value === 'phone' ? 'grid' : 'none';
-    pmTill .style.display = methodEl.value === 'till'  ? 'grid' : 'none';
-    pmBank .style.display = methodEl.value === 'bank'  ? 'grid' : 'none';
-  });
+  /*
+   * Front-end fee preview only.
+   * The backend remains authoritative for the actual fee.
+   */
+  function feeKES(value) {
+    const amount = numberValue(value);
+    return Math.min(200, amount * 0.018 + 10);
+  }
 
-  // Pay button
-  document.getElementById('pay').addEventListener('click', async () => {
-    // Quick guard if template didn't inject a code
-    if (!code) {
-      errBlock.style.display = 'block';
-      errMsg.textContent = 'Invalid voucher code in page.';
+  function setStatus(type, message) {
+    stEl.className = 'status ' + type;
+    stEl.textContent = message;
+    stEl.style.display = 'inline-flex';
+  }
+
+  function hideStatus() {
+    stEl.style.display = 'none';
+  }
+
+  function resetResults() {
+    okBlock.style.display = 'none';
+    errBlock.style.display = 'none';
+    linkBox.textContent = '';
+    errMsg.textContent = '';
+  }
+
+  function showError(message) {
+    hideStatus();
+
+    errBlock.style.display = 'block';
+    errMsg.textContent = message || 'Unable to process this payment.';
+  }
+
+  function stopPolling() {
+    if (poller) {
+      clearInterval(poller);
+      poller = null;
+    }
+  }
+
+  /* =========================================================
+     FEE / SUMMARY
+     ========================================================= */
+
+  function renderFee() {
+    const amount = numberValue(amountEl.value);
+
+    if (amount <= 0) {
+      feeLine.textContent = '';
+
+      summaryAmount.textContent = 'KES 0.00';
+      summaryFee.textContent = 'KES 0.00';
+      summaryTotal.textContent = 'KES 0.00';
+
       return;
     }
 
-    okBlock.style.display = 'none';
-    errBlock.style.display = 'none';
-    stEl.textContent = 'Processing…';
-    stEl.className = 'status warn';
-    stEl.style.display = 'inline-block';
+    const fee = feeKES(amount);
+    const total = amount + fee;
+
+    summaryAmount.textContent = `KES ${formatKES(amount)}`;
+    summaryFee.textContent = `KES ${formatKES(fee)}`;
+    summaryTotal.textContent = `KES ${formatKES(total)}`;
+
+    feeLine.textContent =
+      `Estimated service fee: KES ${formatKES(fee)} · ` +
+      `Estimated total: KES ${formatKES(total)}. ` +
+      `Final charges are determined by the payment service.`;
+  }
+
+  amountEl.addEventListener('input', renderFee);
+
+  /* =========================================================
+     PAYOUT METHOD UI
+     ========================================================= */
+
+  function hidePayoutPanels() {
+    pmPhone.style.display = 'none';
+    pmTill.style.display = 'none';
+    pmBank.style.display = 'none';
+  }
+
+  function showPayoutMethod() {
+    hidePayoutPanels();
+
+    const method = methodEl.value;
+
+    if (!method) {
+      payoutDetails.style.display = 'none';
+      return;
+    }
+
+    payoutDetails.style.display = 'block';
+
+    if (method === 'phone') {
+      pmPhone.style.display = 'block';
+      targetPhone.focus();
+    }
+
+    if (method === 'till') {
+      pmTill.style.display = 'block';
+      targetTill.focus();
+    }
+
+    if (method === 'bank') {
+      pmBank.style.display = 'grid';
+      targetBank.focus();
+    }
+  }
+
+  methodEl.addEventListener('change', showPayoutMethod);
+
+  /* =========================================================
+     VALIDATION
+     ========================================================= */
+
+  function validatePayment() {
+
+    if (!code) {
+      return 'This voucher is invalid or missing its payment code.';
+    }
+
+    const amount = numberValue(amountEl.value);
+
+    if (amount <= 0) {
+      return 'Enter a valid payment amount.';
+    }
+
+    const method = methodEl.value;
+
+    if (!method) {
+      return 'Select a payout method.';
+    }
+
+    if (method === 'phone') {
+      const phone = targetPhone.value.trim();
+
+      if (!phone) {
+        return 'Enter the M-Pesa phone number.';
+      }
+
+      if (!/^\d{10,15}$/.test(phone)) {
+        return 'Enter a valid Kenyan phone number.';
+      }
+    }
+
+    if (method === 'till') {
+      const till = targetTill.value.trim();
+
+      if (!till) {
+        return 'Enter the Buy Goods / Till number.';
+      }
+
+      if (!/^\d{5,12}$/.test(till)) {
+        return 'Enter a valid Till number.';
+      }
+    }
+
+    if (method === 'bank') {
+      const account = targetBank.value.trim();
+
+      if (!account) {
+        return 'Enter the bank account number.';
+      }
+
+      if (!/^[0-9A-Za-z\-]{5,40}$/.test(account)) {
+        return 'Enter a valid bank account number.';
+      }
+    }
+
+    return null;
+  }
+
+  /* =========================================================
+     PAYMENT REQUEST
+     ========================================================= */
+
+  payBtn.addEventListener('click', async function () {
+
+    if (paymentStarted) {
+      return;
+    }
+
+    resetResults();
+
+    const validationError = validatePayment();
+
+    if (validationError) {
+      showError(validationError);
+      return;
+    }
+
+    paymentStarted = true;
+    payBtn.disabled = true;
+    payBtn.textContent = 'Processing…';
+
+    setStatus('warn', 'Processing…');
 
     const fd = new FormData();
+
     fd.append('amount', amountEl.value || '');
     fd.append('payout_method', methodEl.value || '');
 
     if (methodEl.value === 'phone') {
-      fd.append('payout_target', (document.getElementById('target_phone').value || ''));
+      fd.append(
+        'payout_target',
+        targetPhone.value.trim()
+      );
     }
+
     if (methodEl.value === 'till') {
-      fd.append('payout_target', (document.getElementById('target_till').value || ''));
+      fd.append(
+        'payout_target',
+        targetTill.value.trim()
+      );
     }
+
     if (methodEl.value === 'bank') {
-      fd.append('payout_target', (document.getElementById('target_bank').value || ''));
-      fd.append('payout_bank_name', (document.getElementById('bank_name').value || ''));
-      fd.append('payout_bank_branch', (document.getElementById('bank_branch').value || ''));
+
+      fd.append(
+        'payout_target',
+        targetBank.value.trim()
+      );
+
+      fd.append(
+        'payout_bank_name',
+        bankName.value.trim()
+      );
+
+      fd.append(
+        'payout_bank_branch',
+        bankBranch.value.trim()
+      );
     }
 
     try {
-      const r = await fetch(`/api/vouchers/${encodeURIComponent(code)}/pay`, { method: 'POST', body: fd });
-      const j = await r.json();
-      if (!r.ok || j.ok !== true) throw new Error(j.error || ('HTTP ' + r.status));
-      if (poller) clearInterval(poller);
+
+      const response = await fetch(
+        `/api/vouchers/${encodeURIComponent(code)}/pay`,
+        {
+          method:'POST',
+          body:fd,
+          credentials:'same-origin'
+        }
+      );
+
+      let result = null;
+
+      try {
+        result = await response.json();
+      } catch (_) {
+        throw new Error(
+          `Payment service returned an invalid response (HTTP ${response.status}).`
+        );
+      }
+
+      if (
+        !response.ok ||
+        !result ||
+        result.ok !== true
+      ) {
+        throw new Error(
+          (result && result.error) ||
+          `Payment request failed (HTTP ${response.status}).`
+        );
+      }
+
+      /*
+       * Payment request accepted.
+       * The backend status endpoint remains authoritative.
+       */
+      stopPolling();
+
+      await checkStatus();
+
       poller = setInterval(checkStatus, 2500);
-    } catch (e) {
-      stEl.style.display = 'none';
-      errBlock.style.display = 'block';
-      errMsg.textContent = e.message || 'Failed to initiate payment';
+
+    } catch (error) {
+
+      showError(
+        error && error.message
+          ? error.message
+          : 'Failed to initiate payment.'
+      );
+
+      paymentStarted = false;
+      payBtn.disabled = false;
+      payBtn.textContent = 'Request STK';
     }
   });
 
-  // Poll status
+  /* =========================================================
+     STATUS POLLING
+     ========================================================= */
+
   async function checkStatus() {
-    if (!code) return; // nothing to poll
+
+    if (!code) {
+      return;
+    }
+
     try {
-      const r = await fetch(`/api/vouchers/${encodeURIComponent(code)}/status`, { cache: 'no-store' });
-      const j = await r.json();
-      if (!r.ok || j.ok !== true) return;
 
-      const v = j.voucher || {};
-      const st = (v.status || '').toLowerCase();
-
-      if (st === 'processing') {
-        stEl.style.display = 'inline-block';
-        stEl.textContent = 'Processing…';
-      }
-      if (st === 'credited' || st === 'paid' || st === 'paying' || (v.used && v.receipt_url)) {
-        clearInterval(poller);
-        stEl.style.display = 'none';
-        okBlock.style.display = 'block';
-        if (v.receipt_url) {
-          linkBox.innerHTML = `<a href="${v.receipt_url}" target="_blank" rel="noopener">View receipt</a>`;
+      const response = await fetch(
+        `/api/vouchers/${encodeURIComponent(code)}/status`,
+        {
+          cache:'no-store',
+          credentials:'same-origin'
         }
+      );
+
+      let result = null;
+
+      try {
+        result = await response.json();
+      } catch (_) {
+        return;
       }
-      if (st === 'failed') {
-        clearInterval(poller);
-        stEl.style.display = 'none';
+
+      if (
+        !response.ok ||
+        !result ||
+        result.ok !== true
+      ) {
+        return;
+      }
+
+      const voucher = result.voucher || {};
+      const status = String(voucher.status || '').toLowerCase();
+
+      /*
+       * Processing states
+       */
+      if (
+        status === 'processing' ||
+        status === 'paying'
+      ) {
+
+        setStatus(
+          'warn',
+          status === 'paying'
+            ? 'Payment being confirmed…'
+            : 'Payment processing…'
+        );
+
+        return;
+      }
+
+      /*
+       * Successful states
+       */
+      if (
+        status === 'credited' ||
+        status === 'paid' ||
+        (
+          voucher.used &&
+          voucher.receipt_url
+        )
+      ) {
+
+        stopPolling();
+
+        hideStatus();
+
+        okBlock.style.display = 'block';
+
+        if (voucher.receipt_url) {
+
+          const link = document.createElement('a');
+
+          link.href = voucher.receipt_url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = 'View payment receipt';
+
+          linkBox.replaceChildren(link);
+        }
+
+        paymentStarted = true;
+        payBtn.disabled = true;
+        payBtn.textContent = 'Payment completed';
+
+        return;
+      }
+
+      /*
+       * Failed / expired
+       */
+      if (
+        status === 'failed' ||
+        status === 'expired'
+      ) {
+
+        stopPolling();
+
+        hideStatus();
+
         errBlock.style.display = 'block';
-        errMsg.textContent = 'Payment failed or voucher expired.';
+
+        errMsg.textContent =
+          status === 'expired'
+            ? 'This voucher has expired. Please request a new payment voucher.'
+            : 'Payment failed or could not be completed. Please try again or contact support.';
+
+        paymentStarted = false;
+        payBtn.disabled = false;
+        payBtn.textContent = 'Request STK';
       }
+
     } catch (_) {
-      // silently ignore transient errors while polling
+      /*
+       * Temporary network/API failures are ignored while polling.
+       * The next polling cycle will retry.
+       */
     }
   }
 
-  // Initial status check (handles already-expired/settled vouchers)
+  /* =========================================================
+     INITIAL STATE
+     ========================================================= */
+
+  renderFee();
+  showPayoutMethod();
   checkStatus();
+
 })();
 </script>
 

@@ -3,151 +3,705 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#063d3f"/>
 <title>chequematez — Calculator</title>
+
 <style>
-/* === Brand Palette === */
+/* =========================================================
+   CHEQUEMATEZ — BRAND
+========================================================= */
 :root{
   --brand-black:#000000;
   --brand-red:#ff0000;
-  --brand-teal-1:#063d3f;
-  --brand-teal-2:#053c3f;
-  --brand-teal-4:#063d40;
-  --brand-teal-5:#063c3f;
+  --brand-teal:#063d3f;
+  --brand-teal-dark:#053c3f;
+  --brand-teal-light:#0a5355;
   --brand-gold:#d4a017;
+
+  --bg:#f5f5f5;
+  --white:#ffffff;
+  --text:#111111;
+  --muted:#666666;
+  --line:#dedede;
+
+  --success:#087443;
+  --success-bg:#eaf8f0;
+  --danger:#b00020;
+  --danger-bg:#fff0f2;
+  --warning:#9a6700;
+  --warning-bg:#fff8df;
+
+  --shadow:0 12px 35px rgba(0,0,0,.08);
 }
 
-/* Base */
-*{box-sizing:border-box}
-html { scroll-behavior: smooth; }
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f5f5f5; color: var(--brand-black); }
-
-/* Header / Nav */
-header { background: var(--brand-teal-1); color:white; padding:20px; text-align:center; border-bottom: 4px solid var(--brand-gold); }
-nav { display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin-top:10px;}
-nav a { color:white; text-decoration:none; font-weight:600; }
-nav a:hover { border-bottom: 2px solid var(--brand-gold); }
-
-/* Gold pill buttons */
-.pill {
-  background: var(--brand-gold);
-  color: var(--brand-black);
-  padding: 8px 16px;
-  border-radius: 30px;
-  font-weight: 700;
-  border: 2px solid transparent;
-  cursor: pointer;
-}
-.pill:hover { border-color: var(--brand-red); background: #e1b632; }
-
-/* Hero */
-.hero {
-  background: linear-gradient(135deg, var(--brand-teal-1), var(--brand-teal-4)),
-              url("/static/images/") center/contain no-repeat;
-  min-height: 48vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: white;
-  text-align: center;
-  flex-direction: column;
-  padding: 40px 16px;
-}
-.hero h1 { font-size:2.2rem; margin-bottom:10px; text-shadow: 2px 2px 5px rgba(0,0,0,0.6); border-bottom: 3px solid var(--brand-gold); padding: 0 10px 6px; }
-
-/* Section wrappers */
-.section {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 28px 16px;
-}
-.section h2 {
-  color: var(--brand-teal-1);
-  margin: 0 0 12px;
-  border-left: 6px solid var(--brand-gold);
-  padding-left: 10px;
+/* =========================================================
+   RESET
+========================================================= */
+*{
+  box-sizing:border-box;
 }
 
-/* Cards / grids */
-.cards { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:16px; }
-.card {
-  background: #fff;
-  border-radius: 10px;
-  border-top: 4px solid var(--brand-teal-4);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  padding: 18px;
+html{
+  scroll-behavior:smooth;
 }
-.card h3 { margin: 0 0 8px; color: var(--brand-teal-5); }
-.card p { margin: 6px 0; color:#333; }
 
-/* Calculator card */
-main { display:flex; justify-content:center; padding:20px; }
-.calculator {
-  background:white; padding:24px; border-radius:10px;
-  box-shadow:0 8px 24px rgba(0,0,0,0.08); width:420px;
-  border-top: 4px solid var(--brand-teal-4);
+body{
+  margin:0;
+  padding:0;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.55;
 }
-label{font-weight:600;color:var(--brand-teal-5);}
-input, select { width:100%; padding:12px; margin-top:8px; border-radius:8px; border:1px solid #ccc; font-size:1rem; }
-input:focus, select:focus { outline: 2px solid var(--brand-teal-4); border-color: var(--brand-teal-4); }
 
-/* === Service charge toggle === */
-.toggle-row{ display:flex; align-items:center; gap:12px; margin-top:12px; }
-.toggle{position:relative; width:46px; height:26px; flex:0 0 auto}
-.toggle input{opacity:0; width:0; height:0}
+button,
+input,
+select,
+textarea{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+a{
+  color:inherit;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+header{
+  background:var(--brand-teal);
+  color:#fff;
+  padding:20px 16px;
+  text-align:center;
+  border-bottom:4px solid var(--brand-gold);
+}
+
+header h1{
+  margin:0;
+  font-size:1.7rem;
+  letter-spacing:.3px;
+}
+
+nav{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:24px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+
+nav a{
+  color:#fff;
+  text-decoration:none;
+  font-weight:600;
+  font-size:.95rem;
+  padding:4px 0;
+  border-bottom:2px solid transparent;
+  transition:.2s ease;
+}
+
+nav a:hover{
+  color:var(--brand-gold);
+  border-bottom-color:var(--brand-gold);
+}
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+.pill{
+  background:var(--brand-gold);
+  color:var(--brand-black);
+  padding:10px 18px;
+  border-radius:30px;
+  font-weight:700;
+  border:2px solid transparent;
+  cursor:pointer;
+  transition:.2s ease;
+}
+
+.pill:hover{
+  border-color:var(--brand-red);
+  background:#e1b632;
+  transform:translateY(-1px);
+}
+
+.pill:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+  transform:none;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+.hero{
+  background:
+    linear-gradient(
+      135deg,
+      var(--brand-teal),
+      var(--brand-teal-light)
+    );
+  min-height:48vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+  text-align:center;
+  flex-direction:column;
+  padding:50px 16px;
+}
+
+.hero h1{
+  font-size:clamp(2rem,5vw,3.2rem);
+  margin:0 0 12px;
+  text-shadow:2px 2px 5px rgba(0,0,0,.35);
+  border-bottom:3px solid var(--brand-gold);
+  padding:0 10px 8px;
+}
+
+.hero p{
+  margin:0;
+  font-size:1.05rem;
+  opacity:.92;
+}
+
+/* =========================================================
+   SECTIONS
+========================================================= */
+.section{
+  max-width:1100px;
+  margin:0 auto;
+  padding:36px 16px;
+}
+
+.section h2{
+  color:var(--brand-teal);
+  margin:0 0 18px;
+  border-left:6px solid var(--brand-gold);
+  padding-left:12px;
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px;
+}
+
+.card{
+  background:#fff;
+  border-radius:12px;
+  border-top:4px solid var(--brand-teal);
+  box-shadow:var(--shadow);
+  padding:20px;
+}
+
+.card h3{
+  margin:0 0 8px;
+  color:var(--brand-teal);
+}
+
+.card p{
+  margin:7px 0;
+  color:#333;
+}
+
+/* =========================================================
+   CALCULATOR
+========================================================= */
+main{
+  display:flex;
+  justify-content:center;
+  padding:28px 16px;
+}
+
+.calculator{
+  background:#fff;
+  padding:26px;
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  width:440px;
+  max-width:100%;
+  border-top:4px solid var(--brand-teal);
+}
+
+.calculator h2{
+  color:var(--brand-teal);
+}
+
+.field{
+  margin-top:12px;
+}
+
+label{
+  font-weight:600;
+  color:var(--brand-teal);
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:12px;
+  margin-top:7px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  font-size:1rem;
+  background:#fff;
+}
+
+input:focus,
+select:focus,
+textarea:focus{
+  outline:2px solid rgba(6,61,63,.18);
+  border-color:var(--brand-teal);
+}
+
+/* =========================================================
+   SERVICE CHARGE TOGGLE
+========================================================= */
+.toggle-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-top:16px;
+}
+
+.toggle{
+  position:relative;
+  width:46px;
+  height:26px;
+  flex:0 0 auto;
+}
+
+.toggle input{
+  opacity:0;
+  width:0;
+  height:0;
+  position:absolute;
+}
+
 .toggle .slider{
-  position:absolute; cursor:pointer; inset:0;
-  background:#dfe8e8; border-radius:999px; transition:background .2s ease;
+  position:absolute;
+  cursor:pointer;
+  inset:0;
+  background:#dfe8e8;
+  border-radius:999px;
+  transition:.2s ease;
   box-shadow:inset 0 0 0 1px #cfdada;
 }
+
 .toggle .slider::before{
-  content:""; position:absolute; height:20px; width:20px; left:3px; top:3px;
-  background:#fff; border-radius:50%; transition:transform .2s ease;
+  content:"";
+  position:absolute;
+  height:20px;
+  width:20px;
+  left:3px;
+  top:3px;
+  background:#fff;
+  border-radius:50%;
+  transition:.2s ease;
   box-shadow:0 2px 6px rgba(0,0,0,.18);
 }
-.toggle input:checked + .slider{ background:#063d3f33 }
-.toggle input:checked + .slider::before{ transform:translateX(20px) }
-.toggle-help{color:#333; font-size:.9rem}
 
-/* Auth options under calculator */
-.auth-options { margin-top:18px; text-align:center; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.toggle input:checked + .slider{
+  background:var(--brand-teal);
+}
 
-/* Results */
-#result p { margin:6px 0; line-height:1.45; }
-#result small { color:#333; }
-.highlight { font-weight:bold; color: var(--brand-red); }
-#rangeMsg { margin-top:6px; color:#a33; font-size:.95rem; display:none; }
-#rateMsg  { margin-top:6px; color:#a33; font-size:.95rem; display:none; }
+.toggle input:checked + .slider::before{
+  transform:translateX(20px);
+}
 
-/* Chart wrapper */
-.calc-chart { margin-top:18px; padding-top:8px; border-top:1px dashed #ddd; }
+.toggle-help{
+  color:#555;
+  font-size:.88rem;
+}
 
-/* Footer */
-footer { background: var(--brand-teal-2); color:white; text-align:center; padding:15px; margin-top:24px; border-top: 4px solid var(--brand-gold); }
+/* =========================================================
+   AUTH OPTIONS
+========================================================= */
+.auth-options{
+  margin-top:22px;
+  text-align:center;
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
 
-/* Modals */
-.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center; justify-content: center; z-index: 9999; }
-.modal { background: #fff; width: 360px; max-width: 92vw; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.25); padding: 20px; border-top: 4px solid var(--brand-gold); position: relative; }
-.modal h3 { margin: 0 0 10px; color: var(--brand-teal-1); }
-.modal .close { position: absolute; top: 10px; right: 14px; background: transparent; border: none; font-size: 20px; cursor: pointer; color: var(--brand-black); }
-.modal .field { margin-top: 10px; }
-.modal .field label { font-weight: 600; font-size: 0.95rem; color: var(--brand-teal-5); }
-.modal .field input { width: 100%; padding: 10px; margin-top: 6px; border:1px solid #ccc; border-radius: 6px; }
-.modal .actions { margin-top: 14px; }
-.modal .btn { width: 100%; padding: 12px; background: var(--brand-gold); color:#1a1a1a; border:none; border-radius: 6px; cursor:pointer; font-weight:700; }
-.modal .btn:hover { background:#e1b632; border:2px solid var(--brand-red); }
-.modal .note a { color: var(--brand-teal-1); text-decoration: none; }
-.modal .note a:hover { text-decoration: underline; }
-.modal .error { color:#b00020; min-height: 18px; margin-top: 6px; font-size: 0.9rem; }
+/* =========================================================
+   RESULT
+========================================================= */
+#result p{
+  margin:7px 0;
+  line-height:1.5;
+}
 
-@media(max-width:1024px){ .cards{grid-template-columns: repeat(2,minmax(0,1fr));} }
-@media(max-width:768px){ nav { flex-direction: column; gap:10px;} .calculator{width:92%;} .cards{grid-template-columns: 1fr;} }
+#result small{
+  color:#444;
+}
+
+.highlight{
+  font-weight:bold;
+  color:var(--brand-red);
+}
+
+#rangeMsg,
+#rateMsg{
+  margin-top:7px;
+  font-size:.9rem;
+  display:none;
+}
+
+#rangeMsg{
+  color:#a33;
+}
+
+#rateMsg{
+  color:#a33;
+}
+
+/* =========================================================
+   CHART
+========================================================= */
+.calc-chart{
+  margin-top:20px;
+  padding-top:10px;
+  border-top:1px dashed #ddd;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+footer{
+  background:var(--brand-teal-dark);
+  color:#fff;
+  text-align:center;
+  padding:18px 16px;
+  margin-top:24px;
+  border-top:4px solid var(--brand-gold);
+}
+
+/* =========================================================
+   MODAL SYSTEM
+========================================================= */
+.modal-backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.62);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  z-index:9999;
+  backdrop-filter:blur(4px);
+}
+
+.modal{
+  background:#fff;
+  width:390px;
+  max-width:100%;
+  max-height:92vh;
+  overflow-y:auto;
+  border-radius:14px;
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
+  padding:24px;
+  border-top:4px solid var(--brand-gold);
+  position:relative;
+  animation:modalIn .18s ease-out;
+}
+
+@keyframes modalIn{
+  from{
+    opacity:0;
+    transform:translateY(10px) scale(.98);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+
+.modal h3{
+  margin:0 0 5px;
+  color:var(--brand-teal);
+  font-size:1.35rem;
+}
+
+.modal-subtitle{
+  color:var(--muted);
+  font-size:.9rem;
+  margin-bottom:14px;
+}
+
+.modal .close{
+  position:absolute;
+  top:10px;
+  right:14px;
+  background:transparent;
+  border:none;
+  font-size:25px;
+  cursor:pointer;
+  color:var(--brand-black);
+  line-height:1;
+}
+
+.modal .close:hover{
+  color:var(--brand-red);
+}
+
+.modal .field{
+  margin-top:13px;
+}
+
+.modal .field label{
+  font-size:.92rem;
+}
+
+.modal .actions{
+  margin-top:16px;
+}
+
+.modal .btn{
+  width:100%;
+  padding:12px;
+  background:var(--brand-gold);
+  color:#1a1a1a;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:700;
+  transition:.2s ease;
+}
+
+.modal .btn:hover{
+  background:#e1b632;
+}
+
+.modal .btn:disabled{
+  opacity:.65;
+  cursor:not-allowed;
+}
+
+.modal .note{
+  margin-top:10px;
+  color:#555;
+  font-size:.9rem;
+}
+
+.modal .note a{
+  color:var(--brand-teal);
+  text-decoration:none;
+  font-weight:600;
+}
+
+.modal .note a:hover{
+  text-decoration:underline;
+}
+
+.error{
+  color:var(--danger);
+  background:var(--danger-bg);
+  border-radius:7px;
+  padding:8px 10px;
+  margin-top:9px;
+  min-height:0;
+  font-size:.88rem;
+  display:none;
+}
+
+.error.show{
+  display:block;
+}
+
+.success{
+  color:var(--success);
+  background:var(--success-bg);
+  border-radius:7px;
+  padding:10px;
+  margin-top:9px;
+  font-size:.88rem;
+  display:none;
+}
+
+.success.show{
+  display:block;
+}
+
+/* =========================================================
+   PASSWORD FIELD
+========================================================= */
+.password-wrap{
+  position:relative;
+}
+
+.password-wrap input{
+  padding-right:48px;
+}
+
+.password-toggle{
+  position:absolute;
+  right:8px;
+  bottom:8px;
+  width:36px;
+  height:36px;
+  border:0;
+  background:transparent;
+  color:#555;
+  cursor:pointer;
+  border-radius:6px;
+}
+
+.password-toggle:hover{
+  background:#f2f2f2;
+}
+
+.password-strength{
+  height:5px;
+  background:#e5e5e5;
+  border-radius:999px;
+  overflow:hidden;
+  margin-top:7px;
+}
+
+.password-strength span{
+  display:block;
+  width:0;
+  height:100%;
+  transition:.25s ease;
+}
+
+.password-hint{
+  color:#666;
+  font-size:.78rem;
+  margin-top:5px;
+}
+
+/* =========================================================
+   FORGOT PASSWORD LINK
+========================================================= */
+.forgot-link{
+  display:block;
+  margin-top:10px;
+  text-align:right;
+  color:var(--brand-teal);
+  text-decoration:none;
+  font-size:.9rem;
+  font-weight:600;
+}
+
+.forgot-link:hover{
+  text-decoration:underline;
+}
+
+/* =========================================================
+   LEGAL TOGGLE
+========================================================= */
+.legal-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-top:12px;
+  font-size:.88rem;
+  color:#333;
+}
+
+.legal-row input{
+  width:auto;
+  margin:0;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+@media(max-width:1024px){
+  .cards{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:768px){
+  nav{
+    gap:14px;
+  }
+
+  .hero{
+    min-height:42vh;
+  }
+
+  .cards{
+    grid-template-columns:1fr;
+  }
+
+  .calculator{
+    width:100%;
+  }
+
+  .section{
+    padding:28px 14px;
+  }
+
+  .modal{
+    padding:20px;
+  }
+}
+
+@media(max-width:480px){
+  header{
+    padding:17px 12px;
+  }
+
+  header h1{
+    font-size:1.4rem;
+  }
+
+  nav{
+    gap:10px 18px;
+  }
+
+  nav a{
+    font-size:.88rem;
+  }
+
+  .hero{
+    padding:40px 14px;
+  }
+
+  .hero h1{
+    font-size:2rem;
+  }
+
+  .calculator{
+    padding:20px 17px;
+  }
+}
 </style>
 </head>
+
 <!-- Flask sets data-open-login to "1" when redirected from /admin -->
 <body data-open-login="{{ '1' if open_login else '0' }}">
 
+<!-- =======================================================
+     HEADER
+======================================================= -->
 <header id="home">
   <h1>chequematez Exchange</h1>
+
   <nav>
     <a href="#home">Home</a>
     <a href="#rates">Rates</a>
@@ -156,399 +710,1493 @@ footer { background: var(--brand-teal-2); color:white; text-align:center; paddin
   </nav>
 </header>
 
+<!-- =======================================================
+     HERO
+======================================================= -->
 <section class="hero">
   <h1>Reliable Money Exchange</h1>
   <p>Calculate fees instantly with chequematez</p>
 </section>
 
-<!-- HOME content (kept your calculator exactly where it was) -->
+<!-- =======================================================
+     CALCULATOR
+======================================================= -->
 <main class="section">
+
   <section class="calculator" aria-labelledby="calcTitle">
-    <h2 id="calcTitle" style="margin-top:0;">Quick Calculator</h2>
+
+    <h2 id="calcTitle" style="margin-top:0;">
+      Quick Calculator
+    </h2>
 
     <div class="field">
       <label for="amount">Amount</label>
-      <input type="number" id="amount" placeholder="Enter amount" inputmode="decimal" step="0.01" min="0">
-      <div id="rangeMsg">Allowed range is <strong>5 – 600 KWD</strong>. Adjust the amount or change currency.</div>
-      <div id="rateMsg">Fetching live rate… please try again in a moment.</div>
+
+      <input
+        type="number"
+        id="amount"
+        placeholder="Enter amount"
+        inputmode="decimal"
+        step="0.01"
+        min="0"
+        autocomplete="off"
+      >
+
+      <div id="rangeMsg">
+        Allowed range is
+        <strong>5 – 600 KWD</strong>.
+        Adjust the amount or change currency.
+      </div>
+
+      <div id="rateMsg">
+        Fetching live rate… please try again in a moment.
+      </div>
     </div>
 
-    <div class="field" style="margin-top:10px;">
+    <div class="field">
       <label for="currency">Currency</label>
+
       <select id="currency">
         <option value="KWD" selected>KWD</option>
         <option value="KES">KES</option>
       </select>
     </div>
 
-    <!-- Service charge toggle -->
-    <div class="toggle-row" title="When ON, the customer pays the fee. When OFF, the merchant absorbs it.">
-      <label class="toggle" aria-label="Pass service charge to customer">
-        <input id="fee_pass_through" type="checkbox" checked>
+    <!-- Service charge -->
+    <div
+      class="toggle-row"
+      title="When ON, the customer pays the fee. When OFF, the merchant absorbs it."
+    >
+
+      <label
+        class="toggle"
+        aria-label="Pass service charge to customer"
+      >
+        <input
+          id="fee_pass_through"
+          type="checkbox"
+          checked
+        >
         <span class="slider"></span>
       </label>
+
       <div>
-        <div><strong>Pass service charge to customer</strong></div>
-        <div class="toggle-help">Turn off if the merchant will absorb the fee.</div>
+        <div>
+          <strong>Pass service charge to customer</strong>
+        </div>
+
+        <div class="toggle-help">
+          Turn off if the merchant will absorb the fee.
+        </div>
       </div>
+
     </div>
 
-    <div id="result" style="margin-top:16px;"></div>
+    <div
+      id="result"
+      style="margin-top:16px;"
+    ></div>
 
-    <!-- Line chart of recent calculations -->
+    <!-- Chart -->
     <div class="calc-chart">
       <canvas id="calcChart" height="140"></canvas>
     </div>
 
-    <!-- Login / Signup buttons -->
+    <!-- Authentication -->
     <div class="auth-options">
-      <button id="openLogin" class="pill" type="button">Login</button>
-      <button id="openSignup" class="pill" type="button">Sign Up</button>
+
+      <button
+        id="openLogin"
+        class="pill"
+        type="button"
+      >
+        Login
+      </button>
+
+      <button
+        id="openSignup"
+        class="pill"
+        type="button"
+      >
+        Sign Up
+      </button>
+
     </div>
+
   </section>
+
 </main>
 
-<!-- RATES -->
+<!-- =======================================================
+     RATES
+======================================================= -->
 <section id="rates" class="section">
+
   <h2>Rates</h2>
+
   <div class="cards">
+
     <div class="card">
       <h3>Live Exchange</h3>
-      <p>1 KWD =&nbsp;<strong id="liveRate">—</strong>&nbsp;KES</p>
-      <p style="font-size:.9rem;color:#555">Updated automatically every 30 seconds.</p>
+
+      <p>
+        1 KWD =
+        <strong id="liveRate">—</strong>
+        KES
+      </p>
+
+      <p style="font-size:.9rem;color:#555">
+        Updated automatically every 30 seconds.
+      </p>
     </div>
+
     <div class="card">
       <h3>Transfer Range</h3>
-      <p>Supported range: <strong>5 – 600 KWD</strong>.</p>
-      <p>For larger amounts, contact support for a tailored quote.</p>
+
+      <p>
+        Supported range:
+        <strong>5 – 600 KWD</strong>.
+      </p>
+
+      <p>
+        For larger amounts, contact support for a tailored quote.
+      </p>
     </div>
+
     <div class="card">
       <h3>Fees</h3>
-      <p>Fees are dynamic and shown in the calculator results.</p>
-      <p>You can pass fees to the customer or absorb them.</p>
+
+      <p>
+        Fees are dynamic and shown in the calculator results.
+      </p>
+
+      <p>
+        You can pass fees to the customer or absorb them.
+      </p>
     </div>
+
   </div>
+
 </section>
 
-<!-- SERVICES -->
+<!-- =======================================================
+     SERVICES
+======================================================= -->
 <section id="services" class="section">
+
   <h2>Services</h2>
+
   <div class="cards">
+
     <div class="card">
       <h3>Wallet to M-Pesa</h3>
-      <p>Top up M-Pesa numbers quickly and reliably.</p>
+      <p>
+        Top up M-Pesa numbers quickly and reliably.
+      </p>
     </div>
+
     <div class="card">
       <h3>Bank Payouts</h3>
-      <p>Send to Kenyan bank accounts. Settlement per our payout rails.</p>
+      <p>
+        Send to Kenyan bank accounts.
+        Settlement per our payout rails.
+      </p>
     </div>
+
     <div class="card">
       <h3>Merchant Vouchers</h3>
-      <p>Create one-time vouchers for customers and auto-payout to merchants.</p>
+      <p>
+        Create one-time vouchers for customers
+        and auto-payout to merchants.
+      </p>
     </div>
+
   </div>
+
 </section>
 
-<!-- CONTACT -->
+<!-- =======================================================
+     CONTACT
+======================================================= -->
 <section id="contact" class="section">
+
   <h2>Contact</h2>
+
   <div class="cards">
+
     <div class="card">
+
       <h3>Get in Touch</h3>
-      <p><strong>Email:</strong> support@chequematez.com</p>
-      <p><strong>WhatsApp/Call:</strong> +965 65914413</p>
-      <p><strong>Hours:</strong> Mon–Sun, 9:00–12:00 EAT</p>
-      <p style="font-size:.9rem;color:#555;">For compliance/KYC queries please use the email above.</p>
+
+      <p>
+        <strong>Email:</strong>
+        support@chequematez.com
+      </p>
+
+      <p>
+        <strong>WhatsApp/Call:</strong>
+        +965 65914413
+      </p>
+
+      <p>
+        <strong>Hours:</strong>
+        Mon–Sun, 9:00–12:00 EAT
+      </p>
+
+      <p style="font-size:.9rem;color:#555;">
+        For compliance/KYC queries please use the email above.
+      </p>
+
     </div>
+
     <div class="card">
+
       <h3>Quick Message</h3>
-      <form onsubmit="event.preventDefault(); alert('Thanks! We will get back to you.');">
+
+      <form
+        onsubmit="event.preventDefault(); alert('Thanks! We will get back to you.');"
+      >
+
         <label>Name</label>
-        <input type="text" placeholder="Your name" required>
-        <label style="margin-top:8px;">Email</label>
-        <input type="email" placeholder="you@example.com" required>
-        <label style="margin-top:8px;">Message</label>
-        <textarea rows="4" style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px" placeholder="How can we help?" required></textarea>
-        <button class="pill" type="submit" style="margin-top:12px;">Send</button>
+
+        <input
+          type="text"
+          placeholder="Your name"
+          required
+        >
+
+        <label style="margin-top:8px;">
+          Email
+        </label>
+
+        <input
+          type="email"
+          placeholder="you@example.com"
+          required
+        >
+
+        <label style="margin-top:8px;">
+          Message
+        </label>
+
+        <textarea
+          rows="4"
+          style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px"
+          placeholder="How can we help?"
+          required
+        ></textarea>
+
+        <button
+          class="pill"
+          type="submit"
+          style="margin-top:12px;"
+        >
+          Send
+        </button>
+
       </form>
+
     </div>
+
     <div class="card">
+
       <h3>Legal</h3>
-      <p>Read our latest policies and terms.</p>
-      <p><a href="{{ url_for('legal_index') }}" target="_blank" style="color:#063d3f; font-weight:700; text-decoration:none;">View Legal &raquo;</a></p>
+
+      <p>
+        Read our latest policies and terms.
+      </p>
+
+      <p>
+        <a
+          href="{{ url_for('legal_index') }}"
+          target="_blank"
+          style="color:#063d3f;font-weight:700;text-decoration:none;"
+        >
+          View Legal »
+        </a>
+      </p>
+
     </div>
+
   </div>
+
 </section>
 
+<!-- =======================================================
+     FOOTER
+======================================================= -->
 <footer>
   &copy; 2025 chequematez. All Rights Reserved.
 </footer>
 
-<!-- Login modal -->
-<div id="loginBackdrop" class="modal-backdrop" aria-hidden="true">
-  <div class="modal" role="dialog" aria-labelledby="loginTitle" aria-modal="true">
-    <button class="close" type="button" aria-label="Close" data-close="loginBackdrop">&times;</button>
-    <h3 id="loginTitle">Login</h3>
-    <form id="loginForm" novalidate>
-      <div class="field">
-        <label for="login_username">Username</label>
-        <input id="login_username" name="username" type="text" placeholder="yourusername" required minlength="3">
-      </div>
-      <div class="field">
-        <label for="login_password">Password</label>
-        <input id="login_password" name="password" type="password" placeholder="••••••••" required minlength="8">
-      </div>
-      <div class="error" id="loginError"></div>
-      <div class="actions">
-        <button class="btn" type="submit">Log In</button>
-      </div>
-      <div class="note" style="margin-top:8px;"><a href="/request-reset">Forgot password?</a></div>
-    </form>
-  </div>
-</div>
+<!-- =======================================================
+     LOGIN MODAL
+======================================================= -->
+<div
+  id="loginBackdrop"
+  class="modal-backdrop"
+  aria-hidden="true"
+>
 
-<!-- Signup modal -->
-<div id="signupBackdrop" class="modal-backdrop" aria-hidden="true">
-  <div class="modal" role="dialog" aria-labelledby="signupTitle" aria-modal="true">
-    <button class="close" type="button" aria-label="Close" data-close="signupBackdrop">&times;</button>
-    <h3 id="signupTitle">Create Account</h3>
-    <form id="signupForm" novalidate>
+  <div
+    class="modal"
+    role="dialog"
+    aria-labelledby="loginTitle"
+    aria-modal="true"
+  >
+
+    <button
+      class="close"
+      type="button"
+      aria-label="Close"
+      data-close="loginBackdrop"
+    >
+      &times;
+    </button>
+
+    <h3 id="loginTitle">
+      Welcome back
+    </h3>
+
+    <div class="modal-subtitle">
+      Sign in to your chequematez account.
+    </div>
+
+    <form
+      id="loginForm"
+      novalidate
+    >
+
       <div class="field">
-        <label for="su_email">Email</label>
-        <input id="su_email" name="email" type="email" placeholder="you@example.com" required>
-      </div>
-      <div class="field">
-        <label for="su_username">Username</label>
-        <input id="su_username" name="username" type="text" placeholder="uniqueusername" required minlength="3">
-      </div>
-      <div class="field">
-        <label for="su_password">Password</label>
-        <input id="su_password" name="password" type="password" placeholder="At least 8 characters" required minlength="8">
-      </div>
-      <div class="field">
-        <label for="su_confirm">Confirm Password</label>
-        <input id="su_confirm" name="confirm_password" type="password" placeholder="Re-enter password" required minlength="8">
-      </div>
-      <div class="error" id="signupError"></div>
-      <div class="actions">
-        <button class="btn" type="submit">Sign Up</button>
-      </div>
-      <div class="note" style="margin-top:8px; font-size:0.9rem; color:#333;">
-        <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer;">
-          <input type="checkbox" name="accept_legal" checked style="display:none;">
-          <span style="width:34px; height:18px; background:#ccc; border-radius:18px; position:relative; flex-shrink:0;" class="toggle">
-            <span style="content:''; position:absolute; left:2px; top:2px; width:14px; height:14px; background:#fff; border-radius:50%; transition:0.2s;"></span>
-          </span>
-          <span>
-            By signing up you agree to our
-            <a href="{{ url_for('legal_index') }}" target="_blank" style="color:#063d3f; font-weight:600; text-decoration:none;">
-              📄 Legal
-            </a>
-          </span>
+
+        <label for="login_username">
+          Username
         </label>
+
+        <input
+          id="login_username"
+          name="username"
+          type="text"
+          placeholder="yourusername"
+          autocomplete="username"
+          required
+          minlength="3"
+        >
+
       </div>
+
+      <div class="field">
+
+        <label for="login_password">
+          Password
+        </label>
+
+        <div class="password-wrap">
+
+          <input
+            id="login_password"
+            name="password"
+            type="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            required
+            minlength="8"
+          >
+
+          <button
+            type="button"
+            class="password-toggle"
+            data-password-toggle="login_password"
+            aria-label="Show password"
+          >
+            👁
+          </button>
+
+        </div>
+
+      </div>
+
+      <div
+        class="error"
+        id="loginError"
+      ></div>
+
+      <div class="actions">
+
+        <button
+          class="btn"
+          id="loginButton"
+          type="submit"
+        >
+          Log In
+        </button>
+
+      </div>
+
+      <!-- NEW PASSWORD RESET LINK -->
+      <a
+        href="#"
+        class="forgot-link"
+        id="openForgotPassword"
+      >
+        Forgot password?
+      </a>
+
+      <div
+        class="note"
+        style="text-align:center;margin-top:14px;"
+      >
+        Don't have an account?
+        <a
+          href="#"
+          id="switchToSignup"
+        >
+          Sign up
+        </a>
+      </div>
+
     </form>
+
   </div>
+
 </div>
 
-<!-- Chart.js CDN -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-/* number format */
-const fmt = (v)=> Number(v).toLocaleString(undefined,{minimumFractionDigits:1, maximumFractionDigits:1});
+<!-- =======================================================
+     FORGOT PASSWORD MODAL
+======================================================= -->
+<div
+  id="forgotBackdrop"
+  class="modal-backdrop"
+  aria-hidden="true"
+>
 
-/* ===== Live exchange rate (no hardcode) ===== */
+  <div
+    class="modal"
+    role="dialog"
+    aria-labelledby="forgotTitle"
+    aria-modal="true"
+  >
+
+    <button
+      class="close"
+      type="button"
+      aria-label="Close"
+      data-close="forgotBackdrop"
+    >
+      &times;
+    </button>
+
+    <h3 id="forgotTitle">
+      Reset your password
+    </h3>
+
+    <div class="modal-subtitle">
+      Enter the email address associated with your account.
+      We'll send you a secure password reset link.
+    </div>
+
+    <form
+      id="forgotForm"
+      novalidate
+    >
+
+      <div class="field">
+
+        <label for="forgot_email">
+          Email address
+        </label>
+
+        <input
+          id="forgot_email"
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        >
+
+      </div>
+
+      <div
+        class="error"
+        id="forgotError"
+      ></div>
+
+      <div
+        class="success"
+        id="forgotSuccess"
+      ></div>
+
+      <div class="actions">
+
+        <button
+          class="btn"
+          id="forgotButton"
+          type="submit"
+        >
+          Send Reset Link
+        </button>
+
+      </div>
+
+      <div
+        class="note"
+        style="text-align:center;margin-top:14px;"
+      >
+
+        <a
+          href="#"
+          id="backToLogin"
+        >
+          ← Back to login
+        </a>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<!-- =======================================================
+     RESET PASSWORD MODAL
+     
+     This can also be used if Flask renders this page with
+     reset_token available.
+======================================================= -->
+<div
+  id="resetBackdrop"
+  class="modal-backdrop"
+  aria-hidden="true"
+>
+
+  <div
+    class="modal"
+    role="dialog"
+    aria-labelledby="resetTitle"
+    aria-modal="true"
+  >
+
+    <button
+      class="close"
+      type="button"
+      aria-label="Close"
+      data-close="resetBackdrop"
+    >
+      &times;
+    </button>
+
+    <h3 id="resetTitle">
+      Create a new password
+    </h3>
+
+    <div class="modal-subtitle">
+      Choose a strong password for your account.
+    </div>
+
+    <form
+      id="resetForm"
+      novalidate
+    >
+
+      <!--
+        Flask can populate this value when rendering
+        the reset page.
+      -->
+      <input
+        type="hidden"
+        id="reset_token"
+        name="token"
+        value="{{ reset_token or '' }}"
+      >
+
+      <div class="field">
+
+        <label for="reset_password">
+          New password
+        </label>
+
+        <div class="password-wrap">
+
+          <input
+            id="reset_password"
+            name="password"
+            type="password"
+            placeholder="Create a strong password"
+            autocomplete="new-password"
+            minlength="8"
+            required
+          >
+
+          <button
+            type="button"
+            class="password-toggle"
+            data-password-toggle="reset_password"
+            aria-label="Show password"
+          >
+            👁
+          </button>
+
+        </div>
+
+        <div class="password-strength">
+          <span id="passwordStrengthBar"></span>
+        </div>
+
+        <div
+          id="passwordStrengthText"
+          class="password-hint"
+        >
+          Use at least 8 characters with letters and numbers.
+        </div>
+
+      </div>
+
+      <div class="field">
+
+        <label for="reset_confirm">
+          Confirm new password
+        </label>
+
+        <div class="password-wrap">
+
+          <input
+            id="reset_confirm"
+            name="confirm_password"
+            type="password"
+            placeholder="Re-enter your password"
+            autocomplete="new-password"
+            minlength="8"
+            required
+          >
+
+          <button
+            type="button"
+            class="password-toggle"
+            data-password-toggle="reset_confirm"
+            aria-label="Show password"
+          >
+            👁
+          </button>
+
+        </div>
+
+      </div>
+
+      <div
+        class="error"
+        id="resetError"
+      ></div>
+
+      <div
+        class="success"
+        id="resetSuccess"
+      ></div>
+
+      <div class="actions">
+
+        <button
+          class="btn"
+          id="resetButton"
+          type="submit"
+        >
+          Update Password
+        </button>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<!-- =======================================================
+     SIGNUP MODAL
+======================================================= -->
+<div
+  id="signupBackdrop"
+  class="modal-backdrop"
+  aria-hidden="true"
+>
+
+  <div
+    class="modal"
+    role="dialog"
+    aria-labelledby="signupTitle"
+    aria-modal="true"
+  >
+
+    <button
+      class="close"
+      type="button"
+      aria-label="Close"
+      data-close="signupBackdrop"
+    >
+      &times;
+    </button>
+
+    <h3 id="signupTitle">
+      Create Account
+    </h3>
+
+    <div class="modal-subtitle">
+      Create your chequematez account.
+    </div>
+
+    <form
+      id="signupForm"
+      novalidate
+    >
+
+      <div class="field">
+
+        <label for="su_email">
+          Email
+        </label>
+
+        <input
+          id="su_email"
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label for="su_username">
+          Username
+        </label>
+
+        <input
+          id="su_username"
+          name="username"
+          type="text"
+          placeholder="uniqueusername"
+          autocomplete="username"
+          required
+          minlength="3"
+        >
+
+      </div>
+
+      <div class="field">
+
+        <label for="su_password">
+          Password
+        </label>
+
+        <div class="password-wrap">
+
+          <input
+            id="su_password"
+            name="password"
+            type="password"
+            placeholder="At least 8 characters"
+            autocomplete="new-password"
+            required
+            minlength="8"
+          >
+
+          <button
+            type="button"
+            class="password-toggle"
+            data-password-toggle="su_password"
+            aria-label="Show password"
+          >
+            👁
+          </button>
+
+        </div>
+
+      </div>
+
+      <div class="field">
+
+        <label for="su_confirm">
+          Confirm Password
+        </label>
+
+        <div class="password-wrap">
+
+          <input
+            id="su_confirm"
+            name="confirm_password"
+            type="password"
+            placeholder="Re-enter password"
+            autocomplete="new-password"
+            required
+            minlength="8"
+          >
+
+          <button
+            type="button"
+            class="password-toggle"
+            data-password-toggle="su_confirm"
+            aria-label="Show password"
+          >
+            👁
+          </button>
+
+        </div>
+
+      </div>
+
+      <div
+        class="error"
+        id="signupError"
+      ></div>
+
+      <div class="actions">
+
+        <button
+          class="btn"
+          id="signupButton"
+          type="submit"
+        >
+          Sign Up
+        </button>
+
+      </div>
+
+      <div class="legal-row">
+
+        <input
+          id="acceptLegal"
+          type="checkbox"
+          name="accept_legal"
+          checked
+        >
+
+        <label
+          for="acceptLegal"
+          style="font-weight:400;color:#333;"
+        >
+          I agree to the
+          <a
+            href="{{ url_for('legal_index') }}"
+            target="_blank"
+            style="color:#063d3f;font-weight:600;text-decoration:none;"
+          >
+            Legal & Privacy
+          </a>
+        </label>
+
+      </div>
+
+      <div
+        class="note"
+        style="text-align:center;margin-top:14px;"
+      >
+        Already have an account?
+
+        <a
+          href="#"
+          id="switchToLogin"
+        >
+          Login
+        </a>
+
+      </div>
+
+    </form>
+
+  </div>
+
+</div>
+
+<!-- =======================================================
+     CHART.JS
+======================================================= -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+/* =========================================================
+   GENERAL HELPERS
+========================================================= */
+
+const fmt = (v) =>
+  Number(v).toLocaleString(undefined,{
+    minimumFractionDigits:1,
+    maximumFractionDigits:1
+  });
+
+function showElement(id){
+  const el = document.getElementById(id);
+  if(el) el.style.display = 'flex';
+}
+
+function hideElement(id){
+  const el = document.getElementById(id);
+  if(el) el.style.display = 'none';
+}
+
+function showError(id,msg){
+  const el = document.getElementById(id);
+  if(!el) return;
+
+  el.textContent = msg || '';
+  el.classList.toggle('show',Boolean(msg));
+}
+
+function showSuccess(id,msg){
+  const el = document.getElementById(id);
+  if(!el) return;
+
+  el.textContent = msg || '';
+  el.classList.toggle('show',Boolean(msg));
+}
+
+function setButtonLoading(button,loading,text){
+  if(!button) return;
+
+  button.disabled = loading;
+
+  if(loading){
+    button.dataset.originalText = button.textContent;
+    button.textContent = text || 'Please wait…';
+  }else{
+    button.textContent =
+      button.dataset.originalText ||
+      text ||
+      'Submit';
+  }
+}
+
+
+/* =========================================================
+   LIVE EXCHANGE RATE
+========================================================= */
+
 let CURRENT_RATE = null;
+
 const RATE_POLL_MS = 30000;
 
 async function fetchRate(){
+
   try{
-    const r = await fetch('/api/rate', {credentials:'same-origin', cache:'no-store'});
-    const j = await r.json();
-    if(r.ok && j && typeof j.rate !== 'undefined'){
-      const v = Number(j.rate);
-      if (Number.isFinite(v) && v > 0) {
-        CURRENT_RATE = v;
-        const live = document.getElementById('liveRate');
-        if (live) live.textContent = v.toLocaleString(undefined, {maximumFractionDigits: 2});
+
+    const r = await fetch(
+      '/api/rate',
+      {
+        credentials:'same-origin',
+        cache:'no-store'
       }
+    );
+
+    const j = await r.json();
+
+    if(
+      r.ok &&
+      j &&
+      typeof j.rate !== 'undefined'
+    ){
+
+      const v = Number(j.rate);
+
+      if(
+        Number.isFinite(v) &&
+        v > 0
+      ){
+
+        CURRENT_RATE = v;
+
+        const live =
+          document.getElementById('liveRate');
+
+        if(live){
+          live.textContent =
+            v.toLocaleString(
+              undefined,
+              {
+                maximumFractionDigits:2
+              }
+            );
+        }
+
+      }
+
     }
-  }catch(e){ /* ignore */ }
-}
 
-/* helper to require rate for KES conversions */
-function ensureRateOrThrow(currency){
-  if (currency === 'KES' && (!Number.isFinite(CURRENT_RATE) || CURRENT_RATE <= 0)){
-    throw new Error('RATE_NOT_READY');
-  }
-}
-
-/* === KWD range guard (5–600 KWD) === */
-function kwdFrom(amount, currency){
-  const a = Number(amount);
-  if(!isFinite(a) || a <= 0) return NaN;
-  if (currency === 'KES'){
-    ensureRateOrThrow(currency);
-    return a / Number(CURRENT_RATE);
-  }
-  return a;
-}
-function isKwdInRange(amount, currency){
-  try{
-    const kwd = kwdFrom(amount, currency);
-    return isFinite(kwd) && kwd >= 5 && kwd <= 600;
   }catch(e){
-    if (String(e?.message) === 'RATE_NOT_READY') return false;
-    return false;
+
+    console.warn(
+      'Rate fetch failed',
+      e
+    );
+
   }
+
 }
+
+
+/* =========================================================
+   RATE HELPERS
+========================================================= */
+
+function ensureRateOrThrow(currency){
+
+  if(
+    currency === 'KES' &&
+    (
+      !Number.isFinite(CURRENT_RATE) ||
+      CURRENT_RATE <= 0
+    )
+  ){
+
+    throw new Error(
+      'RATE_NOT_READY'
+    );
+
+  }
+
+}
+
+function kwdFrom(amount,currency){
+
+  const a = Number(amount);
+
+  if(
+    !Number.isFinite(a) ||
+    a <= 0
+  ){
+    return NaN;
+  }
+
+  if(currency === 'KES'){
+
+    ensureRateOrThrow(currency);
+
+    return a / Number(CURRENT_RATE);
+
+  }
+
+  return a;
+
+}
+
+function isKwdInRange(amount,currency){
+
+  try{
+
+    const kwd =
+      kwdFrom(amount,currency);
+
+    return(
+      Number.isFinite(kwd) &&
+      kwd >= 5 &&
+      kwd <= 600
+    );
+
+  }catch(e){
+
+    return false;
+
+  }
+
+}
+
 function showRangeMessage(show){
-  const el = document.getElementById('rangeMsg');
+
+  const el =
+    document.getElementById('rangeMsg');
+
   if(!el) return;
-  el.style.display = show ? 'block' : 'none';
+
+  el.style.display =
+    show ? 'block' : 'none';
+
 }
+
 function showRateMessage(show){
-  const el = document.getElementById('rateMsg');
+
+  const el =
+    document.getElementById('rateMsg');
+
   if(!el) return;
-  el.style.display = show ? 'block' : 'none';
+
+  el.style.display =
+    show ? 'block' : 'none';
+
 }
 
-/* === Calculator (chart without Profit) === */
-let calcChart = null;
-const calcLabels = [];
-const seriesFee   = [];
-const seriesCost  = [];
 
-/* keep last calculation to re-render when toggle flips (no new fetch) */
+/* =========================================================
+   CALCULATOR CHART
+========================================================= */
+
+let calcChart = null;
+
+const calcLabels = [];
+const seriesFee = [];
+const seriesCost = [];
+
 let lastCalc = null;
 
 function buildChart(unit){
-  const ctx = document.getElementById('calcChart').getContext('2d');
-  if (calcChart && typeof calcChart.destroy === 'function') calcChart.destroy();
-  calcChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: calcLabels,
-      datasets: [
-        { label:`Transaction Fee (${unit})`, data: seriesFee,  borderWidth:2, tension:0.25, fill:false },
-        { label:`Total Cost (${unit})`,      data: seriesCost, borderWidth:2, tension:0.25, fill:false }
-      ]
-    },
-    options: {
-      responsive:true,
-      plugins:{ legend:{ position:'top' } },
-      scales: { y: { ticks:{ callback:(v)=>fmt(v) } } }
+
+  const canvas =
+    document.getElementById('calcChart');
+
+  if(!canvas) return;
+
+  const ctx =
+    canvas.getContext('2d');
+
+  if(
+    calcChart &&
+    typeof calcChart.destroy === 'function'
+  ){
+    calcChart.destroy();
+  }
+
+  calcChart = new Chart(
+    ctx,
+    {
+      type:'line',
+
+      data:{
+        labels:calcLabels,
+
+        datasets:[
+          {
+            label:`Transaction Fee (${unit})`,
+            data:seriesFee,
+            borderWidth:2,
+            tension:.25,
+            fill:false
+          },
+          {
+            label:`Total Cost (${unit})`,
+            data:seriesCost,
+            borderWidth:2,
+            tension:.25,
+            fill:false
+          }
+        ]
+      },
+
+      options:{
+        responsive:true,
+
+        plugins:{
+          legend:{
+            position:'top'
+          }
+        },
+
+        scales:{
+          y:{
+            ticks:{
+              callback:(v)=>fmt(v)
+            }
+          }
+        }
+      }
     }
-  });
+  );
+
 }
 
-function appendPoint(label, feeVal, costVal, unit){
+function appendPoint(
+  label,
+  feeVal,
+  costVal,
+  unit
+){
+
   calcLabels.push(label);
+
   seriesFee.push(feeVal);
+
   seriesCost.push(costVal);
-  if(calcLabels.length > 20){ calcLabels.shift(); seriesFee.shift(); seriesCost.shift(); }
+
+  if(calcLabels.length > 20){
+
+    calcLabels.shift();
+    seriesFee.shift();
+    seriesCost.shift();
+
+  }
+
   buildChart(unit);
+
 }
 
-async function fetchFees(amount, currency){
-  const resultEl = document.getElementById("result");
 
-  // If KES is selected but rate isn't ready yet, show hint and skip
+/* =========================================================
+   CALCULATOR API
+========================================================= */
+
+async function fetchFees(
+  amount,
+  currency
+){
+
+  const resultEl =
+    document.getElementById('result');
+
   try{
+
     ensureRateOrThrow(currency);
+
     showRateMessage(false);
+
   }catch(e){
+
     showRateMessage(true);
-    resultEl.innerHTML = "";
+
+    resultEl.innerHTML = '';
+
     lastCalc = null;
+
     return;
+
   }
 
-  // Guard: block display + chart outside 5–600 KWD
-  if(isNaN(amount) || amount <= 0 || !isKwdInRange(amount, currency)){
-    resultEl.innerHTML = "";
-    showRangeMessage(!isNaN(amount) && amount > 0);
+  if(
+    Number.isNaN(amount) ||
+    amount <= 0 ||
+    !isKwdInRange(
+      amount,
+      currency
+    )
+  ){
+
+    resultEl.innerHTML = '';
+
+    showRangeMessage(
+      !Number.isNaN(amount) &&
+      amount > 0
+    );
+
     lastCalc = null;
+
     return;
+
   }
+
   showRangeMessage(false);
 
-  const fd = new FormData();
-  fd.append("amount", amount);
-  fd.append("currency", currency);
+  const fd =
+    new FormData();
 
-  try {
-    const res = await fetch("/calculate", { method:"POST", body: fd, cache:'no-store', credentials:'same-origin' });
-    if(!res.ok){ throw new Error("Failed to calculate"); }
-    const data = await res.json();
-    lastCalc = { amount, currency, data }; // store and then render with toggle
+  fd.append(
+    'amount',
+    amount
+  );
+
+  fd.append(
+    'currency',
+    currency
+  );
+
+  try{
+
+    const res =
+      await fetch(
+        '/calculate',
+        {
+          method:'POST',
+          body:fd,
+          cache:'no-store',
+          credentials:'same-origin'
+        }
+      );
+
+    if(!res.ok){
+      throw new Error(
+        'Failed to calculate'
+      );
+    }
+
+    const data =
+      await res.json();
+
+    lastCalc = {
+      amount,
+      currency,
+      data
+    };
+
     renderResultWithToggle();
-    // Chart point (unit follows selected currency)
-    const isKWD = currency === "KWD";
-    const unit = isKWD ? 'KWD' : 'KES';
-    const label = new Date().toLocaleTimeString();
-    const feeForChart  = isKWD ? data.total_fee_kwd  : data.total_fee_kes;
-    const costForChart = isKWD ? data.total_cost_kwd : data.total_cost_kes;
-    appendPoint(label, feeForChart, costForChart, unit);
-  } catch(err){
+
+    const isKWD =
+      currency === 'KWD';
+
+    const unit =
+      isKWD ? 'KWD' : 'KES';
+
+    const label =
+      new Date().toLocaleTimeString();
+
+    const feeForChart =
+      isKWD
+        ? data.total_fee_kwd
+        : data.total_fee_kes;
+
+    const costForChart =
+      isKWD
+        ? data.total_cost_kwd
+        : data.total_cost_kes;
+
+    appendPoint(
+      label,
+      feeForChart,
+      costForChart,
+      unit
+    );
+
+  }catch(err){
+
     console.error(err);
-    resultEl.innerHTML = "<p style='color:#b00020'>Could not calculate right now.</p>";
+
+    resultEl.innerHTML =
+      "<p style='color:#b00020'>Could not calculate right now.</p>";
+
     lastCalc = null;
+
   }
+
 }
 
-/* render using existing results + toggle-only extras */
+
+/* =========================================================
+   RENDER CALCULATOR RESULT
+========================================================= */
+
 function renderResultWithToggle(){
+
   if(!lastCalc) return;
-  const { currency, data } = lastCalc;
-  const isKWD = currency === "KWD";
-  const ex = (typeof data.exchange_rate !== 'undefined') ? Number(data.exchange_rate) : CURRENT_RATE;
 
-  const amountMain = isKWD ? `${fmt(data.amount_kwd)} KWD` : `${fmt(data.amount_kes)} KES`;
-  const amountAlt  = isKWD ? `${fmt(data.amount_kes)} KES` : `${fmt(data.amount_kwd)} KWD`;
+  const {
+    currency,
+    data
+  } = lastCalc;
 
-  const feeKwdOnly = `${fmt(data.total_fee_kwd)} KWD`;
+  const isKWD =
+    currency === 'KWD';
 
-  const costMain = isKWD ? `${fmt(data.total_cost_kwd)} KWD` : `${fmt(data.total_cost_kes)} KES`;
-  const costAlt  = isKWD ? `${fmt(data.total_cost_kes)} KES` : `${fmt(data.total_cost_kwd)} KWD`;
+  const ex =
+    typeof data.exchange_rate !== 'undefined'
+      ? Number(data.exchange_rate)
+      : CURRENT_RATE;
 
-  const passToCustomer = document.getElementById('fee_pass_through')?.checked ?? true;
+  const amountMain =
+    isKWD
+      ? `${fmt(data.amount_kwd)} KWD`
+      : `${fmt(data.amount_kes)} KES`;
 
-  const baseKwd = Number(data.amount_kwd);
-  const baseKes = Number(data.amount_kes);
-  const feeKwd  = Number(data.total_fee_kwd);
-  const feeKes  = Number(data.total_fee_kes);
+  const amountAlt =
+    isKWD
+      ? `${fmt(data.amount_kes)} KES`
+      : `${fmt(data.amount_kwd)} KWD`;
 
-  const totalChargedKwd = passToCustomer ? Number(data.total_cost_kwd) : baseKwd;
-  const totalChargedKes = passToCustomer ? Number(data.total_cost_kes) : baseKes;
+  const feeKwdOnly =
+    `${fmt(data.total_fee_kwd)} KWD`;
 
-  const netToMerchantKwd = passToCustomer ? baseKwd : (baseKwd - feeKwd);
-  const netToMerchantKes = passToCustomer ? baseKes : (baseKes - feeKes);
+  const costMain =
+    isKWD
+      ? `${fmt(data.total_cost_kwd)} KWD`
+      : `${fmt(data.total_cost_kes)} KES`;
 
-  const modeLine = passToCustomer
-    ? `<p>Mode: <strong>Customer pays service charge</strong></p>`
-    : `<p>Mode: <strong>Merchant absorbs service charge</strong></p>`;
+  const costAlt =
+    isKWD
+      ? `${fmt(data.total_cost_kes)} KES`
+      : `${fmt(data.total_cost_kwd)} KWD`;
 
-  const chargedMain = isKWD ? `${fmt(totalChargedKwd)} KWD` : `${fmt(totalChargedKes)} KES`;
-  const chargedAlt  = isKWD ? `${fmt(totalChargedKes)} KES` : `${fmt(totalChargedKwd)} KWD`;
+  const passToCustomer =
+    document.getElementById(
+      'fee_pass_through'
+    )?.checked ?? true;
 
-  const netMain = isKWD ? `${fmt(netToMerchantKwd)} KWD` : `${fmt(netToMerchantKes)} KES`;
-  const netAlt  = isKWD ? `${fmt(netToMerchantKes)} KES` : `${fmt(netToMerchantKwd)} KWD`;
+  const baseKwd =
+    Number(data.amount_kwd);
 
-  document.getElementById("result").innerHTML = `
-    <p>Exchange Rate: <span class="highlight">1 KWD = ${fmt(ex)} KES</span></p>
+  const baseKes =
+    Number(data.amount_kes);
+
+  const feeKwd =
+    Number(data.total_fee_kwd);
+
+  const feeKes =
+    Number(data.total_fee_kes);
+
+  const totalChargedKwd =
+    passToCustomer
+      ? Number(data.total_cost_kwd)
+      : baseKwd;
+
+  const totalChargedKes =
+    passToCustomer
+      ? Number(data.total_cost_kes)
+      : baseKes;
+
+  const netToMerchantKwd =
+    passToCustomer
+      ? baseKwd
+      : baseKwd - feeKwd;
+
+  const netToMerchantKes =
+    passToCustomer
+      ? baseKes
+      : baseKes - feeKes;
+
+  const modeLine =
+    passToCustomer
+      ? `<p>Mode: <strong>Customer pays service charge</strong></p>`
+      : `<p>Mode: <strong>Merchant absorbs service charge</strong></p>`;
+
+  const chargedMain =
+    isKWD
+      ? `${fmt(totalChargedKwd)} KWD`
+      : `${fmt(totalChargedKes)} KES`;
+
+  const chargedAlt =
+    isKWD
+      ? `${fmt(totalChargedKes)} KES`
+      : `${fmt(totalChargedKwd)} KWD`;
+
+  const netMain =
+    isKWD
+      ? `${fmt(netToMerchantKwd)} KWD`
+      : `${fmt(netToMerchantKes)} KES`;
+
+  const netAlt =
+    isKWD
+      ? `${fmt(netToMerchantKes)} KES`
+      : `${fmt(netToMerchantKwd)} KWD`;
+
+  document.getElementById('result').innerHTML = `
 
     <p>
-      Amount: <strong>${amountMain}</strong><br>
+      Exchange Rate:
+      <span class="highlight">
+        1 KWD = ${fmt(ex)} KES
+      </span>
+    </p>
+
+    <p>
+      Amount:
+      <strong>${amountMain}</strong>
+      <br>
       <small>(${amountAlt})</small>
     </p>
 
     <p>
-      Transaction Fee: <strong>${feeKwdOnly}</strong>
+      Transaction Fee:
+      <strong>${feeKwdOnly}</strong>
     </p>
 
     <p>
-      Total Cost: <strong>${costMain}</strong><br>
+      Total Cost:
+      <strong>${costMain}</strong>
+      <br>
       <small>(${costAlt})</small>
     </p>
 
@@ -556,141 +2204,1363 @@ function renderResultWithToggle(){
 
     <p>
       Total charged:
-      <strong>${chargedMain}</strong><br>
+      <strong>${chargedMain}</strong>
+      <br>
       <small>(${chargedAlt})</small>
     </p>
 
     <p>
-      ${passToCustomer ? 'Net after fee' : 'Net to merchant'}:
-      <strong>${netMain}</strong><br>
+      ${
+        passToCustomer
+          ? 'Net after fee'
+          : 'Net to merchant'
+      }:
+      <strong>${netMain}</strong>
+      <br>
       <small>(${netAlt})</small>
     </p>
+
   `;
+
 }
 
-/* inputs */
-document.getElementById("amount").addEventListener("input", () => {
-  const amt = parseFloat(document.getElementById("amount").value);
-  const cur = document.getElementById("currency").value;
-  fetchFees(amt, cur);
-});
-document.getElementById("currency").addEventListener("change", () => {
-  const amt = parseFloat(document.getElementById("amount").value);
-  const cur = document.getElementById("currency").value;
-  fetchFees(amt, cur);
-});
 
-/* re-render only (no extra fetching) when the toggle changes */
-document.getElementById('fee_pass_through').addEventListener('change', renderResultWithToggle);
+/* =========================================================
+   CALCULATOR INPUTS
+========================================================= */
 
-/* === Modals open/close === */
-const loginBackdrop = document.getElementById('loginBackdrop');
-const signupBackdrop = document.getElementById('signupBackdrop');
+document
+  .getElementById('amount')
+  .addEventListener(
+    'input',
+    () => {
 
-document.getElementById('openLogin').addEventListener('click', ()=>{ loginBackdrop.style.display='flex'; });
-document.getElementById('openSignup').addEventListener('click', ()=>{ signupBackdrop.style.display='flex'; });
-document.querySelectorAll('[data-close]').forEach(btn=>{
-  btn.addEventListener('click', (e)=>{
-    const id = e.currentTarget.getAttribute('data-close');
-    const el = document.getElementById(id);
-    if(el) el.style.display = 'none';
-  });
-});
-window.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ loginBackdrop.style.display='none'; signupBackdrop.style.display='none'; }});
-window.addEventListener('click', (e)=>{
-  if(e.target === loginBackdrop) loginBackdrop.style.display='none';
-  if(e.target === signupBackdrop) signupBackdrop.style.display='none';
-});
+      const amt =
+        parseFloat(
+          document.getElementById(
+            'amount'
+          ).value
+        );
 
-/* === Login: client validation + AJAX submit === */
-function showLoginError(msg){ document.getElementById('loginError').textContent = msg || ''; }
-document.getElementById('loginForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  showLoginError('');
-  const username = document.getElementById('login_username').value.trim();
-  const password = document.getElementById('login_password').value;
+      const cur =
+        document.getElementById(
+          'currency'
+        ).value;
 
-  if(username.length < 3){ return showLoginError('Username must be at least 3 characters.'); }
-  if(password.length < 8){ return showLoginError('Password must be at least 8 characters.'); }
+      fetchFees(
+        amt,
+        cur
+      );
 
-  try{
-    const fd = new FormData();
-    fd.append('username', username);
-    fd.append('password', password);
-    const res = await fetch('/login', {method:'POST', body: fd, credentials:'same-origin', redirect:'follow'});
-    if (res.redirected) { window.location.href = res.url; return; }
-    if (res.status === 401) { showLoginError('Invalid username or password.'); return; }
-    if (res.ok) { window.location.reload(); return; }
-    showLoginError(`Login failed (HTTP ${res.status}).`);
-  }catch(err){
-    showLoginError('Network error. Please try again.');
-  }
-});
-
-/* === Signup: client validation + AJAX submit === */
-function showSignupError(msg){ document.getElementById('signupError').textContent = msg || ''; }
-document.getElementById('signupForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  showSignupError('');
-
-  const email = document.getElementById('su_email').value.trim();
-  const username = document.getElementById('su_username').value.trim();
-  const password = document.getElementById('su_password').value;
-  const confirm  = document.getElementById('su_confirm').value;
-
-  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!emailRe.test(email))  return showSignupError('Enter a valid email.');
-  if(username.length < 3)   return showSignupError('Username should be at least 3 characters.');
-  if(password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password))
-    return showSignupError('Password must be 8+ chars and include letters & numbers.');
-  if(password !== confirm)  return showSignupError('Passwords do not match.');
-
-  try{
-    const fd = new FormData();
-    fd.append('email', email);
-    fd.append('username', username);
-    fd.append('password', password);
-    fd.append('confirm_password', confirm);
-
-    const res = await fetch('/signup', {method:'POST', body: fd, credentials:'same-origin', redirect:'follow'});
-    if (res.redirected) { window.location.href = res.url; return; }
-    const txt = await res.text();
-    if (res.status === 400) {
-      if (/already exists/i.test(txt)) return showSignupError('Username already exists.');
-      if (/Invalid email/i.test(txt)) return showSignupError('Invalid email.');
-      if (/Username too short/i.test(txt)) return showSignupError('Username too short.');
-      if (/Invalid password/i.test(txt)) return showSignupError('Password invalid (min 8 chars & match confirm).');
-      return showSignupError('Sign up failed. Please review your inputs.');
     }
-    if (res.ok) { window.location.reload(); return; }
-    showSignupError(`Sign up failed (HTTP ${res.status}).`);
-  }catch(err){
-    showSignupError('Network error. Please try again.');
-  }
-});
+  );
 
-/* === Auto-init: fetch live rate, keep it fresh, maybe open login === */
-window.addEventListener('load', async ()=>{
-  await fetchRate();
-  setInterval(fetchRate, RATE_POLL_MS);
-  const shouldOpen = document.body.getAttribute('data-open-login') === '1';
-  if(shouldOpen){ document.getElementById('loginBackdrop').style.display = 'flex'; }
-});
+document
+  .getElementById('currency')
+  .addEventListener(
+    'change',
+    () => {
 
-// Simple JS to animate toggle in signup note
-document.querySelectorAll('label input[name="accept_legal"]').forEach(cb=>{
-  cb.addEventListener('change', e=>{
-    const knob = e.target.nextElementSibling.querySelector('span');
-    if(e.target.checked){
-      e.target.nextElementSibling.style.background = '#063d3f';
-      knob.style.left = '18px';
-    } else {
-      e.target.nextElementSibling.style.background = '#ccc';
-      knob.style.left = '2px';
+      const amt =
+        parseFloat(
+          document.getElementById(
+            'amount'
+          ).value
+        );
+
+      const cur =
+        document.getElementById(
+          'currency'
+        ).value;
+
+      fetchFees(
+        amt,
+        cur
+      );
+
     }
-  });
-  cb.dispatchEvent(new Event('change'));
-});
+  );
+
+document
+  .getElementById(
+    'fee_pass_through'
+  )
+  .addEventListener(
+    'change',
+    renderResultWithToggle
+  );
+
+
+/* =========================================================
+   MODALS
+========================================================= */
+
+const loginBackdrop =
+  document.getElementById(
+    'loginBackdrop'
+  );
+
+const signupBackdrop =
+  document.getElementById(
+    'signupBackdrop'
+  );
+
+const forgotBackdrop =
+  document.getElementById(
+    'forgotBackdrop'
+  );
+
+const resetBackdrop =
+  document.getElementById(
+    'resetBackdrop'
+  );
+
+function openModal(el){
+
+  if(!el) return;
+
+  el.style.display = 'flex';
+
+  el.setAttribute(
+    'aria-hidden',
+    'false'
+  );
+
+}
+
+function closeModal(el){
+
+  if(!el) return;
+
+  el.style.display = 'none';
+
+  el.setAttribute(
+    'aria-hidden',
+    'true'
+  );
+
+}
+
+document
+  .getElementById('openLogin')
+  .addEventListener(
+    'click',
+    () => {
+
+      openModal(
+        loginBackdrop
+      );
+
+    }
+  );
+
+document
+  .getElementById('openSignup')
+  .addEventListener(
+    'click',
+    () => {
+
+      openModal(
+        signupBackdrop
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   SWITCH LOGIN / SIGNUP
+========================================================= */
+
+document
+  .getElementById('switchToSignup')
+  .addEventListener(
+    'click',
+    (e) => {
+
+      e.preventDefault();
+
+      closeModal(loginBackdrop);
+
+      openModal(signupBackdrop);
+
+    }
+  );
+
+document
+  .getElementById('switchToLogin')
+  .addEventListener(
+    'click',
+    (e) => {
+
+      e.preventDefault();
+
+      closeModal(signupBackdrop);
+
+      openModal(loginBackdrop);
+
+    }
+  );
+
+
+/* =========================================================
+   FORGOT PASSWORD
+========================================================= */
+
+document
+  .getElementById('openForgotPassword')
+  .addEventListener(
+    'click',
+    (e) => {
+
+      e.preventDefault();
+
+      closeModal(loginBackdrop);
+
+      showError(
+        'forgotError',
+        ''
+      );
+
+      showSuccess(
+        'forgotSuccess',
+        ''
+      );
+
+      openModal(
+        forgotBackdrop
+      );
+
+      setTimeout(
+        () => {
+          document
+            .getElementById(
+              'forgot_email'
+            )
+            ?.focus();
+        },
+        100
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   BACK TO LOGIN
+========================================================= */
+
+document
+  .getElementById('backToLogin')
+  .addEventListener(
+    'click',
+    (e) => {
+
+      e.preventDefault();
+
+      closeModal(
+        forgotBackdrop
+      );
+
+      openModal(
+        loginBackdrop
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   CLOSE BUTTONS
+========================================================= */
+
+document
+  .querySelectorAll('[data-close]')
+  .forEach(
+    btn => {
+
+      btn.addEventListener(
+        'click',
+        (e) => {
+
+          const id =
+            e.currentTarget
+              .getAttribute(
+                'data-close'
+              );
+
+          closeModal(
+            document.getElementById(id)
+          );
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   CLOSE MODAL WHEN CLICKING BACKDROP
+========================================================= */
+
+window.addEventListener(
+  'click',
+  (e) => {
+
+    [
+      loginBackdrop,
+      signupBackdrop,
+      forgotBackdrop,
+      resetBackdrop
+    ].forEach(
+      modal => {
+
+        if(e.target === modal){
+          closeModal(modal);
+        }
+
+      }
+    );
+
+  }
+);
+
+
+/* =========================================================
+   ESC KEY
+========================================================= */
+
+window.addEventListener(
+  'keydown',
+  (e) => {
+
+    if(e.key !== 'Escape'){
+      return;
+    }
+
+    [
+      loginBackdrop,
+      signupBackdrop,
+      forgotBackdrop,
+      resetBackdrop
+    ].forEach(
+      closeModal
+    );
+
+  }
+);
+
+
+/* =========================================================
+   PASSWORD VISIBILITY
+========================================================= */
+
+document
+  .querySelectorAll(
+    '[data-password-toggle]'
+  )
+  .forEach(
+    btn => {
+
+      btn.addEventListener(
+        'click',
+        () => {
+
+          const id =
+            btn.getAttribute(
+              'data-password-toggle'
+            );
+
+          const input =
+            document.getElementById(id);
+
+          if(!input) return;
+
+          if(input.type === 'password'){
+
+            input.type = 'text';
+
+            btn.textContent = '🙈';
+
+            btn.setAttribute(
+              'aria-label',
+              'Hide password'
+            );
+
+          }else{
+
+            input.type = 'password';
+
+            btn.textContent = '👁';
+
+            btn.setAttribute(
+              'aria-label',
+              'Show password'
+            );
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+function showLoginError(msg){
+
+  showError(
+    'loginError',
+    msg
+  );
+
+}
+
+document
+  .getElementById('loginForm')
+  .addEventListener(
+    'submit',
+    async (e) => {
+
+      e.preventDefault();
+
+      showLoginError('');
+
+      const username =
+        document
+          .getElementById(
+            'login_username'
+          )
+          .value
+          .trim();
+
+      const password =
+        document
+          .getElementById(
+            'login_password'
+          )
+          .value;
+
+      if(username.length < 3){
+
+        return showLoginError(
+          'Username must be at least 3 characters.'
+        );
+
+      }
+
+      if(password.length < 8){
+
+        return showLoginError(
+          'Password must be at least 8 characters.'
+        );
+
+      }
+
+      const button =
+        document.getElementById(
+          'loginButton'
+        );
+
+      setButtonLoading(
+        button,
+        true,
+        'Signing in…'
+      );
+
+      try{
+
+        const fd =
+          new FormData();
+
+        fd.append(
+          'username',
+          username
+        );
+
+        fd.append(
+          'password',
+          password
+        );
+
+        const res =
+          await fetch(
+            '/login',
+            {
+              method:'POST',
+              body:fd,
+              credentials:'same-origin',
+              redirect:'follow'
+            }
+          );
+
+        if(res.redirected){
+
+          window.location.href =
+            res.url;
+
+          return;
+
+        }
+
+        if(res.status === 401){
+
+          showLoginError(
+            'Invalid username or password.'
+          );
+
+          return;
+
+        }
+
+        if(res.ok){
+
+          window.location.reload();
+
+          return;
+
+        }
+
+        showLoginError(
+          `Login failed (HTTP ${res.status}).`
+        );
+
+      }catch(err){
+
+        console.error(err);
+
+        showLoginError(
+          'Network error. Please try again.'
+        );
+
+      }finally{
+
+        setButtonLoading(
+          button,
+          false
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   FORGOT PASSWORD REQUEST
+========================================================= */
+
+document
+  .getElementById('forgotForm')
+  .addEventListener(
+    'submit',
+    async (e) => {
+
+      e.preventDefault();
+
+      showError(
+        'forgotError',
+        ''
+      );
+
+      showSuccess(
+        'forgotSuccess',
+        ''
+      );
+
+      const email =
+        document
+          .getElementById(
+            'forgot_email'
+          )
+          .value
+          .trim()
+          .toLowerCase();
+
+      const emailRe =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if(!emailRe.test(email)){
+
+        showError(
+          'forgotError',
+          'Enter a valid email address.'
+        );
+
+        return;
+
+      }
+
+      const button =
+        document.getElementById(
+          'forgotButton'
+        );
+
+      setButtonLoading(
+        button,
+        true,
+        'Sending…'
+      );
+
+      try{
+
+        const fd =
+          new FormData();
+
+        fd.append(
+          'email',
+          email
+        );
+
+        const res =
+          await fetch(
+            '/request-reset',
+            {
+              method:'POST',
+              body:fd,
+              credentials:'same-origin',
+              redirect:'follow'
+            }
+          );
+
+        const text =
+          await res.text();
+
+        if(!res.ok){
+
+          showError(
+            'forgotError',
+            'We could not process the request right now. Please try again.'
+          );
+
+          console.error(
+            'Reset request:',
+            res.status,
+            text
+          );
+
+          return;
+
+        }
+
+        /*
+          Security best practice:
+          Do NOT reveal whether an email exists.
+        */
+
+        showSuccess(
+          'forgotSuccess',
+          'If an account exists for that email, a password reset link has been sent. Please check your inbox and spam folder.'
+        );
+
+        document
+          .getElementById(
+            'forgot_email'
+          )
+          .value = '';
+
+      }catch(err){
+
+        console.error(err);
+
+        showError(
+          'forgotError',
+          'Network error. Please try again.'
+        );
+
+      }finally{
+
+        setButtonLoading(
+          button,
+          false
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   PASSWORD STRENGTH
+========================================================= */
+
+function passwordScore(password){
+
+  let score = 0;
+
+  if(password.length >= 8){
+    score++;
+  }
+
+  if(password.length >= 12){
+    score++;
+  }
+
+  if(/[A-Z]/.test(password)){
+    score++;
+  }
+
+  if(/[a-z]/.test(password)){
+    score++;
+  }
+
+  if(/\d/.test(password)){
+    score++;
+  }
+
+  if(/[^A-Za-z0-9]/.test(password)){
+    score++;
+  }
+
+  return Math.min(
+    score,
+    5
+  );
+
+}
+
+function updatePasswordStrength(){
+
+  const input =
+    document.getElementById(
+      'reset_password'
+    );
+
+  const bar =
+    document.getElementById(
+      'passwordStrengthBar'
+    );
+
+  const text =
+    document.getElementById(
+      'passwordStrengthText'
+    );
+
+  if(!input || !bar || !text){
+    return;
+  }
+
+  const password =
+    input.value;
+
+  const score =
+    passwordScore(password);
+
+  const widths = [
+    '0%',
+    '20%',
+    '40%',
+    '60%',
+    '80%',
+    '100%'
+  ];
+
+  bar.style.width =
+    widths[score];
+
+  if(!password){
+
+    text.textContent =
+      'Use at least 8 characters with letters and numbers.';
+
+    return;
+
+  }
+
+  if(score <= 2){
+
+    text.textContent =
+      'Weak password — add more characters, numbers and symbols.';
+
+  }else if(score === 3){
+
+    text.textContent =
+      'Fair password — consider adding uppercase letters or symbols.';
+
+  }else if(score === 4){
+
+    text.textContent =
+      'Good password.';
+
+  }else{
+
+    text.textContent =
+      'Strong password.';
+
+  }
+
+}
+
+document
+  .getElementById('reset_password')
+  ?.addEventListener(
+    'input',
+    updatePasswordStrength
+  );
+
+
+/* =========================================================
+   RESET PASSWORD
+========================================================= */
+
+document
+  .getElementById('resetForm')
+  .addEventListener(
+    'submit',
+    async (e) => {
+
+      e.preventDefault();
+
+      showError(
+        'resetError',
+        ''
+      );
+
+      showSuccess(
+        'resetSuccess',
+        ''
+      );
+
+      const token =
+        document
+          .getElementById(
+            'reset_token'
+          )
+          .value
+          .trim();
+
+      const password =
+        document
+          .getElementById(
+            'reset_password'
+          )
+          .value;
+
+      const confirm =
+        document
+          .getElementById(
+            'reset_confirm'
+          )
+          .value;
+
+      if(!token){
+
+        showError(
+          'resetError',
+          'This password reset link is invalid or has expired.'
+        );
+
+        return;
+
+      }
+
+      if(
+        password.length < 8 ||
+        !/[A-Za-z]/.test(password) ||
+        !/\d/.test(password)
+      ){
+
+        showError(
+          'resetError',
+          'Password must be at least 8 characters and include letters and numbers.'
+        );
+
+        return;
+
+      }
+
+      if(password !== confirm){
+
+        showError(
+          'resetError',
+          'Passwords do not match.'
+        );
+
+        return;
+
+      }
+
+      const button =
+        document.getElementById(
+          'resetButton'
+        );
+
+      setButtonLoading(
+        button,
+        true,
+        'Updating…'
+      );
+
+      try{
+
+        const fd =
+          new FormData();
+
+        fd.append(
+          'token',
+          token
+        );
+
+        fd.append(
+          'password',
+          password
+        );
+
+        fd.append(
+          'confirm_password',
+          confirm
+        );
+
+        const res =
+          await fetch(
+            '/reset-password',
+            {
+              method:'POST',
+              body:fd,
+              credentials:'same-origin',
+              redirect:'follow'
+            }
+          );
+
+        if(res.redirected){
+
+          window.location.href =
+            res.url;
+
+          return;
+
+        }
+
+        const text =
+          await res.text();
+
+        if(!res.ok){
+
+          let message =
+            'Unable to reset password. The link may have expired.';
+
+          if(
+            /expired|invalid token/i.test(
+              text
+            )
+          ){
+
+            message =
+              'This password reset link is invalid or has expired.';
+
+          }
+
+          showError(
+            'resetError',
+            message
+          );
+
+          return;
+
+        }
+
+        showSuccess(
+          'resetSuccess',
+          'Your password has been updated successfully. You can now log in with your new password.'
+        );
+
+        document
+          .getElementById(
+            'reset_password'
+          )
+          .value = '';
+
+        document
+          .getElementById(
+            'reset_confirm'
+          )
+          .value = '';
+
+        /*
+          After a short delay, return to login.
+        */
+
+        setTimeout(
+          () => {
+
+            closeModal(
+              resetBackdrop
+            );
+
+            openModal(
+              loginBackdrop
+            );
+
+          },
+          1800
+        );
+
+      }catch(err){
+
+        console.error(err);
+
+        showError(
+          'resetError',
+          'Network error. Please try again.'
+        );
+
+      }finally{
+
+        setButtonLoading(
+          button,
+          false
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   SIGNUP
+========================================================= */
+
+function showSignupError(msg){
+
+  showError(
+    'signupError',
+    msg
+  );
+
+}
+
+document
+  .getElementById('signupForm')
+  .addEventListener(
+    'submit',
+    async (e) => {
+
+      e.preventDefault();
+
+      showSignupError('');
+
+      const email =
+        document
+          .getElementById(
+            'su_email'
+          )
+          .value
+          .trim()
+          .toLowerCase();
+
+      const username =
+        document
+          .getElementById(
+            'su_username'
+          )
+          .value
+          .trim();
+
+      const password =
+        document
+          .getElementById(
+            'su_password'
+          )
+          .value;
+
+      const confirm =
+        document
+          .getElementById(
+            'su_confirm'
+          )
+          .value;
+
+      const accepted =
+        document
+          .getElementById(
+            'acceptLegal'
+          )
+          .checked;
+
+      const emailRe =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if(!emailRe.test(email)){
+
+        return showSignupError(
+          'Enter a valid email.'
+        );
+
+      }
+
+      if(username.length < 3){
+
+        return showSignupError(
+          'Username should be at least 3 characters.'
+        );
+
+      }
+
+      if(
+        password.length < 8 ||
+        !/[A-Za-z]/.test(password) ||
+        !/\d/.test(password)
+      ){
+
+        return showSignupError(
+          'Password must be 8+ characters and include letters & numbers.'
+        );
+
+      }
+
+      if(password !== confirm){
+
+        return showSignupError(
+          'Passwords do not match.'
+        );
+
+      }
+
+      if(!accepted){
+
+        return showSignupError(
+          'Please accept the Legal & Privacy terms.'
+        );
+
+      }
+
+      const button =
+        document.getElementById(
+          'signupButton'
+        );
+
+      setButtonLoading(
+        button,
+        true,
+        'Creating account…'
+      );
+
+      try{
+
+        const fd =
+          new FormData();
+
+        fd.append(
+          'email',
+          email
+        );
+
+        fd.append(
+          'username',
+          username
+        );
+
+        fd.append(
+          'password',
+          password
+        );
+
+        fd.append(
+          'confirm_password',
+          confirm
+        );
+
+        fd.append(
+          'accept_legal',
+          'on'
+        );
+
+        const res =
+          await fetch(
+            '/signup',
+            {
+              method:'POST',
+              body:fd,
+              credentials:'same-origin',
+              redirect:'follow'
+            }
+          );
+
+        if(res.redirected){
+
+          window.location.href =
+            res.url;
+
+          return;
+
+        }
+
+        const txt =
+          await res.text();
+
+        if(res.status === 400){
+
+          if(
+            /already exists/i.test(txt)
+          ){
+
+            return showSignupError(
+              'Username or email already exists.'
+            );
+
+          }
+
+          if(
+            /Invalid email/i.test(txt)
+          ){
+
+            return showSignupError(
+              'Invalid email.'
+            );
+
+          }
+
+          if(
+            /Username too short/i.test(txt)
+          ){
+
+            return showSignupError(
+              'Username too short.'
+            );
+
+          }
+
+          if(
+            /Invalid password/i.test(txt)
+          ){
+
+            return showSignupError(
+              'Password invalid.'
+            );
+
+          }
+
+          return showSignupError(
+            'Sign up failed. Please review your inputs.'
+          );
+
+        }
+
+        if(res.ok){
+
+          window.location.reload();
+
+          return;
+
+        }
+
+        showSignupError(
+          `Sign up failed (HTTP ${res.status}).`
+        );
+
+      }catch(err){
+
+        console.error(err);
+
+        showSignupError(
+          'Network error. Please try again.'
+        );
+
+      }finally{
+
+        setButtonLoading(
+          button,
+          false
+        );
+
+      }
+
+    }
+  );
+
+
+/* =========================================================
+   RESET TOKEN AUTO-DETECTION
+========================================================= */
+
+function detectResetToken(){
+
+  const hidden =
+    document.getElementById(
+      'reset_token'
+    );
+
+  if(!hidden) return;
+
+  let token =
+    hidden.value.trim();
+
+  /*
+    Also support:
+    /reset-password?token=XXXX
+  */
+
+  if(!token){
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    token =
+      params.get('token') || '';
+
+  }
+
+  if(token){
+
+    hidden.value =
+      token;
+
+    openModal(
+      resetBackdrop
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   AUTO INIT
+========================================================= */
+
+window.addEventListener(
+  'load',
+  async () => {
+
+    await fetchRate();
+
+    setInterval(
+      fetchRate,
+      RATE_POLL_MS
+    );
+
+    const shouldOpen =
+      document.body.getAttribute(
+        'data-open-login'
+      ) === '1';
+
+    if(shouldOpen){
+
+      openModal(
+        loginBackdrop
+      );
+
+    }
+
+    /*
+      Automatically open reset-password
+      modal when a valid token is present.
+    */
+
+    detectResetToken();
+
+  }
+);
 </script>
+
 </body>
 </html>

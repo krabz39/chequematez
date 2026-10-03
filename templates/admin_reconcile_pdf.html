@@ -1,27 +1,499 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Recon {{ date }}</title>
-<style>
-  body{font-family:Arial, sans-serif; font-size:12px;}
-  h1{font-size:18px}
-  table{width:100%; border-collapse:collapse}
-  th,td{border:1px solid #ddd; padding:6px; text-align:left}
-  th{background:#f5f5f5}
-</style></head>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ChequeMatez — Daily Reconciliation {{ date }}</title>
+
+    <style>
+        @page {
+            size: A4;
+            margin: 14mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f4f6f6;
+            color: #172021;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+        }
+
+        .report {
+            max-width: 1100px;
+            margin: 24px auto;
+            background: #ffffff;
+            padding: 30px;
+            border: 1px solid #e1e6e6;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 25px;
+            padding-bottom: 22px;
+            border-bottom: 3px solid #063d3f;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000000;
+            color: #ffffff;
+            font-size: 19px;
+            font-weight: 800;
+            border-radius: 10px;
+        }
+
+        .brand-name {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-name span {
+            color: #ff0000;
+        }
+
+        .brand-subtitle {
+            margin-top: 3px;
+            color: #6b7778;
+            font-size: 10px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .report-meta {
+            text-align: right;
+        }
+
+        .report-label {
+            color: #6b7778;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .report-title {
+            margin-top: 4px;
+            font-size: 18px;
+            font-weight: 800;
+            color: #063d3f;
+        }
+
+        .report-date {
+            margin-top: 5px;
+            color: #596566;
+            font-size: 11px;
+        }
+
+        /* SUMMARY */
+        .summary-title {
+            margin: 25px 0 12px;
+            font-size: 12px;
+            font-weight: 800;
+            color: #063d3f;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat {
+            border: 1px solid #e2e7e7;
+            border-radius: 10px;
+            padding: 15px;
+            background: #fafbfb;
+        }
+
+        .stat-label {
+            color: #697576;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .stat-value {
+            margin-top: 7px;
+            font-size: 23px;
+            line-height: 1;
+            font-weight: 800;
+            color: #172021;
+        }
+
+        .stat-danger {
+            border-left: 4px solid #ff0000;
+        }
+
+        .stat-warning {
+            border-left: 4px solid #d4a017;
+        }
+
+        .stat-info {
+            border-left: 4px solid #063d3f;
+        }
+
+        /* TABLE */
+        .table-header {
+            margin-top: 27px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 12px;
+            font-weight: 800;
+            color: #063d3f;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .table-note {
+            color: #7a8586;
+            font-size: 10px;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #dfe5e5;
+            border-radius: 9px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 720px;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border-bottom: 1px solid #e7ebeb;
+            padding: 9px 8px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #063d3f;
+            color: #ffffff;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            white-space: nowrap;
+        }
+
+        td {
+            color: #303b3c;
+            font-size: 10px;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafcfc;
+        }
+
+        tbody tr:hover {
+            background: #f1f6f5;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* STATUS */
+        .status {
+            display: inline-block;
+            padding: 4px 7px;
+            border-radius: 999px;
+            background: #eef2f2;
+            color: #465354;
+            font-size: 8px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        /* FOOTER */
+        .footer {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e7e7;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            color: #778182;
+            font-size: 9px;
+        }
+
+        .footer strong {
+            color: #063d3f;
+        }
+
+        .confidential {
+            text-align: right;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        /* PRINT */
+        @media print {
+            body {
+                background: #ffffff;
+            }
+
+            .report {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                padding: 0;
+                border: none;
+                box-shadow: none;
+            }
+
+            .table-wrap {
+                overflow: visible;
+                border: 1px solid #ccc;
+            }
+
+            tbody tr:hover {
+                background: transparent;
+            }
+        }
+
+        /* MOBILE */
+        @media (max-width: 650px) {
+            .report {
+                margin: 0;
+                padding: 18px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .header {
+                flex-direction: column;
+            }
+
+            .report-meta {
+                text-align: left;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .footer {
+                flex-direction: column;
+            }
+
+            .confidential {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+
 <body>
-  <h1>Daily Reconciliation — {{ date }}</h1>
-  <p>Missing ext: {{ stats.missing_ext }} | Missing int: {{ stats.missing_int }} | Amount mismatch: {{ stats.amount_mismatch }}</p>
-  <table>
-    <thead><tr><th>Status</th><th>Receipt</th><th>Int Amount / Ext</th><th>Ext Amount / Phone</th><th>Timestamp</th></tr></thead>
-    <tbody>
-      {% for r in rows %}
-      <tr>
-        <td>{{ r[0] }}</td>
-        <td>{{ r[1] }}</td>
-        <td>{{ r[2] }}</td>
-        <td>{{ r[3] }}</td>
-        <td>{{ r[4] }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</body></html>
+
+<div class="report">
+
+    <!-- HEADER -->
+    <header class="header">
+
+        <div class="brand">
+            <div class="logo">C</div>
+
+            <div>
+                <div class="brand-name">
+                    Cheque<span>Matez</span>
+                </div>
+
+                <div class="brand-subtitle">
+                    Kuwait → Kenya Payments
+                </div>
+            </div>
+        </div>
+
+        <div class="report-meta">
+            <div class="report-label">
+                Operations Report
+            </div>
+
+            <div class="report-title">
+                Daily Reconciliation
+            </div>
+
+            <div class="report-date">
+                {{ date }}
+            </div>
+        </div>
+
+    </header>
+
+
+    <!-- SUMMARY -->
+    <div class="summary-title">
+        Reconciliation Summary
+    </div>
+
+    <section class="summary">
+
+        <div class="stat stat-danger">
+            <div class="stat-label">
+                Missing External
+            </div>
+
+            <div class="stat-value">
+                {{ stats.missing_ext }}
+            </div>
+        </div>
+
+
+        <div class="stat stat-warning">
+            <div class="stat-label">
+                Missing Internal
+            </div>
+
+            <div class="stat-value">
+                {{ stats.missing_int }}
+            </div>
+        </div>
+
+
+        <div class="stat stat-info">
+            <div class="stat-label">
+                Amount Mismatch
+            </div>
+
+            <div class="stat-value">
+                {{ stats.amount_mismatch }}
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- TRANSACTIONS -->
+    <div class="table-header">
+
+        <div class="table-title">
+            Reconciliation Details
+        </div>
+
+        <div class="table-note">
+            Generated for {{ date }}
+        </div>
+
+    </div>
+
+
+    <div class="table-wrap">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Status</th>
+                    <th>Receipt</th>
+                    <th>Internal Amount / External</th>
+                    <th>External Amount / Phone</th>
+                    <th>Timestamp</th>
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for r in rows %}
+
+                <tr>
+
+                    <td>
+                        <span class="status">
+                            {{ r[0] }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ r[1] }}
+                    </td>
+
+                    <td>
+                        {{ r[2] }}
+                    </td>
+
+                    <td>
+                        {{ r[3] }}
+                    </td>
+
+                    <td>
+                        {{ r[4] }}
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="5" style="text-align:center; padding:30px; color:#7a8586;">
+                        No reconciliation records found for {{ date }}.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
+    <!-- FOOTER -->
+    <footer class="footer">
+
+        <div>
+            <strong>ChequeMatez</strong>
+            · Internal Operations
+        </div>
+
+        <div class="confidential">
+            Confidential — Admin Use Only
+        </div>
+
+    </footer>
+
+</div>
+
+</body>
+</html>

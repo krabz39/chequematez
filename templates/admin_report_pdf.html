@@ -1,65 +1,734 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
     <meta charset="utf-8">
-    <title>Report {{ ym }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ChequeMatez — Monthly Report {{ ym }}</title>
+
     <style>
-      body{font-family:Arial, sans-serif; font-size:12px;}
-      h1{font-size:18px}
-      table{width:100%; border-collapse:collapse; margin-bottom:12px}
-      th,td{border:1px solid #ddd; padding:6px; text-align:left}
-      th{background:#f5f5f5}
+        @page {
+            size: A4 landscape;
+            margin: 12mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f4f6f6;
+            color: #172021;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 11px;
+        }
+
+        .report {
+            max-width: 1400px;
+            margin: 24px auto;
+            background: #ffffff;
+            padding: 30px;
+            border: 1px solid #e1e6e6;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 30px;
+            padding-bottom: 22px;
+            border-bottom: 3px solid #063d3f;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo {
+            width: 46px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #000000;
+            color: #ffffff;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .brand-name {
+            font-size: 21px;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+        }
+
+        .brand-name span {
+            color: #ff0000;
+        }
+
+        .brand-subtitle {
+            margin-top: 4px;
+            color: #6b7778;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .report-meta {
+            text-align: right;
+        }
+
+        .report-label {
+            color: #6b7778;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .report-title {
+            margin-top: 5px;
+            color: #063d3f;
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .report-period {
+            margin-top: 5px;
+            color: #596566;
+            font-size: 11px;
+        }
+
+        /* =========================
+           SUMMARY
+        ========================= */
+
+        .section-title {
+            margin-top: 26px;
+            margin-bottom: 11px;
+            color: #063d3f;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .summary-card {
+            padding: 15px;
+            background: #fafbfb;
+            border: 1px solid #e0e6e6;
+            border-radius: 10px;
+        }
+
+        .summary-card .label {
+            color: #6c7778;
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .summary-card .value {
+            margin-top: 7px;
+            color: #172021;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .summary-card.transactions {
+            border-left: 4px solid #063d3f;
+        }
+
+        .summary-card.flags {
+            border-left: 4px solid #d4a017;
+        }
+
+        .summary-card.period {
+            border-left: 4px solid #ff0000;
+        }
+
+        /* =========================
+           MAIN TABLE
+        ========================= */
+
+        .table-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-top: 28px;
+            margin-bottom: 10px;
+        }
+
+        .table-heading h2 {
+            margin: 0;
+            color: #063d3f;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .table-heading span {
+            color: #7b8586;
+            font-size: 9px;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #dfe5e5;
+            border-radius: 9px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 750px;
+        }
+
+        th,
+        td {
+            padding: 8px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5eaea;
+            vertical-align: middle;
+        }
+
+        th {
+            background: #063d3f;
+            color: #ffffff;
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            white-space: nowrap;
+        }
+
+        td {
+            color: #303a3b;
+            font-size: 9px;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafcfc;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* =========================
+           SUSPICIOUS FLAGS
+        ========================= */
+
+        .risk-section {
+            margin-top: 30px;
+            page-break-before: auto;
+        }
+
+        .risk-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .risk-heading h2 {
+            margin: 0;
+            color: #063d3f;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .flag-count {
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: #fff4f4;
+            color: #ff0000;
+            border: 1px solid #ffd2d2;
+            font-size: 8px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .severity {
+            display: inline-block;
+            padding: 4px 7px;
+            border-radius: 999px;
+            background: #f1f3f3;
+            color: #475354;
+            font-size: 8px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .severity.high,
+        .severity.critical {
+            background: #fff0f0;
+            color: #c00000;
+        }
+
+        .severity.medium {
+            background: #fff8e6;
+            color: #8a6500;
+        }
+
+        .severity.low {
+            background: #edf6f5;
+            color: #075456;
+        }
+
+        /* =========================
+           EMPTY STATES
+        ========================= */
+
+        .empty {
+            padding: 28px;
+            text-align: center;
+            color: #7b8586;
+            font-size: 10px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        .footer {
+            margin-top: 28px;
+            padding-top: 15px;
+            border-top: 1px solid #e1e6e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            color: #788283;
+            font-size: 8px;
+        }
+
+        .footer strong {
+            color: #063d3f;
+        }
+
+        .confidential {
+            text-align: right;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        /* =========================
+           PRINT
+        ========================= */
+
+        @media print {
+
+            body {
+                background: #ffffff;
+            }
+
+            .report {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                padding: 0;
+                border: none;
+                box-shadow: none;
+            }
+
+            .table-wrap {
+                overflow: visible;
+                border: 1px solid #cccccc;
+            }
+
+            .summary-card {
+                break-inside: avoid;
+            }
+
+            tr {
+                break-inside: avoid;
+            }
+
+            .risk-section {
+                break-inside: avoid;
+            }
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 700px) {
+
+            body {
+                background: #ffffff;
+            }
+
+            .report {
+                margin: 0;
+                padding: 18px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .header {
+                flex-direction: column;
+            }
+
+            .report-meta {
+                text-align: left;
+            }
+
+            .summary {
+                grid-template-columns: 1fr;
+            }
+
+            .table-heading {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .confidential {
+                text-align: left;
+            }
+        }
     </style>
-  </head>
-  <body>
-    <h1>Monthly Report — {{ ym }}</h1>
+</head>
 
-    <table>
-      {% for row in rows %}
-        {% if loop.first %}
-          <thead>
-            <tr>
-              {% for h in row %}
-                <th>{{ h }}</th>
-              {% endfor %}
-            </tr>
-          </thead>
-          <tbody>
-        {% else %}
-          <tr>
-            {% for c in row %}
-              <td>{{ c }}</td>
-            {% endfor %}
-          </tr>
-        {% endif %}
-      {% endfor %}
-      </tbody>
-    </table>
+<body>
 
-    <h2>Suspicious Flags</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>ID</th>
-          <th>Tx/Voucher</th>
-          <th>Reason</th>
-          <th>Severity</th>
-          <th>Timestamp</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for a in flags %}
-        <tr>
-          <td>{{ loop.index }}</td>
-          <td>{{ a.id }}</td>
-          <td>{{ a.tx_id }}</td>
-          <td>{{ a.reason }}</td>
-          <td>{{ a.severity or '' }}</td>
-          <td>{{ a.timestamp }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </body>
+<div class="report">
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="logo">
+                C
+            </div>
+
+            <div>
+                <div class="brand-name">
+                    Cheque<span>Matez</span>
+                </div>
+
+                <div class="brand-subtitle">
+                    Kuwait → Kenya Payments
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="report-meta">
+
+            <div class="report-label">
+                Operations & Finance
+            </div>
+
+            <div class="report-title">
+                Monthly Report
+            </div>
+
+            <div class="report-period">
+                Reporting Period: <strong>{{ ym }}</strong>
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         SUMMARY
+    ========================== -->
+
+    <div class="section-title">
+        Report Overview
+    </div>
+
+    <section class="summary">
+
+        <div class="summary-card transactions">
+
+            <div class="label">
+                Transaction Records
+            </div>
+
+            <div class="value">
+                {% if rows %}
+                    {{ rows|length - 1 }}
+                {% else %}
+                    0
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        <div class="summary-card flags">
+
+            <div class="label">
+                Suspicious Flags
+            </div>
+
+            <div class="value">
+                {% if flags %}
+                    {{ flags|length }}
+                {% else %}
+                    0
+                {% endif %}
+            </div>
+
+        </div>
+
+
+        <div class="summary-card period">
+
+            <div class="label">
+                Reporting Period
+            </div>
+
+            <div class="value">
+                {{ ym }}
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         TRANSACTION REPORT
+    ========================== -->
+
+    <div class="table-heading">
+
+        <h2>
+            Monthly Transaction Report
+        </h2>
+
+        <span>
+            {{ ym }} · ChequeMatez Operations
+        </span>
+
+    </div>
+
+
+    <div class="table-wrap">
+
+        <table>
+
+            {% if rows %}
+
+                {% for row in rows %}
+
+                    {% if loop.first %}
+
+                        <thead>
+
+                            <tr>
+
+                                {% for h in row %}
+
+                                    <th>
+                                        {{ h }}
+                                    </th>
+
+                                {% endfor %}
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                    {% else %}
+
+                        <tr>
+
+                            {% for c in row %}
+
+                                <td>
+                                    {{ c }}
+                                </td>
+
+                            {% endfor %}
+
+                        </tr>
+
+                    {% endif %}
+
+                {% endfor %}
+
+                </tbody>
+
+            {% else %}
+
+                <tbody>
+
+                    <tr>
+                        <td colspan="100%" class="empty">
+                            No transaction records found for {{ ym }}.
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            {% endif %}
+
+        </table>
+
+    </div>
+
+
+    <!-- =========================
+         RISK / SUSPICIOUS FLAGS
+    ========================== -->
+
+    <section class="risk-section">
+
+        <div class="risk-heading">
+
+            <h2>
+                Suspicious Flags
+            </h2>
+
+            <div class="flag-count">
+
+                {% if flags %}
+                    {{ flags|length }} Flag{% if flags|length != 1 %}s{% endif %}
+                {% else %}
+                    0 Flags
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>#</th>
+                        <th>ID</th>
+                        <th>Transaction / Voucher</th>
+                        <th>Reason</th>
+                        <th>Severity</th>
+                        <th>Timestamp</th>
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for a in flags %}
+
+                    <tr>
+
+                        <td>
+                            {{ loop.index }}
+                        </td>
+
+                        <td>
+                            {{ a.id }}
+                        </td>
+
+                        <td>
+                            {{ a.tx_id }}
+                        </td>
+
+                        <td>
+                            {{ a.reason }}
+                        </td>
+
+                        <td>
+
+                            {% set severity = (a.severity or '')|lower %}
+
+                            <span class="severity {{ severity }}">
+                                {{ a.severity or 'Unclassified' }}
+                            </span>
+
+                        </td>
+
+                        <td>
+                            {{ a.timestamp }}
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+
+                        <td colspan="6" class="empty">
+                            No suspicious flags were recorded for {{ ym }}.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        <div>
+            <strong>ChequeMatez</strong>
+            · Internal Operations & Finance Report
+        </div>
+
+        <div class="confidential">
+            Confidential — Admin Use Only
+        </div>
+
+    </footer>
+
+</div>
+
+</body>
 </html>

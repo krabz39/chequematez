@@ -2,256 +2,1953 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Terms of Service & Privacy Policy — ChequeMatez</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<meta name="description" content="ChequeMatez Terms of Service and Privacy Policy">
+<title>Legal Center · ChequeMatez</title>
+
 <style>
-  /* Clean, printable, same vibe as your admin/ToS/Privacy pages */
   :root{
-    --ink:#111; --muted:#555; --line:#e6e8eb; --pill:#f6f7f9;
-    --accent:#0b6cff; --bg:#ffffff;
+    /* =========================================================
+       CHEQUEMATEZ BRAND
+    ========================================================= */
+    --black:#000000;
+    --red:#ff0000;
+    --teal:#063d3f;
+    --teal-dark:#042d2f;
+    --teal-soft:#edf5f5;
+    --gold:#d4a017;
+    --gold-soft:#fff8e7;
+
+    /* =========================================================
+       UI
+    ========================================================= */
+    --bg:#f5f7f8;
+    --surface:#ffffff;
+    --surface-2:#f8fafb;
+    --ink:#101719;
+    --muted:#647174;
+    --muted-2:#7b888b;
+    --line:#dfe6e8;
+    --line-dark:#cbd5d8;
+
+    --success:#087a55;
+    --success-bg:#ecf8f3;
+
+    --danger:#b42318;
+    --danger-bg:#fff1f0;
+
+    --warning:#8a5a00;
+    --warning-bg:#fff8e7;
+
+    --focus:#1267a5;
+
+    --radius-sm:8px;
+    --radius-md:12px;
+    --radius-lg:18px;
+
+    --shadow-sm:0 2px 8px rgba(16,23,25,.05);
+    --shadow-md:0 10px 30px rgba(16,23,25,.07);
   }
-  *{box-sizing:border-box}
-  html,body{background:var(--bg); color:var(--ink); margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; line-height:1.6}
-  .wrap{max-width:900px; margin:24px auto; padding:0 16px}
-  header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px}
-  h1{font-size:1.35rem; margin:.25rem 0}
-  .muted{color:var(--muted)}
-  .pill{display:inline-block; padding:4px 10px; border-radius:999px; background:var(--pill); border:1px solid var(--line); font-size:.9rem}
-  .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
-  .btn{padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:#f6f7f9; font-weight:700; cursor:pointer}
-  nav a{margin-right:10px; text-decoration:none; color:var(--accent)}
-  section{border:1px solid var(--line); border-radius:12px; padding:16px; margin:14px 0}
-  h2{margin:.2rem 0 8px}
-  h3{margin:1rem 0 .3rem; font-size:1.05rem}
-  ul{margin:.3rem 0 .9rem .9rem}
-  code, .mono{font-family:ui-monospace, Menlo, Consolas, monospace}
-  footer{margin:18px 0; font-size:.9rem; color:var(--muted); text-align:center}
+
+  *{
+    box-sizing:border-box;
+  }
+
+  html{
+    scroll-behavior:smooth;
+  }
+
+  body{
+    margin:0;
+    background:
+      linear-gradient(
+        180deg,
+        #f8fafb 0%,
+        var(--bg) 240px,
+        var(--bg) 100%
+      );
+    color:var(--ink);
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      Helvetica,
+      Arial,
+      sans-serif;
+    line-height:1.65;
+    font-size:15px;
+  }
+
+  a{
+    color:var(--teal);
+    font-weight:700;
+  }
+
+  a:hover{
+    text-decoration:none;
+  }
+
+  button,
+  a,
+  input{
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  :focus-visible{
+    outline:3px solid rgba(18,103,165,.28);
+    outline-offset:2px;
+  }
+
+  /* =========================================================
+     PAGE
+  ========================================================= */
+
+  .page{
+    width:min(100% - 32px, 1080px);
+    margin:0 auto;
+    padding:28px 0 48px;
+  }
+
+  /* =========================================================
+     TOP BAR
+  ========================================================= */
+
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    padding:16px 18px;
+    margin-bottom:18px;
+
+    background:rgba(255,255,255,.96);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+  }
+
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+  }
+
+  .brand-mark{
+    width:44px;
+    height:44px;
+    flex:0 0 44px;
+
+    display:grid;
+    place-items:center;
+
+    border-radius:12px;
+    background:var(--teal);
+    color:#fff;
+
+    font-weight:900;
+    letter-spacing:-.04em;
+
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.08),
+      0 8px 20px rgba(6,61,63,.16);
+  }
+
+  .brand-copy{
+    min-width:0;
+  }
+
+  .brand-name{
+    margin:0;
+    color:var(--teal);
+    font-size:14px;
+    line-height:1.1;
+    font-weight:900;
+    letter-spacing:.12em;
+  }
+
+  .brand-sub{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.3;
+  }
+
+  .top-actions{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+
+  /* =========================================================
+     BUTTONS
+  ========================================================= */
+
+  .btn{
+    min-height:42px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+
+    padding:9px 14px;
+
+    border:1px solid var(--line-dark);
+    border-radius:10px;
+
+    background:#fff;
+    color:var(--ink);
+
+    font:inherit;
+    font-size:13px;
+    font-weight:800;
+
+    text-decoration:none;
+    cursor:pointer;
+
+    transition:
+      background .16s ease,
+      border-color .16s ease,
+      transform .16s ease;
+  }
+
+  .btn:hover{
+    background:var(--surface-2);
+    border-color:#b9c5c9;
+  }
+
+  .btn:active{
+    transform:translateY(1px);
+  }
+
+  .btn.primary{
+    background:var(--teal);
+    border-color:var(--teal);
+    color:#fff;
+  }
+
+  .btn.primary:hover{
+    background:var(--teal-dark);
+    border-color:var(--teal-dark);
+  }
+
+  /* =========================================================
+     HERO
+  ========================================================= */
+
+  .hero{
+    position:relative;
+    overflow:hidden;
+
+    padding:30px;
+    margin-bottom:18px;
+
+    background:
+      linear-gradient(
+        135deg,
+        var(--teal-dark) 0%,
+        var(--teal) 62%,
+        #075154 100%
+      );
+
+    color:#fff;
+    border-radius:var(--radius-lg);
+
+    box-shadow:var(--shadow-md);
+  }
+
+  .hero::after{
+    content:"";
+    position:absolute;
+    width:220px;
+    height:220px;
+    right:-100px;
+    top:-100px;
+
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:50%;
+  }
+
+  .hero-inner{
+    position:relative;
+    z-index:1;
+    max-width:780px;
+  }
+
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+
+    padding:5px 9px;
+
+    border:1px solid rgba(255,255,255,.16);
+    border-radius:999px;
+
+    background:rgba(255,255,255,.07);
+
+    color:#dbe9ea;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .eyebrow-dot{
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:var(--gold);
+  }
+
+  .hero h1{
+    margin:14px 0 8px;
+    font-size:clamp(1.55rem,3vw,2.2rem);
+    line-height:1.15;
+    letter-spacing:-.035em;
+  }
+
+  .hero p{
+    max-width:720px;
+    margin:0;
+    color:#d7e5e6;
+    font-size:.96rem;
+  }
+
+  .hero-meta{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:18px;
+  }
+
+  .hero-meta span{
+    display:inline-flex;
+    align-items:center;
+    min-height:32px;
+
+    padding:6px 10px;
+
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:8px;
+
+    background:rgba(0,0,0,.12);
+
+    color:#e5eeee;
+    font-size:12px;
+    font-weight:700;
+  }
+
+  /* =========================================================
+     LEGAL NAV
+  ========================================================= */
+
+  .legal-nav{
+    position:sticky;
+    top:12px;
+    z-index:20;
+
+    display:flex;
+    align-items:center;
+    gap:6px;
+
+    padding:6px;
+
+    margin-bottom:18px;
+
+    background:rgba(255,255,255,.96);
+    border:1px solid var(--line);
+    border-radius:12px;
+
+    box-shadow:var(--shadow-sm);
+
+    backdrop-filter:blur(10px);
+  }
+
+  .legal-nav a{
+    flex:1;
+    min-height:40px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:7px 12px;
+
+    border-radius:8px;
+
+    color:var(--muted);
+    text-decoration:none;
+
+    font-size:13px;
+    font-weight:800;
+
+    transition:
+      background .16s ease,
+      color .16s ease;
+  }
+
+  .legal-nav a:hover,
+  .legal-nav a.active{
+    background:var(--teal-soft);
+    color:var(--teal);
+  }
+
+  /* =========================================================
+     NOTICE
+  ========================================================= */
+
+  .notice{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:13px;
+
+    padding:16px 18px;
+    margin-bottom:18px;
+
+    background:var(--gold-soft);
+    border:1px solid #ead9a6;
+    border-left:4px solid var(--gold);
+
+    border-radius:12px;
+  }
+
+  .notice-icon{
+    width:30px;
+    height:30px;
+
+    display:grid;
+    place-items:center;
+
+    border-radius:8px;
+
+    background:#fff;
+    border:1px solid #ead9a6;
+
+    color:var(--warning);
+    font-weight:900;
+  }
+
+  .notice strong{
+    display:block;
+    margin-bottom:2px;
+    font-size:13px;
+  }
+
+  .notice p{
+    margin:0;
+    color:#66552d;
+    font-size:13px;
+  }
+
+  /* =========================================================
+     LEGAL DOCUMENT
+  ========================================================= */
+
+  .document{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-md);
+    overflow:hidden;
+  }
+
+  .document-head{
+    padding:24px 28px 20px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#fff,#fbfcfc);
+  }
+
+  .document-head-row{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:18px;
+  }
+
+  .document-label{
+    color:var(--teal);
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+  }
+
+  .document-title{
+    margin:4px 0 4px;
+    font-size:1.5rem;
+    line-height:1.2;
+    letter-spacing:-.025em;
+  }
+
+  .document-description{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+  }
+
+  .version-box{
+    flex:0 0 auto;
+
+    padding:9px 11px;
+
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:9px;
+
+    text-align:right;
+  }
+
+  .version-box span{
+    display:block;
+    color:var(--muted-2);
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.07em;
+    text-transform:uppercase;
+  }
+
+  .version-box strong{
+    display:block;
+    margin-top:2px;
+    font-size:12px;
+  }
+
+  .document-body{
+    padding:10px 28px 28px;
+  }
+
+  section.legal-section{
+    scroll-margin-top:90px;
+
+    padding:24px 0;
+
+    border-bottom:1px solid var(--line);
+  }
+
+  section.legal-section:last-child{
+    border-bottom:0;
+  }
+
+  .section-heading{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    margin-bottom:13px;
+  }
+
+  .section-number{
+    width:30px;
+    height:30px;
+    flex:0 0 30px;
+
+    display:grid;
+    place-items:center;
+
+    border-radius:8px;
+
+    background:var(--teal-soft);
+    color:var(--teal);
+
+    font-size:11px;
+    font-weight:900;
+  }
+
+  h2{
+    margin:1px 0 0;
+    font-size:1.14rem;
+    line-height:1.35;
+    letter-spacing:-.01em;
+  }
+
+  h3{
+    margin:20px 0 7px;
+    font-size:.96rem;
+    line-height:1.4;
+  }
+
+  p{
+    margin:8px 0 12px;
+  }
+
+  ul{
+    margin:8px 0 14px;
+    padding-left:21px;
+  }
+
+  li{
+    margin:6px 0;
+  }
+
+  .legal-section p,
+  .legal-section li{
+    color:#293437;
+    font-size:14px;
+  }
+
+  .legal-section strong{
+    color:#172124;
+  }
+
+  /* =========================================================
+     CALLOUTS
+  ========================================================= */
+
+  .callout{
+    margin:16px 0;
+    padding:14px 16px;
+
+    border:1px solid var(--line);
+    border-radius:10px;
+
+    background:var(--surface-2);
+  }
+
+  .callout-title{
+    margin-bottom:4px;
+    color:var(--teal);
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+  }
+
+  .callout p{
+    margin:0;
+    font-size:13px;
+  }
+
+  .callout.warning{
+    background:var(--warning-bg);
+    border-color:#ead9a6;
+  }
+
+  .callout.warning .callout-title{
+    color:var(--warning);
+  }
+
+  .callout.security{
+    background:var(--success-bg);
+    border-color:#bce5d5;
+  }
+
+  .callout.security .callout-title{
+    color:var(--success);
+  }
+
+  /* =========================================================
+     CONTACT PANEL
+  ========================================================= */
+
+  .contact-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    margin-top:14px;
+  }
+
+  .contact-card{
+    padding:14px;
+
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+  }
+
+  .contact-label{
+    color:var(--muted-2);
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+
+  .contact-value{
+    display:block;
+    margin-top:4px;
+    color:var(--teal);
+    font-size:13px;
+    font-weight:800;
+    word-break:break-word;
+  }
+
+  /* =========================================================
+     FOOTER
+  ========================================================= */
+
+  footer{
+    margin-top:18px;
+    padding:20px;
+
+    text-align:center;
+
+    color:var(--muted);
+    font-size:12px;
+  }
+
+  .footer-brand{
+    color:var(--teal);
+    font-weight:900;
+  }
+
+  .footer-links{
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:6px 14px;
+    margin-top:8px;
+  }
+
+  .footer-links a{
+    color:var(--muted);
+    font-weight:700;
+    text-decoration:none;
+  }
+
+  .footer-links a:hover{
+    color:var(--teal);
+  }
+
+  /* =========================================================
+     RESPONSIVE
+  ========================================================= */
+
+  @media(max-width:700px){
+
+    body{
+      font-size:14px;
+    }
+
+    .page{
+      width:min(100% - 20px, 1080px);
+      padding:10px 0 28px;
+    }
+
+    .topbar{
+      padding:12px;
+      align-items:flex-start;
+    }
+
+    .brand-mark{
+      width:40px;
+      height:40px;
+      flex-basis:40px;
+    }
+
+    .top-actions{
+      width:auto;
+    }
+
+    .top-actions .btn{
+      min-height:38px;
+      padding:7px 10px;
+    }
+
+    .hero{
+      padding:22px 20px;
+    }
+
+    .hero h1{
+      font-size:1.5rem;
+    }
+
+    .legal-nav{
+      position:static;
+      overflow-x:auto;
+      justify-content:flex-start;
+    }
+
+    .legal-nav a{
+      flex:0 0 auto;
+      min-width:110px;
+    }
+
+    .notice{
+      grid-template-columns:1fr;
+    }
+
+    .document-head{
+      padding:20px;
+    }
+
+    .document-head-row{
+      flex-direction:column;
+    }
+
+    .version-box{
+      text-align:left;
+    }
+
+    .document-body{
+      padding:4px 20px 22px;
+    }
+
+    section.legal-section{
+      padding:20px 0;
+    }
+
+    .contact-grid{
+      grid-template-columns:1fr;
+    }
+  }
+
+  @media(max-width:460px){
+
+    .topbar{
+      flex-direction:column;
+    }
+
+    .top-actions{
+      width:100%;
+    }
+
+    .top-actions .btn{
+      flex:1;
+    }
+
+    .hero-meta span{
+      width:100%;
+    }
+
+    .document-title{
+      font-size:1.3rem;
+    }
+
+    .section-heading{
+      gap:9px;
+    }
+
+    .section-number{
+      width:27px;
+      height:27px;
+      flex-basis:27px;
+    }
+
+    .legal-section p,
+    .legal-section li{
+      font-size:13.5px;
+    }
+  }
+
+  /* =========================================================
+     PRINT / PDF
+  ========================================================= */
+
+  @page{
+    size:A4;
+    margin:15mm;
+  }
+
   @media print{
-    .no-print{display:none !important}
-    a[href]:after{content:""}
-    body{margin:0}
+
+    html{
+      scroll-behavior:auto;
+    }
+
+    body{
+      background:#fff !important;
+      color:#111 !important;
+      font-size:11pt;
+    }
+
+    .page{
+      width:100%;
+      max-width:none;
+      margin:0;
+      padding:0;
+    }
+
+    .no-print,
+    .legal-nav{
+      display:none !important;
+    }
+
+    .topbar{
+      padding:0 0 12px;
+      margin:0 0 14px;
+      border:0;
+      border-bottom:1px solid #ccc;
+      border-radius:0;
+      box-shadow:none;
+    }
+
+    .brand-mark{
+      box-shadow:none;
+    }
+
+    .hero{
+      padding:18px;
+      margin-bottom:14px;
+      background:#fff !important;
+      color:#111 !important;
+      border:1px solid #ccc;
+      box-shadow:none;
+    }
+
+    .hero h1{
+      color:#111 !important;
+    }
+
+    .hero p,
+    .hero-meta span,
+    .eyebrow{
+      color:#444 !important;
+    }
+
+    .eyebrow,
+    .hero-meta span{
+      background:#fff !important;
+      border-color:#ccc !important;
+    }
+
+    .hero-meta span{
+      display:none;
+    }
+
+    .document{
+      border:0;
+      box-shadow:none;
+      border-radius:0;
+    }
+
+    .document-head{
+      padding:0 0 12px;
+      background:#fff;
+    }
+
+    .document-body{
+      padding:0;
+    }
+
+    section.legal-section{
+      padding:15px 0;
+      break-inside:auto;
+    }
+
+    .callout,
+    .contact-card{
+      break-inside:avoid;
+    }
+
+    a{
+      color:#111 !important;
+      text-decoration:none !important;
+    }
+
+    footer{
+      border-top:1px solid #ccc;
+    }
+  }
+
+  /* Reduced motion */
+  @media(prefers-reduced-motion:reduce){
+    html{
+      scroll-behavior:auto;
+    }
+
+    *,
+    *::before,
+    *::after{
+      transition:none !important;
+    }
   }
 </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <header>
-      <div>
-        <h1>ChequeMatez — Terms of Service & Privacy Policy</h1>
-        <div class="muted">Last updated: <span id="lastUpdated">—</span></div>
+
+<div class="page">
+
+  <!-- =======================================================
+       TOP BRAND BAR
+  ======================================================== -->
+  <header class="topbar">
+
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">CM</div>
+
+      <div class="brand-copy">
+        <div class="brand-name">CHEQUE MATEZ</div>
+        <div class="brand-sub">Payments · Transfers · Financial Technology</div>
       </div>
-      <div class="controls no-print">
-        <nav>
-          <a href="#terms">Terms</a>
-          <a href="#privacy">Privacy</a>
-        </nav>
-        <button class="btn" onclick="window.print()">Print / Save PDF</button>
+    </div>
+
+    <div class="top-actions no-print">
+      <button
+        type="button"
+        class="btn"
+        id="printBtn"
+        aria-label="Print or save this legal document as PDF">
+        Print / Save PDF
+      </button>
+
+      <a class="btn primary" href="/login">
+        Sign in
+      </a>
+    </div>
+
+  </header>
+
+
+  <!-- =======================================================
+       HERO
+  ======================================================== -->
+  <section class="hero" aria-labelledby="pageTitle">
+
+    <div class="hero-inner">
+
+      <div class="eyebrow">
+        <span class="eyebrow-dot" aria-hidden="true"></span>
+        Legal &amp; Compliance
       </div>
-    </header>
 
-    <!-- Notice -->
-    <section>
-      <p class="pill">Plain-English summary</p>
-      <p class="muted" style="margin-top:6px">
-        This combined page is for convenience. These documents may change over time; we’ll post updates here
-        with a new “Last updated” date. If you use ChequeMatez after changes take effect, you agree to the updated terms.
-        This content is provided for general information and is not legal advice.
-      </p>
-    </section>
+      <h1 id="pageTitle">
+        Terms of Service &amp; Privacy Policy
+      </h1>
 
-    <!-- TERMS -->
-    <section id="terms" aria-labelledby="terms-title">
-      <h2 id="terms-title">Terms of Service</h2>
-
-      <h3>1) Agreement to Terms</h3>
       <p>
-        By creating an account or using ChequeMatez services (“Services”), you agree to these Terms of Service
-        (“Terms”) and any policies referenced here. If you do not agree, do not use the Services.
+        The legal framework governing your use of ChequeMatez services,
+        accounts, transactions, identity verification, and related
+        payment workflows.
       </p>
 
-      <h3>2) Who We Are</h3>
+      <div class="hero-meta">
+        <span>Customer Agreement</span>
+        <span>Privacy Notice</span>
+        <span>KYC / AML Controls</span>
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =======================================================
+       LEGAL NAVIGATION
+  ======================================================== -->
+  <nav class="legal-nav no-print" aria-label="Legal document navigation">
+    <a href="#terms" data-section-link="terms">
+      Terms of Service
+    </a>
+
+    <a href="#privacy" data-section-link="privacy">
+      Privacy Policy
+    </a>
+
+    <a href="#contact" data-section-link="contact">
+      Contact
+    </a>
+  </nav>
+
+
+  <!-- =======================================================
+       NOTICE
+  ======================================================== -->
+  <section class="notice">
+
+    <div class="notice-icon" aria-hidden="true">!</div>
+
+    <div>
+      <strong>Important legal notice</strong>
+
       <p>
-        ChequeMatez (“we”, “us”) provides a platform to facilitate exchange, payouts and related value transfer
-        workflows (e.g., mobile money such as M-Pesa, bank transfers, and phone-based transfers like WAMD).
-        We are not a bank. Some Services may be provided via third-party partners.
+        Please read these documents carefully before using ChequeMatez.
+        They describe your responsibilities, our operating controls,
+        transaction risks, data practices, and the circumstances in which
+        transactions or accounts may be restricted.
       </p>
+    </div>
 
-      <h3>3) Eligibility & Compliance</h3>
-      <ul>
-        <li>You must be at least the age of majority in your jurisdiction and capable of forming a binding contract.</li>
-        <li>You agree to comply with all applicable laws, including AML/CFT, KYC, and sanctions requirements.</li>
-        <li>We may require identity verification (KYC) and may suspend or terminate access if verification fails or risks are detected.</li>
-      </ul>
+  </section>
 
-      <h3>4) Accounts</h3>
-      <ul>
-        <li>You’re responsible for your account, credentials, and all activity under it.</li>
-        <li>Provide accurate information and keep it up to date.</li>
-        <li>We may restrict, suspend, or close accounts to manage risk or comply with law/policy.</li>
-      </ul>
 
-      <h3>5) Fees, Rates & Settlement</h3>
-      <ul>
-        <li>Fees and FX rates are shown in-app or at checkout; they may change at any time.</li>
-        <li>Settlement timelines depend on networks and partners; delays may occur outside our control.</li>
-        <li>Reversals, chargebacks, or compliance reviews can impact delivery or require additional documentation.</li>
-      </ul>
+  <!-- =======================================================
+       DOCUMENT
+  ======================================================== -->
+  <main class="document">
 
-      <h3>6) Acceptable Use</h3>
-      <ul>
-        <li>No unlawful, fraudulent, deceptive, or abusive activity.</li>
-        <li>No activity involving sanctioned persons, prohibited jurisdictions, or restricted industries.</li>
-        <li>We can block transactions, report to authorities/partners, or close accounts to mitigate risk.</li>
-      </ul>
+    <div class="document-head">
 
-      <h3>7) Third-Party Services</h3>
-      <p>
-        Some features rely on third parties (e.g., mobile money operators, banks). Their terms and privacy apply in
-        addition to ours. We are not responsible for their acts or omissions.
-      </p>
+      <div class="document-head-row">
 
-      <h3>8) Disclaimers</h3>
-      <p>
-        The Services are provided “as is” and “as available.” To the fullest extent permitted by law, we disclaim all
-        warranties, express or implied (including merchantability, fitness for a particular purpose, and non-infringement).
-      </p>
+        <div>
+          <div class="document-label">
+            ChequeMatez Legal Center
+          </div>
 
-      <h3>9) Limitation of Liability</h3>
-      <p>
-        To the fullest extent permitted by law, ChequeMatez and its affiliates will not be liable for any indirect,
-        incidental, special, consequential, or punitive damages, or any loss of profits, revenue, data, or use.
-        Our aggregate liability relating to the Services will not exceed the fees you paid to us in the 3 months
-        preceding the event giving rise to the claim.
-      </p>
+          <h2 class="document-title">
+            Terms &amp; Privacy
+          </h2>
 
-      <h3>10) Indemnity</h3>
-      <p>
-        You agree to indemnify and hold ChequeMatez harmless from claims, damages, losses, and expenses (including
-        reasonable legal fees) arising from your use of the Services, violation of these Terms, or violation of law.
-      </p>
+          <p class="document-description">
+            Customer-facing legal documentation for ChequeMatez Services.
+          </p>
+        </div>
 
-      <h3>11) Suspension & Termination</h3>
-      <p>
-        We may suspend or terminate access immediately for any reason, including suspected fraud, non-compliance,
-        operational risk, or legal requests. You may close your account at any time unless restricted by law or
-        an ongoing review.
-      </p>
+        <div class="version-box">
+          <span>Last Updated</span>
+          <strong id="lastUpdated">—</strong>
+        </div>
 
-      <h3>12) Changes to Terms</h3>
-      <p>
-        We may update these Terms from time to time. Changes take effect when posted unless otherwise stated.
-        Continued use after changes means you accept the updated Terms.
-      </p>
+      </div>
 
-      <h3>13) Governing Law & Disputes</h3>
-      <p>
-        These Terms are governed by the laws of our operating jurisdiction (to be specified in your local version).
-        Any disputes will be resolved in that jurisdiction’s courts, unless mandatory law says otherwise.
-      </p>
+    </div>
 
-      <h3>14) Contact</h3>
-      <p>
-        For questions about these Terms: <a href="mailto:support@chequematez.com">support@chequematez.com</a>
-      </p>
-    </section>
 
-    <!-- PRIVACY -->
-    <section id="privacy" aria-labelledby="privacy-title">
-      <h2 id="privacy-title">Privacy Policy</h2>
+    <div class="document-body">
 
-      <h3>1) Scope</h3>
-      <p>
-        This Privacy Policy explains how ChequeMatez collects, uses, shares, and safeguards your information
-        when you use the Services. If you do not agree, please do not use the Services.
-      </p>
+      <!-- ===================================================
+           TERMS
+      ==================================================== -->
+      <section
+        id="terms"
+        class="legal-section"
+        aria-labelledby="terms-title">
 
-      <h3>2) Data We Collect</h3>
-      <ul>
-        <li><strong>Account & KYC:</strong> name, contact details, ID/KYC data, selfies, address.</li>
-        <li><strong>Transaction Data:</strong> amounts, currencies, counterparties, timestamps, network references.</li>
-        <li><strong>Device/Usage:</strong> IP, device/browser metadata, logs, cookies or similar.</li>
-        <li><strong>Support:</strong> messages, attachments, call/chat recordings if applicable.</li>
-      </ul>
+        <div class="section-heading">
 
-      <h3>3) How We Use Data</h3>
-      <ul>
-        <li>Provide and secure the Services; process transactions; display balances and receipts.</li>
-        <li>Verify identity; meet AML/CFT, KYC, sanctions, and legal obligations.</li>
-        <li>Prevent fraud and manage risk; monitor performance and improve features.</li>
-        <li>Communicate about your account, changes, and support.</li>
-      </ul>
+          <div class="section-number">01</div>
 
-      <h3>4) Legal Bases</h3>
-      <p>
-        We rely on one or more legal bases (as applicable): performance of a contract; legitimate interests
-        (e.g., fraud prevention, service improvement); consent (where required); compliance with legal obligations.
-      </p>
+          <div>
+            <h2 id="terms-title">
+              Terms of Service
+            </h2>
+          </div>
 
-      <h3>5) Sharing & Transfers</h3>
-      <ul>
-        <li>With service providers/partners (e.g., KYC vendors, payment networks, banks) under appropriate safeguards.</li>
-        <li>With authorities where required by law or to protect rights, safety, and security.</li>
-        <li>In corporate transactions (e.g., merger), subject to continued protections.</li>
-        <li>International transfers may occur; we use suitable safeguards where required by law.</li>
-      </ul>
+        </div>
 
-      <h3>6) Retention</h3>
-      <p>
-        We keep data as long as necessary for the purposes described and to meet legal/regulatory requirements
-        (often 5–7+ years for financial/AML records, depending on jurisdiction).
-      </p>
 
-      <h3>7) Your Rights</h3>
-      <p>
-        Depending on your location, you may have rights to access, correct, delete, or restrict processing of your data,
-        and to object or port your data. To exercise rights, contact
-        <a href="mailto:privacy@chequematez.com">privacy@chequematez.com</a>. We may need to verify your identity.
-      </p>
+        <h3>1. Agreement to These Terms</h3>
 
-      <h3>8) Cookies</h3>
-      <p>
-        We use cookies or similar technologies for authentication, security, and analytics. You can control cookies in
-        your browser; some features may not work without them.
-      </p>
+        <p>
+          By creating an account, accessing, or using ChequeMatez
+          services (“Services”), you acknowledge that you have read,
+          understood, and agree to be bound by these Terms of Service
+          (“Terms”) and any policies referenced by them.
+        </p>
 
-      <h3>9) Security</h3>
-      <p>
-        We apply technical and organizational safeguards (e.g., TLS in transit, encryption at rest where supported, access
-        controls). No method is 100% secure; keep your credentials safe and report suspected issues promptly.
-      </p>
+        <p>
+          If you do not agree with these Terms, you must not access or
+          use the Services.
+        </p>
 
-      <h3>10) Children</h3>
-      <p>
-        The Services are not directed to children. Do not use the Services if you are below the age of majority.
-      </p>
 
-      <h3>11) Changes</h3>
-      <p>
-        We may update this Privacy Policy. We will post the updated version with a new “Last updated” date.
-      </p>
+        <h3>2. About ChequeMatez</h3>
 
-      <h3>12) Contact</h3>
-      <p>
-        Privacy questions: <a href="mailto:privacy@chequematez.com">privacy@chequematez.com</a>
-      </p>
-    </section>
+        <p>
+          ChequeMatez is a financial technology platform designed to
+          facilitate supported payment, exchange, payout, transfer,
+          reconciliation, and transaction-management workflows.
+        </p>
 
-    <footer>
-      © ChequeMatez — Legal · <a href="#terms">Terms</a> · <a href="#privacy">Privacy</a> · <span class="mono">TLS enabled</span>
-    </footer>
-  </div>
+        <p>
+          Depending on the service available to you, supported payment
+          channels may include mobile money, bank-related workflows,
+          and phone-based transfer methods such as WAMD.
+        </p>
+
+        <div class="callout warning">
+
+          <div class="callout-title">
+            Important
+          </div>
+
+          <p>
+            ChequeMatez is not a bank. Certain payment, settlement,
+            identity-verification, mobile-money, banking, or transfer
+            services may be provided or enabled through third-party
+            financial institutions, payment networks, technology
+            providers, or other regulated partners.
+          </p>
+
+        </div>
+
+
+        <h3>3. Eligibility</h3>
+
+        <ul>
+          <li>
+            You must be legally capable of entering into a binding
+            agreement in your jurisdiction.
+          </li>
+
+          <li>
+            You must provide information that is accurate, complete,
+            current, and not misleading.
+          </li>
+
+          <li>
+            You must comply with applicable laws and regulations
+            governing your use of the Services.
+          </li>
+
+          <li>
+            We may refuse, restrict, suspend, or terminate access where
+            eligibility, compliance, fraud, security, or operational
+            concerns arise.
+          </li>
+        </ul>
+
+
+        <h3>4. Account Registration &amp; Security</h3>
+
+        <ul>
+          <li>
+            You are responsible for protecting your password,
+            authentication information, and account access.
+          </li>
+
+          <li>
+            You must notify us promptly if you suspect unauthorized
+            access or activity.
+          </li>
+
+          <li>
+            You must not share your account credentials or permit
+            another person to operate your account without authorization.
+          </li>
+
+          <li>
+            We may apply additional authentication, verification,
+            transaction limits, or security checks where appropriate.
+          </li>
+        </ul>
+
+
+        <h3>5. Identity Verification &amp; KYC</h3>
+
+        <p>
+          ChequeMatez may require identity verification before allowing
+          certain features, transactions, withdrawals, payouts, or
+          account activities.
+        </p>
+
+        <p>
+          Verification may include government-issued identification,
+          identity information, contact information, photographs or
+          selfies, transaction information, and other information
+          reasonably required for compliance and risk management.
+        </p>
+
+        <p>
+          Providing information does not guarantee approval. We may
+          decline or delay verification where information cannot be
+          adequately verified or where additional review is required.
+        </p>
+
+
+        <h3>6. Transactions &amp; Settlement</h3>
+
+        <ul>
+          <li>
+            A transaction may be subject to validation, compliance,
+            fraud, liquidity, network, or operational checks before
+            completion.
+          </li>
+
+          <li>
+            A transaction reference or receipt does not necessarily mean
+            that final settlement has occurred unless the transaction
+            status expressly confirms completion.
+          </li>
+
+          <li>
+            Settlement times may depend on third-party networks,
+            financial institutions, mobile-money operators, transfer
+            partners, verification procedures, weekends, holidays, or
+            technical interruptions.
+          </li>
+
+          <li>
+            Transactions may be delayed, rejected, reversed, or placed
+            under review where permitted or required by applicable rules.
+          </li>
+        </ul>
+
+
+        <h3>7. Exchange Rates &amp; Fees</h3>
+
+        <ul>
+          <li>
+            Applicable exchange rates and service charges will be
+            displayed through the relevant ChequeMatez workflow where
+            available.
+          </li>
+
+          <li>
+            Rates may change based on market conditions, liquidity,
+            partner pricing, operating costs, or internal pricing
+            policies.
+          </li>
+
+          <li>
+            The applicable rate and charges for a transaction may differ
+            from rates displayed at another time.
+          </li>
+
+          <li>
+            Third-party network or partner charges may apply where
+            disclosed or permitted.
+          </li>
+        </ul>
+
+
+        <h3>8. Acceptable Use</h3>
+
+        <p>
+          You must not use ChequeMatez to facilitate or attempt to
+          facilitate:
+        </p>
+
+        <ul>
+          <li>fraudulent, deceptive, or unauthorized activity;</li>
+          <li>money laundering or terrorist financing;</li>
+          <li>sanctions evasion;</li>
+          <li>identity theft or impersonation;</li>
+          <li>transactions involving stolen or unlawfully obtained funds;</li>
+          <li>activity prohibited by applicable law or regulation; or</li>
+          <li>activity designed to circumvent transaction, KYC, AML, or security controls.</li>
+        </ul>
+
+
+        <h3>9. Transaction Monitoring &amp; Risk Controls</h3>
+
+        <p>
+          To protect customers, partners, and the platform, ChequeMatez
+          may monitor transactions and account activity for fraud,
+          financial crime, sanctions, security, operational, and
+          compliance risks.
+        </p>
+
+        <p>
+          Where appropriate, we may request additional information,
+          documentation, clarification, or verification before
+          processing or completing an activity.
+        </p>
+
+
+        <h3>10. Third-Party Services</h3>
+
+        <p>
+          Some Services depend on third-party providers, including
+          banks, mobile-money operators, payment networks,
+          telecommunications providers, identity-verification providers,
+          hosting providers, and other technology partners.
+        </p>
+
+        <p>
+          Third-party services may have their own terms, fees,
+          availability requirements, privacy policies, and operational
+          limitations. Their services may affect the timing or outcome
+          of a transaction.
+        </p>
+
+
+        <h3>11. Service Availability</h3>
+
+        <p>
+          We aim to provide reliable Services but do not guarantee that
+          the platform will always be uninterrupted, error-free,
+          continuously available, or compatible with every device,
+          network, browser, or third-party service.
+        </p>
+
+        <p>
+          Scheduled maintenance, technical failures, network outages,
+          security incidents, partner downtime, regulatory requirements,
+          and circumstances outside our reasonable control may affect
+          availability.
+        </p>
+
+
+        <h3>12. Reversals, Reviews &amp; Disputes</h3>
+
+        <p>
+          A transaction may be subject to investigation, reconciliation,
+          reversal, correction, or additional review where required by
+          applicable law, partner rules, payment-network requirements,
+          fraud controls, or operational procedures.
+        </p>
+
+        <p>
+          If you believe a transaction is incorrect or unauthorized,
+          contact ChequeMatez promptly using the official support
+          channels.
+        </p>
+
+
+        <h3>13. Suspension &amp; Termination</h3>
+
+        <p>
+          We may suspend, restrict, or terminate an account or
+          transaction where reasonably necessary to address security,
+          fraud, compliance, legal, operational, or risk concerns.
+        </p>
+
+        <p>
+          Where permitted, we may provide notice. However, notice may
+          not be possible where doing so could compromise an
+          investigation, security control, legal obligation, or
+          regulatory requirement.
+        </p>
+
+
+        <h3>14. Disclaimers</h3>
+
+        <p>
+          To the maximum extent permitted by applicable law, the
+          Services are provided on an “as available” and “as is” basis.
+          We do not guarantee uninterrupted availability, absolute
+          security, or that every transaction will be completed within
+          a particular period.
+        </p>
+
+
+        <h3>15. Limitation of Liability</h3>
+
+        <p>
+          To the maximum extent permitted by applicable law, ChequeMatez
+          and its applicable affiliates, officers, employees, and
+          service providers will not be liable for indirect,
+          incidental, special, consequential, or punitive losses arising
+          from use of the Services.
+        </p>
+
+        <p>
+          Nothing in these Terms excludes or limits liability that
+          cannot lawfully be excluded or limited under applicable law.
+        </p>
+
+
+        <h3>16. Indemnity</h3>
+
+        <p>
+          To the extent permitted by applicable law, you agree to
+          indemnify ChequeMatez against reasonable claims, losses,
+          liabilities, and expenses arising from your unlawful use of
+          the Services, violation of these Terms, fraud, misuse of your
+          account, or violation of another person's rights.
+        </p>
+
+
+        <h3>17. Changes to These Terms</h3>
+
+        <p>
+          We may update these Terms periodically to reflect changes in
+          our Services, technology, partners, legal requirements, or
+          operating practices.
+        </p>
+
+        <p>
+          The updated version will be published through the applicable
+          ChequeMatez channel together with a revised “Last Updated”
+          date. Continued use of the Services after an effective update
+          constitutes acceptance where permitted by law.
+        </p>
+
+
+        <h3>18. Governing Law &amp; Disputes</h3>
+
+        <div class="callout warning">
+
+          <div class="callout-title">
+            Configuration required before production
+          </div>
+
+          <p>
+            The governing law, regulatory entity, licensed operating
+            entity, and dispute-resolution jurisdiction should be
+            finalized by ChequeMatez's legal counsel before this document
+            is treated as the final production legal agreement.
+          </p>
+
+        </div>
+
+        <p>
+          Nothing in this page is intended to replace legal advice or
+          establish a jurisdiction that has not been formally selected
+          by the operating entity.
+        </p>
+
+      </section>
+
+
+      <!-- ===================================================
+           PRIVACY
+      ==================================================== -->
+      <section
+        id="privacy"
+        class="legal-section"
+        aria-labelledby="privacy-title">
+
+        <div class="section-heading">
+
+          <div class="section-number">02</div>
+
+          <div>
+            <h2 id="privacy-title">
+              Privacy Policy
+            </h2>
+          </div>
+
+        </div>
+
+
+        <h3>1. Scope</h3>
+
+        <p>
+          This Privacy Policy explains how ChequeMatez may collect,
+          use, store, disclose, and protect information associated with
+          your use of the Services.
+        </p>
+
+
+        <h3>2. Information We May Collect</h3>
+
+        <ul>
+          <li>
+            <strong>Account information:</strong>
+            name, username, email address, phone number, and account
+            credentials.
+          </li>
+
+          <li>
+            <strong>Identity and KYC information:</strong>
+            identification documents, identification numbers, selfies,
+            verification information, and information required to
+            establish or verify identity.
+          </li>
+
+          <li>
+            <strong>Transaction information:</strong>
+            transaction amounts, currencies, references, timestamps,
+            payment methods, counterparties, destination information,
+            and transaction status.
+          </li>
+
+          <li>
+            <strong>Technical information:</strong>
+            IP address, browser type, device information, operating
+            system, security logs, and related technical identifiers.
+          </li>
+
+          <li>
+            <strong>Support information:</strong>
+            messages, requests, attachments, and other information you
+            provide when contacting support.
+          </li>
+        </ul>
+
+
+        <h3>3. How We Use Information</h3>
+
+        <ul>
+          <li>create and administer customer accounts;</li>
+          <li>process and reconcile transactions;</li>
+          <li>provide receipts, transaction records, and account information;</li>
+          <li>perform KYC, AML, sanctions, fraud, and risk checks;</li>
+          <li>secure our platform and investigate suspicious activity;</li>
+          <li>communicate with customers regarding their accounts or transactions;</li>
+          <li>maintain operational and financial records;</li>
+          <li>improve reliability, security, and functionality; and</li>
+          <li>comply with legal, regulatory, and contractual obligations.</li>
+        </ul>
+
+
+        <h3>4. Legal Basis for Processing</h3>
+
+        <p>
+          Depending on the applicable jurisdiction and circumstances,
+          information may be processed because it is necessary to
+          perform a contract, comply with a legal obligation, protect
+          legitimate interests, prevent fraud and abuse, or because
+          you have provided consent where consent is required.
+        </p>
+
+
+        <h3>5. KYC, AML &amp; Compliance Information</h3>
+
+        <p>
+          Financial services may require enhanced identity and
+          transaction information to meet legal and risk-management
+          requirements.
+        </p>
+
+        <p>
+          KYC and transaction information may therefore be retained for
+          longer periods than ordinary account information where
+          required by applicable financial, tax, AML/CFT, sanctions,
+          accounting, or regulatory requirements.
+        </p>
+
+
+        <h3>6. Sharing Information</h3>
+
+        <p>
+          We may disclose relevant information to trusted third parties
+          where reasonably necessary to provide the Services, protect
+          customers, manage risk, or comply with law.
+        </p>
+
+        <ul>
+          <li>banks and financial institutions;</li>
+          <li>mobile-money and payment-network operators;</li>
+          <li>identity-verification and KYC providers;</li>
+          <li>technology and infrastructure providers;</li>
+          <li>fraud, security, and compliance service providers;</li>
+          <li>professional advisers where appropriate; and</li>
+          <li>government, law-enforcement, regulatory, or judicial authorities where legally required.</li>
+        </ul>
+
+
+        <h3>7. International Data Transfers</h3>
+
+        <p>
+          Some service providers or partners may process information
+          outside the country in which you are located.
+        </p>
+
+        <p>
+          Where applicable law requires safeguards for international
+          transfers, we aim to use appropriate contractual,
+          organizational, or technical protections.
+        </p>
+
+
+        <h3>8. Data Retention</h3>
+
+        <p>
+          We retain information only for as long as reasonably
+          necessary for the purposes described in this Privacy Policy,
+          unless a longer period is required or permitted by applicable
+          law.
+        </p>
+
+        <p>
+          Financial, transaction, tax, KYC, AML/CFT, and compliance
+          records may be retained for statutory or regulatory periods.
+          The applicable period may vary depending on the jurisdiction,
+          service, and nature of the record.
+        </p>
+
+
+        <h3>9. Data Security</h3>
+
+        <div class="callout security">
+
+          <div class="callout-title">
+            Security commitment
+          </div>
+
+          <p>
+            We use reasonable technical and organizational safeguards
+            appropriate to the nature of the information we process.
+            These may include encrypted communications, access
+            controls, authentication controls, logging, monitoring,
+            and other security measures.
+          </p>
+
+        </div>
+
+        <p>
+          No internet-connected system can be guaranteed to be
+          completely secure. You are responsible for maintaining the
+          confidentiality of your account credentials and reporting
+          suspected unauthorized activity promptly.
+        </p>
+
+
+        <h3>10. Cookies &amp; Similar Technologies</h3>
+
+        <p>
+          ChequeMatez may use cookies or similar technologies where
+          necessary for authentication, session management, security,
+          preferences, analytics, or service functionality.
+        </p>
+
+        <p>
+          Disabling certain technologies may affect the functionality
+          or security of some features.
+        </p>
+
+
+        <h3>11. Your Privacy Rights</h3>
+
+        <p>
+          Depending on applicable law, you may have rights relating to
+          your personal information, including rights to request access,
+          correction, deletion, restriction, objection, or portability.
+        </p>
+
+        <p>
+          Some requests may be subject to legal, regulatory, security,
+          or record-retention requirements. We may also need to verify
+          your identity before responding to a request.
+        </p>
+
+
+        <h3>12. Children's Privacy</h3>
+
+        <p>
+          ChequeMatez Services are not intended for individuals who are
+          below the applicable legal age required to use the Services.
+          We do not knowingly permit accounts to be created in violation
+          of applicable age requirements.
+        </p>
+
+
+        <h3>13. Privacy Policy Changes</h3>
+
+        <p>
+          We may update this Privacy Policy when our Services,
+          technology, legal obligations, partners, or data practices
+          change.
+        </p>
+
+        <p>
+          The current version will be published through the applicable
+          ChequeMatez channel and identified by its “Last Updated” date.
+        </p>
+
+      </section>
+
+
+      <!-- ===================================================
+           CONTACT
+      ==================================================== -->
+      <section
+        id="contact"
+        class="legal-section"
+        aria-labelledby="contact-title">
+
+        <div class="section-heading">
+
+          <div class="section-number">03</div>
+
+          <div>
+            <h2 id="contact-title">
+              Legal &amp; Privacy Contact
+            </h2>
+          </div>
+
+        </div>
+
+        <p>
+          For questions concerning these Terms, Privacy Policy,
+          transactions, account security, or personal-information
+          requests, use the official ChequeMatez support channels.
+        </p>
+
+        <div class="contact-grid">
+
+          <div class="contact-card">
+            <div class="contact-label">
+              General Support
+            </div>
+
+            <a
+              class="contact-value"
+              href="mailto:support@chequematez.com">
+              support@chequematez.com
+            </a>
+          </div>
+
+
+          <div class="contact-card">
+            <div class="contact-label">
+              Privacy
+            </div>
+
+            <a
+              class="contact-value"
+              href="mailto:privacy@chequematez.com">
+              privacy@chequematez.com
+            </a>
+          </div>
+
+        </div>
+
+        <div class="callout" style="margin-top:14px">
+
+          <div class="callout-title">
+            Official communication
+          </div>
+
+          <p>
+            Never send passwords, authentication codes, or other
+            sensitive security credentials through an unofficial
+            communication channel claiming to represent ChequeMatez.
+          </p>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <!-- =======================================================
+       FOOTER
+  ======================================================== -->
+  <footer>
+
+    <div>
+      <span class="footer-brand">ChequeMatez</span>
+      · Legal &amp; Compliance
+    </div>
+
+    <div class="footer-links">
+      <a href="#terms">Terms</a>
+      <a href="#privacy">Privacy</a>
+      <a href="mailto:support@chequematez.com">Support</a>
+      <a href="mailto:privacy@chequematez.com">Privacy Contact</a>
+    </div>
+
+    <div style="margin-top:8px">
+      © <span id="currentYear"></span> ChequeMatez. All rights reserved.
+    </div>
+
+  </footer>
+
+</div>
+
 
 <script>
-  // Stamp today as default "Last updated" (replace with server-rendered date if you prefer)
-  (function(){
-    const el = document.getElementById('lastUpdated');
+(function(){
+
+  "use strict";
+
+  /* =========================================================
+     PRINT
+  ========================================================= */
+
+  const printBtn = document.getElementById("printBtn");
+
+  if(printBtn){
+    printBtn.addEventListener("click", function(){
+      window.print();
+    });
+  }
+
+
+  /* =========================================================
+     LAST UPDATED
+     Prefer a server-rendered date in production.
+     This fallback prevents a blank value.
+  ========================================================= */
+
+  const lastUpdated = document.getElementById("lastUpdated");
+
+  if(lastUpdated){
+
+    /*
+      If you later pass a Jinja variable such as:
+
+      {{ legal_last_updated }}
+
+      replace this fallback with the server value.
+    */
+
     try{
-      const d = new Date();
-      const nice = d.toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
-      el.textContent = nice;
-    }catch(_){ el.textContent = '—'; }
-  })();
+
+      const now = new Date();
+
+      lastUpdated.textContent =
+        now.toLocaleDateString(undefined, {
+          year:"numeric",
+          month:"long",
+          day:"numeric"
+        });
+
+    }catch(error){
+
+      lastUpdated.textContent = "—";
+
+    }
+
+  }
+
+
+  /* =========================================================
+     CURRENT YEAR
+  ========================================================= */
+
+  const currentYear = document.getElementById("currentYear");
+
+  if(currentYear){
+    currentYear.textContent = String(new Date().getFullYear());
+  }
+
+
+  /* =========================================================
+     ACTIVE LEGAL NAVIGATION
+  ========================================================= */
+
+  const links =
+    Array.from(
+      document.querySelectorAll("[data-section-link]")
+    );
+
+  const sections =
+    Array.from(
+      document.querySelectorAll(".legal-section")
+    );
+
+  if(
+    "IntersectionObserver" in window &&
+    links.length &&
+    sections.length
+  ){
+
+    const observer =
+      new IntersectionObserver(
+        function(entries){
+
+          entries.forEach(function(entry){
+
+            if(!entry.isIntersecting){
+              return;
+            }
+
+            links.forEach(function(link){
+
+              const target =
+                link.getAttribute("data-section-link");
+
+              link.classList.toggle(
+                "active",
+                target === entry.target.id
+              );
+
+            });
+
+          });
+
+        },
+        {
+          rootMargin:"-90px 0px -60% 0px",
+          threshold:0
+        }
+      );
+
+    sections.forEach(function(section){
+      observer.observe(section);
+    });
+
+  }
+
+
+})();
 </script>
+
 </body>
 </html>
